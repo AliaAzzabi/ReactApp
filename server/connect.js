@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
 
-const uriAtlas =
-"mongodb+srv://Alya:Alya123@clustergestioncabinet.t19manr.mongodb.net/?retryWrites=true&w=majority&appName=ClusterGestionCabinet"
+const uriAtlas = "mongodb+srv://Alya:Alya123@clustergestioncabinet.t19manr.mongodb.net/?retryWrites=true&w=majority&appName=ClusterGestionCabinet";
 
-const connectToDatabase = async () => {
+const connect = async () => {
     try {
         await mongoose.connect(uriAtlas);
         console.log("Connexion à la base de données réussie");
@@ -14,4 +13,4 @@ const connectToDatabase = async () => {
     }
 };
 
-module.exports = connectToDatabase;
+module.exports = connect;
