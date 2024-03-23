@@ -17,5 +17,5 @@ connectToDatabase()
     })
     .catch(error => {
         console.error("Erreur lors de la connexion à la base de données:", error);
-        // Gérer l'erreur de connexion à la base de données
+      
     });
