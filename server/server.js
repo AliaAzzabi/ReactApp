@@ -4,6 +4,7 @@ const port = 4000
 app.get('/', (req, res) => {
 res.send('Hello server ...');
 });
+connectToDatabase();
 app.listen(port, () => {
 console.log(`Server is running on port ${port}`)
 })
