@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import './style.css'; 
+import login from './login.png';
+import homeright from './home-right.png';
 
 
-function App() {
+function Login() {
   const [isSignUpMode, setIsSignUpMode] = useState(false);
 
   const handleSignUpClick = () => {
@@ -51,7 +53,7 @@ function App() {
               Sign up
             </button>
           </div>
-          <img src="/login.png" className="image" alt="" />
+          <img src={login} className="image" alt="" />
 
 
         </div>
@@ -66,7 +68,7 @@ function App() {
               Sign in
             </button>
           </div>
-          <img src="/home-right.png" className="image" alt="" />
+          <img src={homeright} className="image" alt="" />
 
 
         </div>
@@ -75,4 +77,4 @@ function App() {
   );
 }
 
-export default App;
+export default Login;
