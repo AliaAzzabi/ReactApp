@@ -53,6 +53,7 @@ function App() {
           </div>
           <img src="/login.png" className="image" alt="" />
 
+
         </div>
         <div className="panel right-panel">
           <div className="content">
@@ -66,6 +67,7 @@ function App() {
             </button>
           </div>
           <img src="/home-right.png" className="image" alt="" />
+
 
         </div>
       </div>
