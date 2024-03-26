@@ -1,8 +1,8 @@
+// Login.js
 import React, { useState } from 'react';
 import './style.css'; 
 import login from './login.png';
 import homeright from './home-right.png';
-
 
 function Login() {
   const [isSignUpMode, setIsSignUpMode] = useState(false);
@@ -13,6 +13,10 @@ function Login() {
 
   const handleSignInClick = () => {
     setIsSignUpMode(false);
+  };
+
+  const handleModeToggle = () => {
+    setIsSignUpMode(prevMode => !prevMode);
   };
 
   return (
@@ -49,13 +53,11 @@ function Login() {
               Lorem ipsum, dolor sit amet consectetur adipisicing elit. Debitis,
               ex ratione. Aliquid!
             </p>
-            <button className="btn transparent" onClick={handleSignUpClick}>
+            <button id="sign-up-btn" className="btn transparent" onClick={handleSignUpClick}>
               Sign up
             </button>
           </div>
           <img src={login} className="image" alt="" />
-
-
         </div>
         <div className="panel right-panel">
           <div className="content">
@@ -64,13 +66,11 @@ function Login() {
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum
               laboriosam ad deleniti.
             </p>
-            <button className="btn transparent" onClick={handleSignInClick}>
+            <button id="sign-in-btn" className="btn transparent" onClick={handleSignInClick}>
               Sign in
             </button>
           </div>
           <img src={homeright} className="image" alt="" />
-
-
         </div>
       </div>
     </div>
