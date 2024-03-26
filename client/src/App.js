@@ -37,9 +37,9 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
+          {isLoggedIn && <Topbar setIsSidebar={setIsSidebar} />} {/* Afficher le Topbar uniquement si l'utilisateur est connecté */}
           {isLoggedIn && <Sidebar isSidebar={isSidebar} />} {/* Afficher la barre latérale uniquement si l'utilisateur est connecté */}
           <main className="content">
-            <Topbar setIsSidebar={setIsSidebar} />
             <Routes>
               {!isLoggedIn && <Route path="/login" element={<Login onLogin={handleLogin} />} />} {/* Afficher la page de connexion uniquement si l'utilisateur n'est pas connecté */}
               {isLoggedIn && <Route path="/" element={<Dashboard />} />} {/* Afficher le tableau de bord si l'utilisateur est connecté */}
