@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import Topbar from "./scenes/global/Topbar";
-import Sidebar from "./scenes/global/Sidebar";
-import Dashboard from "./scenes/dashboard";
-import Team from "./scenes/team";
-import Invoices from "./scenes/invoices";
-import Contacts from "./scenes/contacts";
-import Bar from "./scenes/bar";
-import Form from "./scenes/form";
-import Line from "./scenes/line";
-import Pie from "./scenes/pie";
-import FAQ from "./scenes/faq";
-import Geography from "./scenes/geography";
+
+import Sidebar from "../src/chefmedcin/scenes/global/Sidebar"
+import Topbar from "../src/chefmedcin/scenes/global/Topbar";
+import Dashboard from "../src/chefmedcin/scenes/dashboard";
+import Team from "../src/chefmedcin/scenes/team";
+import Invoices from "../src/chefmedcin/scenes/invoices";
+import Contacts from "../src/chefmedcin/scenes/contacts";
+import Bar from "../src/chefmedcin/scenes/bar";
+import Form from "../src/chefmedcin/scenes/form";
+import Line from "../src/chefmedcin/scenes/line";
+import Pie from "../src/chefmedcin/scenes/pie";
+import FAQ from "../src/chefmedcin/scenes/faq";
+import Geography from "../src/chefmedcin/scenes/geography";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { ColorModeContext, useMode } from "./theme";
-import Calendar from "./scenes/calendar/calendar";
+import { ColorModeContext, useMode } from "./chefmedcin/theme";
+import Calendar from "../src/chefmedcin/scenes/calendar/calendar";
 import Login from "./login/login";
 
 
