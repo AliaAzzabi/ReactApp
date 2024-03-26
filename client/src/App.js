@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
@@ -17,32 +17,27 @@ import { ColorModeContext, useMode } from "./theme";
 import Calendar from "./scenes/calendar/calendar";
 import Login from "./login/login";
 
+
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Etat de connexion
-
-  // Fonction de connexion réussie
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
-
-  // Fonction de déconnexion
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
+  const location = useLocation();
+  // Exclure le Sidebar et Topbar sur les pages de connexion et d'inscription
+  const excludeSidebarTopbarPaths = ["/login"];
+  const shouldDisplaySidebarTopbar = !excludeSidebarTopbarPaths.includes(location.pathname);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+
         <div className="app">
-          {isLoggedIn && <Topbar setIsSidebar={setIsSidebar} />} {/* Afficher le Topbar uniquement si l'utilisateur est connecté */}
-          {isLoggedIn && <Sidebar isSidebar={isSidebar} />} {/* Afficher la barre latérale uniquement si l'utilisateur est connecté */}
+          {/* Afficher le Sidebar et Topbar en fonction de la condition */}
+          {shouldDisplaySidebarTopbar && <Sidebar isSidebar={isSidebar} />}
           <main className="content">
+            {shouldDisplaySidebarTopbar && <Topbar setIsSidebar={setIsSidebar} />}
             <Routes>
-              {!isLoggedIn && <Route path="/login" element={<Login onLogin={handleLogin} />} />} {/* Afficher la page de connexion uniquement si l'utilisateur n'est pas connecté */}
-              {isLoggedIn && <Route path="/" element={<Dashboard />} />} {/* Afficher le tableau de bord si l'utilisateur est connecté */}
+              <Route path="/" element={<Dashboard />} />
               <Route path="/team" element={<Team />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/invoices" element={<Invoices />} />
@@ -53,6 +48,8 @@ function App() {
               <Route path="/faq" element={<FAQ />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/geography" element={<Geography />} />
+              <Route path="/login" element={<Login />} />
+             
             </Routes>
           </main>
         </div>
