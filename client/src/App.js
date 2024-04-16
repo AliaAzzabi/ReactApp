@@ -4,19 +4,30 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import Sidebar from "../src/chefmedcin/scenes/global/Sidebar"
 import Topbar from "../src/chefmedcin/scenes/global/Topbar";
 import Dashboard from "../src/chefmedcin/scenes/dashboard";
-import Team from "../src/chefmedcin/scenes/team";
-import Invoices from "../src/chefmedcin/scenes/invoices";
-import Contacts from "../src/chefmedcin/scenes/contacts";
-import Bar from "../src/chefmedcin/scenes/bar";
-import Form from "../src/chefmedcin/scenes/form";
-import Line from "../src/chefmedcin/scenes/line";
-import Pie from "../src/chefmedcin/scenes/pie";
-import FAQ from "../src/chefmedcin/scenes/faq";
-import Geography from "../src/chefmedcin/scenes/geography";
+import DoctorList from "./chefmedcin/scenes/medecin";
+import AssitantList from "./chefmedcin/scenes/aide";
+import DepartList from "./chefmedcin/scenes/departement";
+import Adddepart from "./chefmedcin/scenes/departement/adddepartement";
+import AddAide from "./chefmedcin/scenes/aide/addaide";
+import AddDoctor from "./chefmedcin/scenes/medecin/adddoctor";
+import Addsp from "./chefmedcin/scenes/spécialité/addspecialite";
+import SpecialiteList from "./chefmedcin/scenes/spécialité";
+import ModifMed from "./chefmedcin/scenes/medecin/modifmedcin";
+import ModifAide from "./chefmedcin/scenes/aide/modifaide";
+import ModifDepart from "./chefmedcin/scenes/departement/modifDepart";
+import ModifSpecialiti from "./chefmedcin/scenes/spécialité/modifSp";
+import PatientList from "./chefmedcin/scenes/patient";
+import AddPatient from "./chefmedcin/scenes/patient/addpatient";
+import ModifPayement from "./chefmedcin/scenes/payement/modifpayement";
+import PayementList from "./chefmedcin/scenes/payement";
+import AddPayement from "./chefmedcin/scenes/payement/addpayement";
+import ModifPatient from "./chefmedcin/scenes/patient/modifpatient";
+import Facture from "./chefmedcin/scenes/payement/facture";
+
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./chefmedcin/theme";
-import Calendar from "../src/chefmedcin/scenes/calendar/calendar";
-import Login from "./login/login";
+
+
 
 
 function App() {
@@ -39,17 +50,31 @@ function App() {
             {shouldDisplaySidebarTopbar && <Topbar setIsSidebar={setIsSidebar} />}
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/team" element={<Team />} />
-              <Route path="/contacts" element={<Contacts />} />
-              <Route path="/invoices" element={<Invoices />} />
-              <Route path="/form" element={<Form />} />
-              <Route path="/bar" element={<Bar />} />
-              <Route path="/pie" element={<Pie />} />
-              <Route path="/line" element={<Line />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/geography" element={<Geography />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/doctorList" element={<DoctorList/>}/>
+              <Route path="/adddoctor" element={<AddDoctor/>}/>
+              <Route path="/assitantList" element={<AssitantList/>}/>
+              <Route path="/addAssistant" element={<AddAide/>}/>
+              <Route path="/departList" element={<DepartList/>}/>
+              <Route path="/adddepart" element={<Adddepart/>}/>
+              <Route path="/specialityList" element={<SpecialiteList/>}/>
+              <Route path="/addSpeciality" element={<Addsp/>}/>
+              <Route path="/modifMedecin" element={<ModifMed/>}/>
+              <Route path="/modifAide" element={<ModifAide/>}/>
+              <Route path="/modifDepart" element={<ModifDepart/>}/>
+              <Route path="/modifSpecialiti" element={<ModifSpecialiti/>}/>
+            
+              <Route path="/patientList" element={<PatientList/>}/>
+              <Route path="/addPatient" element={<AddPatient/>}/>
+              <Route path="/modifPayement" element={<ModifPayement/>}/>
+              <Route path="/facture" element={<Facture/>}/>
+
+              <Route path="/payementList" element={<PayementList/>}/>
+              <Route path="/addPayement" element={<AddPayement/>}/>
+              <Route path="/modifPatient" element={<modifPatient/>}/>
+              
+              
+                          
+           
              
             </Routes>
           </main>

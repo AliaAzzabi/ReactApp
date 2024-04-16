@@ -1,39 +1,18 @@
 import { useState } from "react";
-import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
+import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
-import { Link } from "react-router-dom";
+
 import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
-import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
+import PersonIcon from '@mui/icons-material/Person';
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
+import MailIcon from "@mui/icons-material/Mail";
+import { NavLink } from "react-router-dom";
 
-const Item = ({ title, to, icon, selected, setSelected }) => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  return (
-    <MenuItem
-      active={selected === title}
-      style={{
-        color: colors.grey[100],
-      }}
-      onClick={() => setSelected(title)}
-      icon={icon}
-    >
-      <Typography>{title}</Typography>
-      <Link to={to} />
-    </MenuItem>
-  );
-};
 
 const Sidebar = () => {
   const theme = useTheme();
@@ -63,7 +42,6 @@ const Sidebar = () => {
     >
       <ProSidebar collapsed={isCollapsed}>
         <Menu iconShape="square">
-          {/* LOGO AND MENU ICON */}
           <MenuItem
             onClick={() => setIsCollapsed(!isCollapsed)}
             icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
@@ -80,7 +58,7 @@ const Sidebar = () => {
                 ml="15px"
               >
                 <Typography variant="h3" color={colors.grey[100]}>
-                  ADMINIS
+                  ADMINISTRATION
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -110,114 +88,133 @@ const Sidebar = () => {
                   Ed Roh
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
-                  VP Fancy Admin
+                  VP Administration Fantaisie
                 </Typography>
               </Box>
             </Box>
           )}
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-            <Item
-              title="Dashboard"
-              to="/"
+            <MenuItem
+              title="Tableau de bord"
               icon={<HomeOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
-
+            >
+              <NavLink to="/" className="nav-link">
+                Tableau de bord
+              </NavLink>
+            </MenuItem>
             <Typography
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Data
+             Gestion du personnel
             </Typography>
-            <Item
-              title="Manage Team"
-              to="/team"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Contacts Information"
-              to="/contacts"
-              icon={<ContactsOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Invoices Balances"
-              to="/invoices"
-              icon={<ReceiptOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
 
+            <SubMenu title="Médecins" icon={<PersonIcon />}>
+              <MenuItem>
+                <NavLink to="/doctorList" className="nav-link">
+                  Liste des médecins
+                </NavLink>
+              </MenuItem>
+              <MenuItem>
+                <NavLink to="/adddoctor" className="nav-link">
+                  Ajouter un médecin
+                </NavLink>
+              </MenuItem>
+            </SubMenu>
+
+            <SubMenu title="Assistants" icon={<PeopleOutlinedIcon />}>
+              <MenuItem>
+                <NavLink to="/assitantList" className="nav-link">
+                  Liste des assistants
+                </NavLink>
+              </MenuItem>
+              <MenuItem>
+                <NavLink to="/addAssistant" className="nav-link">
+                  Ajouter un assistant
+                </NavLink>
+              </MenuItem>
+            </SubMenu>
+            <SubMenu title="Patients" icon={<PeopleOutlinedIcon />}>
+              <MenuItem>
+                <NavLink to="/patientList" className="nav-link">
+                  Liste des patients
+                </NavLink>
+              </MenuItem>
+              <MenuItem>
+                <NavLink to="/addPatient" className="nav-link">
+                  Ajouter un patient
+                </NavLink>
+              </MenuItem>
+            </SubMenu>
             <Typography
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Pages
+              Gestion globale
             </Typography>
-            <Item
-              title="Profile Form"
-              to="/form"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Calendar"
-              to="/calendar"
-              icon={<CalendarTodayOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="FAQ Page"
-              to="/faq"
-              icon={<HelpOutlineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+            <SubMenu title="Départements" icon={<LocalFireDepartmentIcon  />}>
+              <MenuItem>
+                <NavLink to="/departList" className="nav-link">
+                 Liste des départements
+                </NavLink>
+              </MenuItem>
+              <MenuItem>
+                <NavLink to="/adddepart" className="nav-link">
+                 Ajouter un département
+                </NavLink>
+              </MenuItem>
+            </SubMenu>
+            <SubMenu title="Spécialités" icon={<StarHalfIcon />}>
+              <MenuItem>
+                <NavLink to="/specialityList" className="nav-link">
+                   Liste des spécialités
+                </NavLink>
+              </MenuItem>
+              <MenuItem>
+                <NavLink to="/addSpeciality" className="nav-link">
+                  Ajouter une spécialité
+                </NavLink>
+              </MenuItem>
+            </SubMenu>
 
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Charts
-            </Typography>
-            <Item
-              title="Bar Chart"
-              to="/bar"
-              icon={<BarChartOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Pie Chart"
-              to="/pie"
-              icon={<PieChartOutlineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Line Chart"
-              to="/line"
-              icon={<TimelineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Geography Chart"
-              to="/geography"
-              icon={<MapOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+            <SubMenu title="Payement" icon={<StarHalfIcon />}>
+              <MenuItem>
+                <NavLink to="/payementList" className="nav-link">
+                   Liste des payements
+                </NavLink>
+              </MenuItem>
+              <MenuItem>
+                <NavLink to="/addPayement" className="nav-link">
+                  Ajouter une Facture
+                </NavLink>
+              </MenuItem>
+             
+            </SubMenu>
+            
+
+            <SubMenu title="Email" icon={<MailIcon />}>
+              <MenuItem>
+                <NavLink to="" className="nav-link">
+                  Boîte de réception
+                </NavLink>
+              </MenuItem>
+              <MenuItem>
+                <NavLink to="" className="nav-link">
+                  Voir les emails
+                </NavLink>
+              </MenuItem>
+              <MenuItem>
+                <NavLink to="" className="nav-link">
+                  Composer un email
+                </NavLink>
+              </MenuItem>
+            </SubMenu>
+
           </Box>
         </Menu>
       </ProSidebar>
