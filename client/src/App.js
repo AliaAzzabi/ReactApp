@@ -18,10 +18,10 @@ import ModifDepart from "./chefmedcin/scenes/departement/modifDepart";
 import ModifSpecialiti from "./chefmedcin/scenes/spécialité/modifSp";
 import PatientList from "./chefmedcin/scenes/patient";
 import AddPatient from "./chefmedcin/scenes/patient/addpatient";
-import ModifPayement from "./chefmedcin/scenes/payement/modifpayement";
+
 import PayementList from "./chefmedcin/scenes/payement";
 import AddPayement from "./chefmedcin/scenes/payement/addpayement";
-import ModifPatient from "./chefmedcin/scenes/patient/modifpatient";
+
 import Facture from "./chefmedcin/scenes/payement/facture";
 
 import { CssBaseline, ThemeProvider } from "@mui/material";
@@ -65,12 +65,12 @@ function App() {
             
               <Route path="/patientList" element={<PatientList/>}/>
               <Route path="/addPatient" element={<AddPatient/>}/>
-              <Route path="/modifPayement" element={<ModifPayement/>}/>
+           
               <Route path="/facture" element={<Facture/>}/>
 
               <Route path="/payementList" element={<PayementList/>}/>
               <Route path="/addPayement" element={<AddPayement/>}/>
-              <Route path="/modifPatient" element={<modifPatient/>}/>
+             
               
               
                           

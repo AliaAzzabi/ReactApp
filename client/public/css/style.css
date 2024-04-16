@@ -8312,7 +8312,7 @@ h1, h2, h3, h4, h5,
   .checkbox-primary input:checked ~ .checkmark:after {
     color: #40bfc1; }
 
-    @charset "UTF-8";
+    
 /*
  *  Document   : theme_style.css
  *  Author     : RedStar Theme

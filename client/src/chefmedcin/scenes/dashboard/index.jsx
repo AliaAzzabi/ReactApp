@@ -9,31 +9,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUsers, faCut, faMoneyCheckAlt } from '@fortawesome/free-solid-svg-icons';
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import { mockTransactions } from "../../data/mockData";
+import Header from "../../components/Header";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   return (
+    
     <div className="page-content-wrapper">
-      <div className="page-content dashboard-page">
-        <div className="page-bar">
-          <div className="page-title-breadcrumb">
-            <div className="col">
-              <div className="dashboard-title"> 
-                Dashboard
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       
+      <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
       
       <div className="row">
         <div className="state-overview">
           <div className="row">
             <div className="col-xl-3 col-md-6 col-12">
-              <div className="entrecarde">
+              <div >
                 <CustomCard
                   titre="Appointments"
                   number={450}
@@ -45,7 +37,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="col-xl-3 col-md-6 col-12">
-              <div className="entrecarde">
+              <div >
                 <CustomCard
                   titre="New Patients"
                   number={155}
@@ -57,7 +49,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="col-xl-3 col-md-6 col-12">
-              <div className="entrecarde">
+              <div >
                 <CustomCard
                   titre="Operations"
                   number={52}
@@ -69,7 +61,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="col-xl-3 col-md-6 col-12">
-              <div className="entrecarde">
+              <div >
                 <CustomCard
                   titre="Hospital Earning"
                   number={13921}

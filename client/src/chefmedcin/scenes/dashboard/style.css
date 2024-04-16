@@ -6,25 +6,23 @@
   margin-bottom: 50px;
   border-bottom: none; 
 }
-.card-body {
-  padding: 21px;
-}
+
 
 
 .card.bg-blue {
-  background-color: #1976d2; 
+  background-color: #1d87f2; 
 }
 
 .card.bg-orange {
-  background-color: #ff9800; 
+  background-color: #faa21e; 
 }
 
 .card.bg-purple {
-  background-color: #9c27b0;
+  background-color: #d227f1;
 }
 
 .card.bg-success {
-  background-color: #4caf50; 
+  background-color: #65d268; 
 }
 
 .page-content-wrapper {
@@ -42,6 +40,12 @@
 
 
 
+.icons {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 
 .entrecarde{
@@ -50,4 +54,5 @@
   color: #333;
   
 }
+
 
