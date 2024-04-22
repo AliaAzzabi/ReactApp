@@ -32,7 +32,7 @@ const Dashboard = () => {
                   progress={45}
                   description="45% Increase in 28 Days"
                   color="bg-blue"
-                  icon={<FontAwesomeIcon icon={faUsers} size="2x" />}
+                  icon={<FontAwesomeIcon icon={faUsers}  />}
                 />
               </div>
             </div>
@@ -44,7 +44,7 @@ const Dashboard = () => {
                   progress={40}
                   description="40% Increase in 28 Days"
                   color="bg-orange"
-                  icon={<FontAwesomeIcon icon={faUser} size="2x" />}
+                  icon={<FontAwesomeIcon icon={faUser}  />}
                 />
               </div>
             </div>
@@ -56,7 +56,7 @@ const Dashboard = () => {
                   progress={85}
                   description="85% Increase in 28 Days"
                   color="bg-purple"
-                  icon={<FontAwesomeIcon icon={faCut} size="2x" />}
+                  icon={<FontAwesomeIcon icon={faCut}  />}
                 />
               </div>
             </div>
@@ -68,7 +68,7 @@ const Dashboard = () => {
                   progress={50}
                   description="50% Increase in 28 Days"
                   color="bg-success"
-                  icon={<FontAwesomeIcon icon={faMoneyCheckAlt} size="2x" />}
+                  icon={<FontAwesomeIcon icon={faMoneyCheckAlt}  />}
                 />
               </div>
             </div>

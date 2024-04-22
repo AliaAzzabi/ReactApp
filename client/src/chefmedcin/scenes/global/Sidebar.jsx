@@ -12,6 +12,11 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
 import MailIcon from "@mui/icons-material/Mail";
 import { NavLink } from "react-router-dom";
+import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import QueuePlayNextOutlinedIcon from '@mui/icons-material/QueuePlayNextOutlined';
+
+
 
 
 const Sidebar = () => {
@@ -214,6 +219,55 @@ const Sidebar = () => {
                 </NavLink>
               </MenuItem>
             </SubMenu>
+            <Typography
+              variant="h6"
+              color={colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+            secretaire
+            </Typography>
+            <MenuItem
+              title="Rendez-vous"
+              icon={<CalendarTodayOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            >
+              <NavLink to="/rendez-vous" className="nav-link">
+              Rendez-vous
+              </NavLink>
+            </MenuItem>
+            <MenuItem
+              title="patient"
+              icon={<PeopleOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            >
+              <NavLink to="/patient" className="nav-link">
+                Patient
+              </NavLink>
+            </MenuItem>
+            <MenuItem
+              title="salle d'attente"
+              icon={<QueuePlayNextOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            >
+              <NavLink to="/salle-d'attente" className="nav-link">
+              salle d'attente
+              </NavLink>
+            </MenuItem>
+
+            <MenuItem
+              title="Historique"
+              icon={<HistoryOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            >
+              <NavLink to="/istorique" className="nav-link">
+              Historique
+              </NavLink>
+            </MenuItem>
+
 
           </Box>
         </Menu>

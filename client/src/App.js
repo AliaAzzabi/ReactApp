@@ -27,8 +27,10 @@ import Facture from "./chefmedcin/scenes/payement/facture";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./chefmedcin/theme";
 
+import Salle from "./aide/scenes/salle-d'attente";
 
-
+import RendezVous from "./aide/scenes/rendezVous";
+import Patients from "./aide/scenes/patients";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -70,7 +72,9 @@ function App() {
 
               <Route path="/payementList" element={<PayementList/>}/>
               <Route path="/addPayement" element={<AddPayement/>}/>
-             
+              <Route path="/salle-d'attente" element={<Salle/>}/>
+              <Route path="/rendez-vous" element={<RendezVous/>}/>
+              <Route path="/patient" element={<Patients/>}/>
               
               
                           

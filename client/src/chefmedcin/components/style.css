@@ -49,3 +49,9 @@
   font-size: 18px;
 }
 
+.info-box-icon {
+  text-align: center;
+}
+.info-box-icon {
+  margin-top: 20px; /* Ajustez cette valeur selon vos besoins */
+}
