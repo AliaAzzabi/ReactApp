@@ -55,20 +55,8 @@ function Login() {
           </div>
         </div>
         <div className="panels-container">
+
           <div className="panel left-panel ">
-            <div className="content ">
-              <h3>Nouveau ici ?</h3>
-              <p>
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Debitis,
-                ex ratione. Aliquid!
-              </p>
-              <button id="sign-up-btn" className="btnn transparent" onClick={handleSignUpClick}>
-                S'inscrire
-              </button>
-            </div>
-            <img src={login} className="image" alt="" />
-          </div>
-          <div className="panel right-panel ">
             <div className="content">
               <h3>One of us ?</h3>
               <p>
