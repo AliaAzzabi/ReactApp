@@ -31,6 +31,7 @@ import Salle from "./aide/scenes/salle-d'attente";
 
 import RendezVous from "./aide/scenes/rendezVous";
 import Patients from "./aide/scenes/patients";
+import DashboardAid from "./aide/scenes/dashboard";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -73,6 +74,7 @@ function App() {
                   <Route path="/salle-d'attente" element={<Salle/>}/>
                   <Route path="/rendez-vous" element={<RendezVous/>}/>
                   <Route path="/patient" element={<Patients/>}/>
+                  <Route path="/dashboardaid" element={<DashboardAid/>}/>
                 </Routes>
               </main>
             </div>

@@ -1,29 +1,30 @@
-import { useState } from "react";
-import {
-  Box,
-  Typography,
-  useTheme,
-  Button,
-  IconButton,
-  Modal,
-  TextField,
-} from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { tokens } from "../../theme";
-import Header from "../../components/Header";
+import React, { useState } from 'react';
+import { Box, Typography, Button, IconButton, Modal, TextField } from "@mui/material";
 import { Event as EventIcon, Cancel as CancelIcon, Edit as EditIcon } from "@mui/icons-material";
-import FullCalendar, { formatDate } from "@fullcalendar/react";
+import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import Header from "../../components/Header";
+import { Link } from 'react-router-dom';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import PersonRemoveTwoToneIcon from '@mui/icons-material/PersonRemoveTwoTone';
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import ChartCard from '../../../chefmedcin/components/ChartCard';
 
 const RendezVous = () => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState("");
   const [patientName, setPatientName] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const handleDateSelect = (selectInfo) => {
     setSelectedDate(selectInfo.startStr);
@@ -37,76 +38,102 @@ const RendezVous = () => {
     setPatientName(event.target.value);
   };
 
-  const handleAddAppointment = () => {
-    setIsModalOpen(true);
-  };
+  const tableContent = (
+    <div className="container">
+      <div className='row'>
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+        <div className="d-flex justify-content-end">
+          <button type="button" className="btn btn-info mb-2" onClick={handleOpenModal}>
+            Ajouter un rendez-vous  <EventIcon />
+          </button>
+        </div>
+      </div>
 
-  // Données de rendez-vous simulées
-  const rows = [
-    { id: 1, heure: "09:00", patient: "John Doe", medecin: "Dr. Smith", status: "Confirmé" },
-    { id: 2, heure: "10:30", patient: "Jane Doe", medecin: "Dr. Brown", status: "Annulé" },
-    { id: 3, heure: "14:00", patient: "Alice Smith", medecin: "Dr. Johnson", status: "En attente" },
-  ];
+      <div className="row">
+        <div className="col-md-12">
+          <div className="table-wrap">
+            <table className="table table-bordered table-responsive-xl table-hover">
+              <thead>
+                <tr>
 
-  const columns = [
-    { field: "id", headerName: "Numéro de rendez-vous", flex: 1 },
-    { field: "heure", headerName: "Heure", flex: 1 },
-    { field: "patient", headerName: "Nom du patient", flex: 1 },
-    { field: "medecin", headerName: "Nom du médecin", flex: 1 },
-    { field: "status", headerName: "Statut", flex: 1 },
-    {
-      field: "actions",
-      headerName: "Actions",
-      flex: 1,
-      renderCell: () => (
-        <>
-          <IconButton aria-label="Modifier le rendez-vous">
-            <EditIcon />
-          </IconButton>
-          <IconButton aria-label="Annuler le rendez-vous">
-            <CancelIcon />
-          </IconButton>
-        </>
-      ),
-    },
-  ];
+                  <th>Numéro du rendez-vous</th>
+                  <th>Heure</th>
+                  <th>Date</th>
+                  <th>Nom du patient</th>
+                  <th>Nom du médecin</th>
+
+                  <th>&nbsp;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="alert" role="alert">
+
+                  <td>
+                    <div className="pl-3 email">
+                      <span>1</span>
+                      <span>Ajouté le : 01/03/2020</span>
+                    </div>
+                  </td>
+                  <td>12:00</td>
+                  <td>01/03/2020</td>
+                  <td> Mark Otto</td>
+                  <td>Dr. Mark Otto</td>
+
+
+
+                  <td>
+                    <div className="d-flex">
+
+                      <button type="button" className="btn btn-outline-success  mr-1">
+                        <EditIcon />
+                      </button>
+                      <button type="button" className="btn btn-outline-danger">
+                        <CancelIcon />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr className="alert" role="alert">
+
+                  <td >
+                    <div className="pl-3 email">
+                      <span>2</span>
+                      <span>Ajouté le : 01/03/2020</span>
+                    </div>
+                  </td>
+                  <td>12:00</td>
+                  <td>01/03/2020</td>
+                  <td> Mark Otto</td>
+                  <td>Dr. Mark Otto</td>
+
+
+                  <td>
+                    <div className="d-flex">
+                      <button type="button" className="btn btn-outline-success  mr-1">
+                        <EditIcon />
+                      </button>
+                      <button type="button" className="btn btn-outline-danger">
+                        <CancelIcon />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <Box m="20px">
-      <Header title="Rendez-vous" subtitle="Gestion des rendez-vous" />
-      <Box m="40px 0 0 0" sx={{ display: "flex", alignItems: "center" }}>
-        <Button variant="contained" color="primary" sx={{ ml: "auto" }} onClick={handleAddAppointment}>
-          Ajouter un rendez-vous
-        </Button>
-      </Box>
-      <Box
-        m="20px 0 0 0"
-        height="60vh"
-        sx={{
-          "& .MuiDataGrid-root": { border: "none" },
-          "& .MuiDataGrid-cell": { borderBottom: "none" },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-        }}
-      >
-        <DataGrid rows={rows} columns={columns} />
-      </Box>
+    <div className="container">
+
+      <div className="row">
+        <Box m="20px">
+          <Header title="Rendez-vous" subtitle="Gestion des rendez-vous" /></Box>
+        <ChartCard title="Liste des rendez-vous" chartId="patientListChart" content={tableContent} />
+      </div>
       <Modal open={isModalOpen} onClose={handleCloseModal}>
         <Box
           sx={{
@@ -120,11 +147,24 @@ const RendezVous = () => {
             p: 4,
           }}
         >
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <IconButton onClick={handleCloseModal} size="large" sx={{ position: 'absolute', top: 0, right: 0 }}>
+              <CancelIcon />
+            </IconButton>
+          </Box>
           <Typography variant="h6" component="h2" gutterBottom>
             Ajouter un rendez-vous
           </Typography>
           <TextField
             label="Nom du patient"
+            value={patientName}
+            onChange={handlePatientNameChange}
+            fullWidth
+            margin="normal"
+            variant="outlined"
+          />
+          <TextField
+            label="Nom du médecin"
             value={patientName}
             onChange={handlePatientNameChange}
             fullWidth
@@ -149,12 +189,15 @@ const RendezVous = () => {
             selectable={true}
             select={handleDateSelect}
           />
-          <Button variant="contained" color="primary" onClick={handleCloseModal} sx={{ mt: 2 }}>
-            Confirmer
-          </Button>
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Button variant="contained" color="primary" onClick={handleCloseModal} sx={{ mt: 5 }}>
+              Confirmer
+            </Button>
+          </Box>
         </Box>
       </Modal>
-    </Box>
+    </div>
+
   );
 };
 

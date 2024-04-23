@@ -1,4 +1,4 @@
-import { tokens } from "../theme";
+import { tokens } from "../../theme";
 export const mockDataPatients = [
   { id: 1, cin: "123456", nom: "Doe", prenom: "John", email: "john.doe@example.com" },
   { id: 2, cin: "789012", nom: "Smith", prenom: "Alice", email: "alice.smith@example.com" },

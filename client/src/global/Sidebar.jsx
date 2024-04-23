@@ -15,8 +15,24 @@ import { NavLink } from "react-router-dom";
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import QueuePlayNextOutlinedIcon from '@mui/icons-material/QueuePlayNextOutlined';
-
-
+import { Link } from "react-router-dom";
+const Item = ({ title, to, icon, selected, setSelected }) => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  return (
+    <MenuItem
+      active={selected === title}
+      style={{
+        color: colors.grey[100],
+      }}
+      onClick={() => setSelected(title)}
+      icon={icon}
+    >
+      <Typography>{title}</Typography>
+      <Link to={to} />
+    </MenuItem>
+  );
+};
 
 
 const Sidebar = () => {
@@ -219,6 +235,7 @@ const Sidebar = () => {
                 </NavLink>
               </MenuItem>
             </SubMenu>
+
             <Typography
               variant="h6"
               color={colors.grey[300]}
@@ -226,48 +243,99 @@ const Sidebar = () => {
             >
             secretaire
             </Typography>
-            <MenuItem
+
+            <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+            <Item
+              title="Dashboard"
+              to="/dashboardaid"
+              icon={<HomeOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
               title="Rendez-vous"
+              to="/rendez-vous"
               icon={<CalendarTodayOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            >
-              <NavLink to="/rendez-vous" className="nav-link">
-              Rendez-vous
-              </NavLink>
-            </MenuItem>
-            <MenuItem
-              title="patient"
+            />
+            <Item
+              title="Patients"
+              to="/patient"
               icon={<PeopleOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            >
-              <NavLink to="/patient" className="nav-link">
-                Patient
-              </NavLink>
-            </MenuItem>
-            <MenuItem
-              title="salle d'attente"
+            />
+            <Item
+              title="Salle d'attente"
+              to="/salle-d'attente"
               icon={<QueuePlayNextOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            >
-              <NavLink to="/salle-d'attente" className="nav-link">
-              salle d'attente
-              </NavLink>
-            </MenuItem>
+            />
 
-            <MenuItem
+            <Item
               title="Historique"
+              to="/history"
               icon={<HistoryOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            >
-              <NavLink to="/istorique" className="nav-link">
-              Historique
-              </NavLink>
-            </MenuItem>
+            />
 
+          
+          </Box>
+            
+          <Typography
+              variant="h6"
+              color={colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+            Médecin
+            </Typography>
+            
+            <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+            <Item
+              title="Dashboard"
+              to="/dashboardaid"
+              icon={<HomeOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
+              title="Rendez-vous"
+              to="/rendez-vous"
+              icon={<CalendarTodayOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Patients"
+              to="/patient"
+              icon={<PeopleOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Salle d'attente"
+              to="/salle-d'attente"
+              icon={<QueuePlayNextOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
+              title="Historique"
+              to="/history"
+              icon={<HistoryOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+          
+          </Box>
+            
 
           </Box>
         </Menu>

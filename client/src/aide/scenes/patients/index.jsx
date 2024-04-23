@@ -1,185 +1,367 @@
 import React, { useState } from 'react';
-import { Box, useTheme, Typography, Button, IconButton, Modal, TextField } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { tokens } from "../../theme";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Box, Button, Modal, TextField, IconButton, Typography } from "@mui/material";
+import { Cancel as CancelIcon } from '@mui/icons-material';
 import Header from "../../components/Header";
-import { mockDataPatients } from "../../data/mockData";
-import PersonIcon from '@mui/icons-material/Person';
-import EmailIcon from '@mui/icons-material/Email';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import ContactMailIcon from '@mui/icons-material/ContactMail';
+import ChartCard from '../../../chefmedcin/components/ChartCard';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import PersonRemoveTwoToneIcon from '@mui/icons-material/PersonRemoveTwoTone';
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import { Link } from 'react-router-dom';
 
 const Patients = () => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  const columns = [
-    { field: "id", headerName: "ID" },
-    { field: "cin", headerName: "CIN", flex: 1 },
-    { field: "nom", headerName: "Nom", flex: 1 },
-    { field: "prenom", headerName: "Prénom", flex: 1 },
-    { field: "email", headerName: "Email", flex: 1 },
-    {
-      field: "actions",
-      headerName: "Actions",
-      flex: 1,
-      renderCell: () => (
-        <>
-          <IconButton aria-label="Modifier le patient">
-            <EditIcon />
-          </IconButton>
-          <IconButton aria-label="Supprimer le patient">
-            <DeleteIcon />
-          </IconButton>
-        </>
-      ),
-    },
-  ];
 
-  const [openModal, setOpenModal] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const handleOpenModal = () => {
-    setOpenModal(true);
-  };
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
+    const [selectedPatient, setSelectedPatient] = useState(null);
 
-  const handleAddPatient = () => {
-    // Ajoutez votre logique pour ajouter un nouveau patient ici
-    handleCloseModal();
-  };
+    const [formData, setFormData] = useState({
+        nom: "",
+        prenom: "",
+        email: "",
+        dateNaissance: "",
+        telephone: ""
+    });
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-  return (
-    <Box m="20px">
-      <Header title="Patients" subtitle="Gestion des patients" />
-      <Box m="40px 0 0 0" sx={{ display: "flex", alignItems: "center" }}>
-        <Button variant="contained" color="primary" sx={{ ml: "auto" }} onClick={handleOpenModal}>
-          Ajouter un patient
-        </Button>
-      </Box>
-      <Modal open={openModal} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            bgcolor: 'background.paper',
-            boxShadow: 24,
-            p: 4,
-            width: 400,
-          }}
-        >
-          <Typography variant="h6" component="h2" gutterBottom>
-            Ajouter un patient
-          </Typography>
-          <TextField
-            label="CIN"
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            InputProps={{
-              startAdornment: (
-                <IconButton>
-                  <ContactMailIcon />
-                </IconButton>
-              ),
-            }}
-          />
-          <TextField
-            label="Nom"
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            InputProps={{
-              startAdornment: (
-                <IconButton>
-                  <PersonIcon />
-                </IconButton>
-              ),
-            }}
-          />
-          <TextField
-            label="Prénom"
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            InputProps={{
-              startAdornment: (
-                <IconButton>
-                  <PersonIcon />
-                </IconButton>
-              ),
-            }}
-          />
-          <TextField
-            label="Email"
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            InputProps={{
-              startAdornment: (
-                <IconButton>
-                  <EmailIcon />
-                </IconButton>
-              ),
-            }}
-          />
-          <Box display="flex" alignItems="center">
-            <TextField
-              label="Date de naissance"
-              fullWidth
-              margin="normal"
-              variant="outlined"
-              InputProps={{
-                startAdornment: (
-                  <IconButton>
-                    <CalendarTodayIcon />
-                  </IconButton>
-                ),
-              }}
-            />
-            {/* Ajoutez un sélecteur de date ici */}
-          </Box>
-          {/* Ajoutez d'autres champs de formulaire au besoin */}
-          <Box mt={2} textAlign="right">
-            <Button onClick={handleAddPatient} color="primary" sx={{ ml: 1 }}>Ajouter</Button>
-          </Box>
-        </Box>
-      </Modal>
-      <Box
-        m="20px 0 0 0"
-        height="60vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-        }}
-      >
-        <DataGrid rows={mockDataPatients} columns={columns} />
-      </Box>
-    </Box>
-  );
+
+    const handleOpenAddModal = () => {
+        setIsAddModalOpen(true);
+    };
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
+
+    const handleCloseAddModal = () => {
+        setIsAddModalOpen(false);
+    };
+
+    const handleOpenEditModal = () => {
+        setIsEditModalOpen(true);
+    };
+
+    const handleCloseEditModal = () => {
+        setIsEditModalOpen(false);
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log("Données mises à jour :", formData);
+        handleCloseEditModal();
+    };
+
+    const patients = [
+        {
+            id: 1,
+            nom: "Doe",
+            prenom: "John",
+            email: "john.doe@example.com",
+            dateNaissance: "1990-01-01",
+            telephone: "1234567890"
+        },
+        {
+            id: 2,
+            nom: "Smith",
+            prenom: "Jane",
+            email: "jane.smith@example.com",
+            dateNaissance: "1985-05-15",
+            telephone: "9876543210"
+        }
+    ];
+    const patientRows = patients.map(patient => (
+        <tr key={patient.id}>
+            <td>{`${patient.nom} ${patient.prenom}`}</td>
+            <td>{patient.email}</td>
+            <td>{patient.dateNaissance}</td>
+            <td>{patient.telephone}</td>
+            <td>
+                <Button onClick={() => handleOpenEditModal(patient)} variant="outlined">
+                    Modifier
+                </Button>
+            </td>
+        </tr>
+    ));
+
+    const tableContent = (
+
+        <div className="container">
+            <div className='row'>
+                <div className="d-flex justify-content-end">
+                    <button type="button" className="btn btn-info mb-2" onClick={handleOpenModal}>
+                        Ajouter un patient <PersonAddAlt1Icon />
+                    </button>
+                </div>
+            </div>
+
+            <div className="row">
+                <div className="col-md-12">
+                    <div className="table-wrap">
+                        <table className="table table-bordered table-responsive-xl table-hover">
+                            <thead>
+                                <tr>
+
+                                    <th>Nom & Prénom</th>
+                                    <th>Email</th>
+                                    <th>Date de naissance</th>
+                                    <th>Téléphone</th>
+                                    <th>&nbsp;</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr className="alert" role="alert">
+
+                                    <td className="d-flex align-items-center">
+                                        <div className="pl-3 email">
+                                            <span>Dr. Mark Otto</span>
+                                            <span>Ajouté le : 01/03/2020</span>
+                                        </div>
+                                    </td>
+                                    <td>markotto@email.com</td>
+                                    <td>01/03/2020</td>
+                                    <td>1234567890</td>
+
+                                    <td>
+                                        <div className="d-flex">
+
+                                            <button onClick={handleOpenEditModal} className="btn btn-outline-success mr-1">
+                                                <EditTwoToneIcon />
+                                            </button>
+
+                                            <button type="button" className="btn btn-outline-danger">
+                                                <PersonRemoveTwoToneIcon />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr className="alert" role="alert">
+
+                                    <td className="d-flex align-items-center">
+                                        <div className="pl-3 email">
+                                            <span>Dr. Mark Otto</span>
+                                            <span>Ajouté le : 01/03/2020</span>
+                                        </div>
+                                    </td>
+                                    <td>markotto@email.com</td>
+                                    <td>01/03/2020</td>
+                                    <td>1234567890</td>
+
+                                    <td>
+                                        <div className="d-flex">
+                                            <button onClick={handleOpenEditModal} className="btn btn-outline-success mr-1">
+                                                <EditTwoToneIcon />
+                                            </button>
+                                            <button type="button" className="btn btn-outline-danger">
+                                                <PersonRemoveTwoToneIcon />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
+    return (
+        <div className="container">
+            <div className="row">
+                <Box m="20px">
+                    <Header title="Patients" subtitle="Gestion des patients" />
+                </Box>
+
+                <ChartCard title="Liste des patients" chartId="patientListChart" content={tableContent} />
+
+
+
+                <Modal open={isModalOpen} onClose={handleCloseModal}>
+
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            width: 400,
+                            bgcolor: "background.paper",
+                            boxShadow: 24,
+                            p: 4,
+                        }}
+                    >
+
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <IconButton onClick={handleCloseModal} size="large" sx={{ position: 'absolute', top: 0, right: 0 }}>
+                                <CancelIcon />
+                            </IconButton>
+                        </Box>
+
+                        <Typography variant="h3" gutterBottom>
+                            Remplir les champs :
+                        </Typography>
+                        <form onSubmit={handleSubmit}>
+
+                            <TextField
+                                label="Nom"
+                                name="nom"
+                                value={formData.nom}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+                                required
+                            />
+                            <TextField
+                                label="Prénom"
+                                name="prenom"
+                                value={formData.prenom}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+                                required
+                            />
+                            <TextField
+                                label="Email"
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+                                required
+                            />
+                            <TextField
+                                label="  "
+                                type="date"
+                                name="dateNaissance"
+                                value={formData.dateNaissance}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+
+                            />
+                            <TextField
+                                label="Téléphone"
+                                name="telephone"
+                                value={formData.telephone}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+                                required
+                            />
+                            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                                <Button type="submit" variant="contained" color="primary">
+                                    Ajouter
+                                </Button>
+                            </Box>
+                        </form>
+                    </Box>
+                </Modal>
+
+                <Modal open={isEditModalOpen} onClose={handleCloseEditModal}>
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            width: 400,
+                            bgcolor: "background.paper",
+                            boxShadow: 24,
+                            p: 4,
+                        }}
+                    >
+
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <IconButton onClick={handleCloseModal} size="large" sx={{ position: 'absolute', top: 0, right: 0 }}>
+                                <CancelIcon />
+                            </IconButton>
+                        </Box>
+
+                        <Typography variant="h3" gutterBottom>
+                            modifier les informations :
+                        </Typography>
+                        <form onSubmit={handleSubmit}>
+
+                            <TextField
+                                label="Nom"
+                                name="nom"
+                                value={formData.nom}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+
+                            />
+                            <TextField
+                                label="Prénom"
+                                name="prenom"
+                                value={formData.prenom}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+
+                            />
+                            <TextField
+                                label="Email"
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+
+                            />
+                            <TextField
+                                label="  "
+                                type="date"
+                                name="dateNaissance"
+                                value={formData.dateNaissance}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+
+                            />
+                            <TextField
+                                label="Téléphone"
+                                name="telephone"
+                                value={formData.telephone}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+
+                            />
+                            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                                <Button type="submit" variant="contained" color="primary">
+                                    Modifier
+                                </Button>
+                            </Box>
+                        </form>
+                    </Box>
+                </Modal>
+            </div>
+        </div>
+
+    );
 };
 
 export default Patients;
