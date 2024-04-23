@@ -132,7 +132,7 @@ form.sign-in-form {
   border-color: #4481eb;
 }
 
-.btn {
+.btnn {
   width: 150px;
   background-color: #5995fd;
   border: none;
@@ -147,7 +147,7 @@ form.sign-in-form {
   transition: 0.5s;
 }
 
-.btn:hover {
+.btnn:hover {
   background-color: #4d84e2;
 }
 .panels-container {
@@ -160,7 +160,7 @@ form.sign-in-form {
   grid-template-columns: repeat(2, 1fr);
 }
 
-.container:before {
+.my-new-container:before  {
   content: "";
   position: absolute;
   height: 2000px;
@@ -216,7 +216,7 @@ form.sign-in-form {
   padding: 0.7rem 0;
 }
 
-.btn.transparent {
+.btnn.transparent {
   margin: 0;
   background: none;
   border: 2px solid #fff;
@@ -362,6 +362,16 @@ form.sign-in-form {
     transform: translateY(0px);
   }
 
+  /* Ajoutez cette règle pour exclure la classe gradient-circle des panels contenant des images */
+.panel.left-panel img {
+  position: relative; /* Assurez-vous que l'image est positionnée correctement */
+}
+
+.panel.left-panel img + .gradient-circle {
+  display: none;
+}
+
+
   .right-panel .image,
   .right-panel .content {
     transform: translateY(300px);
@@ -398,3 +408,37 @@ form.sign-in-form {
     left: 50%;
   }
 }
+.right-panel {
+  grid-row: 3 / 4;
+  pointer-events: none; /* Remplacer 'all' par 'none' */
+}
+
+@media (max-width: 870px) {
+  .signin-signup,
+  .container.sign-up-mode .signin-signup {
+    left: 50%;
+  }
+
+  /* ... */
+
+  .container.sign-up-mode .left-panel .image,
+  .container.sign-up-mode .left-panel .content {
+    transform: translateY(-300px);
+  }
+
+  .container.sign-up-mode .right-panel .image,
+  .container.sign-up-mode .right-panel .content {
+    transform: translateY(0px);
+  }
+
+  .right-panel .image,
+  .right-panel .content {
+    transform: translateY(300px);
+  }
+
+  .container.sign-up-mode .signin-signup {
+    top: 5%;
+    transform: translate(-50%, 0);
+  }
+}
+

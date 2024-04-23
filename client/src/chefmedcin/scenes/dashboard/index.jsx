@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography, IconButton, useTheme } from "@mui/material";
-import { tokens } from "../../theme";
+import { tokens } from "../../../theme";
 import CustomCard from "../../components/Card";
 import LineChart from "../../components/LineChart";
 import 'bootstrap/dist/css/bootstrap.min.css';

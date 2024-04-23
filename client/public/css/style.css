@@ -12348,6 +12348,11 @@ form.search-form-opened .btn.submit {
   border: 1px solid #ddd;
   background: #fff;
 }
+/**********
+
+code style se connecter 
+**********/
+
 /****************************************************************
 
 					[7. PANEL ]
@@ -12356,8 +12361,8 @@ form.search-form-opened .btn.submit {
 
 .panel {
   margin-bottom: 20px;
-  background-color: #fff;
-  border: 1px solid transparent;
+ 
+  border: solid transparent;
   border-radius: 4px;
 }
 .panel-heading {
@@ -17839,3 +17844,4 @@ nav-tabs > li {
 .invoice-heading {
   color: black;
 }
+

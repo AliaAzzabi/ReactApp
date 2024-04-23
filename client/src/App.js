@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
-import Sidebar from "../src/chefmedcin/scenes/global/Sidebar"
-import Topbar from "../src/chefmedcin/scenes/global/Topbar";
+import Sidebar from "../src/global/Sidebar"
+import Topbar from "../src/global/Topbar";
 import Dashboard from "../src/chefmedcin/scenes/dashboard";
 import DoctorList from "./chefmedcin/scenes/medecin";
 import AssitantList from "./chefmedcin/scenes/aide";
@@ -18,14 +18,14 @@ import ModifDepart from "./chefmedcin/scenes/departement/modifDepart";
 import ModifSpecialiti from "./chefmedcin/scenes/spécialité/modifSp";
 import PatientList from "./chefmedcin/scenes/patient";
 import AddPatient from "./chefmedcin/scenes/patient/addpatient";
-
 import PayementList from "./chefmedcin/scenes/payement";
 import AddPayement from "./chefmedcin/scenes/payement/addpayement";
+import Login from "./connecter/index";
 
 import Facture from "./chefmedcin/scenes/payement/facture";
 
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { ColorModeContext, useMode } from "./chefmedcin/theme";
+import { ColorModeContext, useMode } from "./theme";
 
 import Salle from "./aide/scenes/salle-d'attente";
 
@@ -37,7 +37,7 @@ function App() {
   const [isSidebar, setIsSidebar] = useState(true);
   const location = useLocation();
   // Exclure le Sidebar et Topbar sur les pages de connexion et d'inscription
-  const excludeSidebarTopbarPaths = ["/login"];
+  const excludeSidebarTopbarPaths = ["/se_connecter"];
   const shouldDisplaySidebarTopbar = !excludeSidebarTopbarPaths.includes(location.pathname);
 
   return (
@@ -51,6 +51,7 @@ function App() {
           <main className="content">
             {shouldDisplaySidebarTopbar && <Topbar setIsSidebar={setIsSidebar} />}
             <Routes>
+            <Route path="/se_connecter" element={<Login/>}/>
               <Route path="/" element={<Dashboard />} />
               <Route path="/doctorList" element={<DoctorList/>}/>
               <Route path="/adddoctor" element={<AddDoctor/>}/>
@@ -75,11 +76,8 @@ function App() {
               <Route path="/salle-d'attente" element={<Salle/>}/>
               <Route path="/rendez-vous" element={<RendezVous/>}/>
               <Route path="/patient" element={<Patients/>}/>
-              
-              
-                          
-           
-             
+                 
+                                      
             </Routes>
           </main>
         </div>
