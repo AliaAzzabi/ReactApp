@@ -1,106 +1,68 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
-import { tokens } from "../../theme";
-import { mockTransactions } from "../../data/mockData";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
-import Header from "../../components/Header";
+import React from "react";
+import { Box, Typography, IconButton, useTheme } from "@mui/material";
+import { tokens } from "../../../theme";
+import CustomCard from "../../../chefmedcin/components/Card";
 import LineChart from "../../components/LineChart";
-import GeographyChart from "../../components/GeographyChart";
-import BarChart from "../../components/BarChart";
-import StatBox from "../../components/StatBox";
-import ProgressCircle from "../../components/ProgressCircle";
-import { People as PeopleIcon } from '@mui/icons-material';
-import { Event as EventIcon } from "@mui/icons-material"; 
-import { HourglassEmpty as HourglassEmptyIcon } from "@mui/icons-material"; 
-const Dashboard = () => {
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faClock, faUser, faHourglassHalf } from '@fortawesome/free-solid-svg-icons'; // Importer les icônes nécessaires
+import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+import { mockTransactions } from "../../data/mockData";
+import Header from "../../components/Header";
+
+const DashboardAid = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   return (
-  
-    <Box m="20px" >
-      {/* HEADER */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="DASHBOARD" subtitle="Bienvenue" />
-
-      
-      </Box>
-
-      {/* GRID & CHARTS */}
-      <Box
-        display="grid"
-        gridTemplateColumns="repeat(9, 1fr)"
-        gridAutoRows="140px"
-        gap="20px"
-      >
-        {/* ROW 1 */}
-        <Box
-  gridColumn="span 3"
-  backgroundColor={colors.primary[400]}
-  display="flex"
-  alignItems="center"
-  justifyContent="center"
->
-  <StatBox
-    title="12"
-    subtitle="Patients"
-    progress="0.75"
-    increase="+14%"
-    icon={
-      <PeopleIcon // Remplacez ici par l'icône pour représenter les patients
-        sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-      />
-    }
-  />
-</Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="50"
-            subtitle="Rendez-vous"
-            progress="0.50"
-            increase="+21%"
-            icon={
-              <EventIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title=" 3"
-            subtitle="Patients en file d'attente"
-            progress="0.30"
-            increase="+5%"
-            icon={
-              <HourglassEmptyIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
-        
-
-        
-        </Box>
-      </Box>
-   
+    <div className="container">
+       
+      <div className="row"><Box m="20px">
+      <Header title="DASHBOARD" subtitle="Welcome to your dashboard"  />
+     </Box>
+        <div className="state-overview">
+          <div className="row">
+            <div className="col-xl-3 col-md-6 col-3">
+              <div >
+                <CustomCard
+                  titre="Rendez-vous"
+                  number={450}
+                  progress={45}
+                  description="45% Increase in 28 Days"
+                  color="bg-blue"
+                  icon={<FontAwesomeIcon icon={faClock} />} 
+                />
+              </div>
+            </div>
+            <div className="col-xl-3 col-md-6 col-12">
+              <div >
+                <CustomCard
+                  titre="Patients"
+                  number={155}
+                  progress={40}
+                  description="40% Increase in 28 Days"
+                  color="bg-orange"
+                  icon={<FontAwesomeIcon icon={faUser} />} 
+                />
+              </div>
+            </div>
+            <div className="col-xl-3 col-md-6 col-12">
+              <div >
+                <CustomCard
+                  titre="Salle d'attente"
+                  number={52}
+                  progress={85}
+                  description="85% Increase in 28 Days"
+                  color="bg-purple"
+                  icon={<FontAwesomeIcon icon={faHourglassHalf} />} 
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default Dashboard;
+export default DashboardAid;
