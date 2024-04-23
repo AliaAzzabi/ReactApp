@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import './style.css'; // Assurez-vous que le fichier style.css est présent dans votre projet
+import './style.css'; 
 import login from './login.png';
 import homeright from './home-right.png';
 import PersonIcon from '@mui/icons-material/Person';
@@ -18,9 +17,6 @@ function Login() {
     setIsSignUpMode(false);
   };
 
-  const handleModeToggle = () => {
-    setIsSignUpMode(prevMode => !prevMode);
-  };
   return (
     <div>
       <div className={`my-new-container ${isSignUpMode ? 'sign-up-mode' : ''}`}>
@@ -55,7 +51,6 @@ function Login() {
               </div>
               <input type="submit" className="btnn" defaultValue="Sign up" />
 
-
             </form>
           </div>
         </div>
@@ -81,16 +76,13 @@ function Login() {
                 laboriosam ad deleniti.
               </p>
               <button id="sign-in-btn" className="btnn transparent" onClick={handleSignInClick}>
-                Sign in
+                Se connecter
               </button>
             </div>
             <img src={homeright} className="image" alt="" />
           </div>
         </div>
       </div>
-      <script >
-        
-      </script>
     </div>
   );
 }
