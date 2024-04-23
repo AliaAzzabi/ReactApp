@@ -27,23 +27,23 @@ function Login() {
         <div className="forms-container">
           <div className="signin-signup">
             <form action="#" className="sign-in-form">
-              <h2 className="title">Sign in</h2>
+              <h2 className="title">Se connecter</h2>
               <div className="input-field">
                 <i><PersonIcon sx={{ color: 'gry' }} /></i>
-                <input type="text" placeholder="Username" />
+                <input type="text" placeholder="Nom d'utilisateur" />
               </div>
               <div className="input-field">
                 <i><LockIcon sx={{ color: 'grey' }}/></i>
-                <input type="password" placeholder="Password" />
+                <input type="password" placeholder="Mot de passe" />
               </div>
-              <input type="submit" defaultValue="Login" className="btnn solid" />
+              <input type="submit" defaultValue="Envoyer" className="btnn solid" />
 
             </form>
             <form action="#" className="sign-up-form">
               <h2 className="title">Sign up</h2>
               <div className="input-field">
               <i><PersonIcon sx={{ color: 'grey' }}/></i>
-                <input type="text" placeholder="Username" />
+                <input type="text" placeholder="Nom d'utilisateur" />
               </div>
               <div className="input-field">
               <i><EmailIcon sx={{ color: 'grey' }}/></i>
@@ -51,7 +51,7 @@ function Login() {
               </div>
               <div className="input-field">
                 <LockIcon sx={{ color: 'grey' }}/>
-                <input type="password" placeholder="Password" />
+                <input type="password" placeholder="Mot de passe" />
               </div>
               <input type="submit" className="btnn" defaultValue="Sign up" />
 
@@ -62,13 +62,13 @@ function Login() {
         <div className="panels-container">
           <div className="panel left-panel ">
             <div className="content ">
-              <h3>New here ?</h3>
+              <h3>Nouveau ici ?</h3>
               <p>
                 Lorem ipsum, dolor sit amet consectetur adipisicing elit. Debitis,
                 ex ratione. Aliquid!
               </p>
               <button id="sign-up-btn" className="btnn transparent" onClick={handleSignUpClick}>
-                Sign up
+                S'inscrire
               </button>
             </div>
             <img src={login} className="image" alt="" />
