@@ -192,11 +192,13 @@ form.sign-in-form {
 .left-panel {
   pointer-events: all;
   padding: 3rem 17% 2rem 12%;
+  box-shadow: 0 0 0px rgba(0,0,0, 0.0) ;
 }
 
 .right-panel {
   pointer-events: none;
   padding: 3rem 12% 2rem 17%;
+ 
 }
 
 .panel .content {

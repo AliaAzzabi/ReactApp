@@ -1,0 +1,54 @@
+//controllerspecialité.js
+
+const Specialties = require('./specialitiesSchema');
+
+const getSpecialty = async (req, res) => {
+    try {
+        const specialties = await Specialties.find({}); 
+        res.send(specialties);
+    } catch (err) {
+        console.error("Erreur lors de la recherche des Specialties :", err);
+        res.status(500).send("Erreur serveur");
+    }
+};
+
+
+  
+const addSpecialty = async (req, res) => {
+    try {
+        
+        const { nom, description } = req.body;
+        console.log(req.body);
+        const newSpecialties = new Specialties({ nom, description });
+        const savedSpecialties = await newSpecialties.save();
+        res.status(201).json({
+            nom: savedSpecialties.nom,
+            description: savedSpecialties.description,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+};
+
+
+const updateSpecialty = async (req, res) => {
+    const { nom, description } = req.body;
+    try {
+        const updatedSpecialty = await Specialties.findByIdAndUpdate(req.params.id, { nom, description }, { new: true });
+        res.status(200).send({ message: 'Spécialité mise à jour avec succès', data: updatedSpecialty });
+    } catch (err) {
+        res.status(400).send({ error: `Erreur lors de la mise à jour de la spécialité: ${err.message}` });
+    }
+};
+
+const deleteSpecialty = async (req, res) => {
+    try {
+        const deletedSpecialty = await Specialties.findByIdAndDelete(req.params.id);
+        res.status(200).send({ message: 'Spécialité supprimée avec succès', data: deletedSpecialty });
+    } catch (err) {
+        res.status(400).send({ error: `Erreur lors de la suppression de la spécialité: ${err.message}` });
+    }
+};
+
+module.exports = { getSpecialty, addSpecialty, updateSpecialty, deleteSpecialty };

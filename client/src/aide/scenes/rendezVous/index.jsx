@@ -6,17 +6,16 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import Header from "../../components/Header";
-import { Link } from 'react-router-dom';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import PersonRemoveTwoToneIcon from '@mui/icons-material/PersonRemoveTwoTone';
-import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import ChartCard from '../../../chefmedcin/components/ChartCard';
+
+
 
 const RendezVous = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState("");
   const [patientName, setPatientName] = useState("");
+ 
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -38,17 +37,18 @@ const RendezVous = () => {
     setPatientName(event.target.value);
   };
 
+ 
   const tableContent = (
     <div className="container">
       <div className='row'>
-
         <div className="d-flex justify-content-end">
+         
           <button type="button" className="btn btn-info mb-2" onClick={handleOpenModal}>
             Ajouter un rendez-vous  <EventIcon />
           </button>
         </div>
-      </div>
-
+      </div >
+     
       <div className="row">
         <div className="col-md-12">
           <div className="table-wrap">
