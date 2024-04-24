@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const { getSpecialty, addSpecialty, updateSpecialty, deleteSpecialty } = require('./specialité/controllerspecialité');
 const {createDepartement, getAllDepartements, updateDepartement, deleteDepartement} = require ('./departement/controllerdepartement');
-const { authenticateUser } = require('./authentification/controller');
+const { authenticateUser, addClient } = require('./authentification/controller');
 const router = express.Router();
 router.use(cors());
 
@@ -17,9 +17,7 @@ router.post("/addDepartement", createDepartement);
 router.put("/updateDepartement/:id", updateDepartement);
 router.delete("/deleteDepartement/:id", deleteDepartement);
 
-
-router.get('/protected-route', authenticateUser, (req, res) => {
-    res.json({ message: 'Protected route accessed successfully' });
-  });
+router.post("/addClient", addClient);
+router.post('/authenticate', authenticateUser);
   
 module.exports = { router };

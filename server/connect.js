@@ -48,6 +48,13 @@ const connect = async () => {
         } else {
             console.error("La collection departments n'existe pas dans la base de données");
         }
+
+        const usersExists = await db.listCollections({ name: 'users' }).toArray();
+        if (usersExists.length > 0) {
+            console.log("Connexion à la collection users réussie");
+        } else {
+            console.error("La collection departments n'existe pas dans la base de données");
+        }
         
     } catch (error) {
         console.error("Erreur lors de la connexion à la base de données:", error);

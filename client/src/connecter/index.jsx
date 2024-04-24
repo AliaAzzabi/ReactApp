@@ -25,8 +25,8 @@ function Login() {
             <form action="#" className="sign-in-form">
               <h2 className="title">Se connecter</h2>
               <div className="input-field">
-                <i><PersonIcon sx={{ color: 'gry' }} /></i>
-                <input type="text" placeholder="Nom d'utilisateur" />
+                <i><EmailIcon sx={{ color: 'gry' }} /></i>
+                <input type="email" placeholder="Email" />
               </div>
               <div className="input-field">
                 <i><LockIcon sx={{ color: 'grey' }}/></i>

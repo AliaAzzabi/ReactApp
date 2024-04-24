@@ -1,5 +1,7 @@
-// auth.middleware.js
+// authmiddleware.js
 const jwt = require('jsonwebtoken');
+
+const Users = require('./userschema');
 
 const authenticate = (req, res, next) => {
   const token = req.header('Authorization');
@@ -17,3 +19,5 @@ const authenticate = (req, res, next) => {
 };
 
 module.exports = authenticate;
+
+
