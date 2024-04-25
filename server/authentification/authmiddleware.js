@@ -1,23 +1,21 @@
-// authmiddleware.js
 const jwt = require('jsonwebtoken');
+const { secretKey } = require('./config'); 
 
-const Users = require('./userschema');
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1] || req.headers['x-access-token']; 
 
-const authenticate = (req, res, next) => {
-  const token = req.header('Authorization');
   if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ success: false, error: 'No token provided' });
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.user;
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ success: false, error: 'Invalid token' });
+    }
+
+    req.clientId = decoded.clientId;
     next();
-  } catch (error) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
+  });
 };
 
-module.exports = authenticate;
-
-
+module.exports = { verifyToken };

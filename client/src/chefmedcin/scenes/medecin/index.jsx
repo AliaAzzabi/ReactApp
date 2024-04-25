@@ -48,7 +48,7 @@ const DoctorList = () => {
                             <thead>
                                 <tr>
                                     <th>&nbsp;</th>
-                                    <th>Nom</th>
+                                    <th>Nom & Prénom</th>
                                     <th>Département</th>
                                     <th>Spécialité</th>
                                     <th>Téléphone</th>

@@ -2,29 +2,31 @@ const expressHandler = require("express-async-handler");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Users = require('./userschema');
+const { secretKey } = require("./config"); 
 
 const authenticateUser = expressHandler(async (req, res) => {
   try {
-    const { email, password } = req.body; 
-    const user = await Users.findOne({ email }); 
+    const { email, password } = req.body;
+
+    
+    const user = await Users.findOne({ email, password });
 
     if (user) {
-      const isMatch = await bcrypt.compare(password, user.password);
-
-      if (isMatch) {
-        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ success: true, token });
-      } else {
-        res.status(401).json({ success: false, error: 'Invalid credentials' });
-      }
+      const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '2h' });
+      res.status(200).json({ success: true, user });
+      
     } else {
-      res.status(401).json({ success: false, error: 'User not found' });
+      res.status(401).json({ success: false, error: 'Identifiants incorrects' });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: 'Authentication error' });
+    res.status(500).json({ success: false, error: 'Erreur lors de l\'authentification' });
   }
 });
+const protectedRouteHandler = (req, res) => {
+  res.json({ success: true, message: 'Vous avez accès à  protégé!', clientId: req.clientId });
+};
+
 const addClient = async (req, res) => {
     try {
         
