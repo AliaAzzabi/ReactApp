@@ -1,12 +1,16 @@
 const mongoose = require("mongoose");
 
 const MedecinSchema = mongoose.Schema({
-    nomPrenom: String, 
-    telephone: String,
-    email: String,
-    password: String,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+},
+    image: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Image"
+  },
     dateAdhesion: { type: Date, default: Date.now },
-    role: String,
+    role:  { type:[ String], required: true },
     departement: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Departement"
@@ -15,10 +19,7 @@ const MedecinSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Specialtie"
     },
-    image: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Image"
-    }
+    
 });
 
 module.exports = mongoose.model("Medecin", MedecinSchema);

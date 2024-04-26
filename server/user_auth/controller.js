@@ -27,22 +27,7 @@ const protectedRouteHandler = (req, res) => {
   res.json({ success: true, message: 'Vous avez accès à  protégé!', clientId: req.clientId });
 };
 
-const addClient = async (req, res) => {
-    try {
-        
-        const { email, password } = req.body;
-        console.log(req.body);
-        const newuser = new Users ({ email, password });
-        const saveduser = await newuser.save();
-        res.status(201).json({
-            email: saveduser.email,
-            password: saveduser.password,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Erreur interne du serveur" });
-    }
-};
+
 
   
-module.exports = { authenticateUser,addClient };
+module.exports = { authenticateUser};
