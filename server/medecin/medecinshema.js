@@ -10,7 +10,9 @@ const MedecinSchema = mongoose.Schema({
       ref: "Image"
   },
     dateAdhesion: { type: Date, default: Date.now },
-    role:  { type:[ String], required: true },
+    
+    role:  { type: String, required: true },
+   
     departement: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Departement"
