@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import person1Image from './images/person_1.jpg';
 import person2Image from './images/person_2.jpg';
@@ -9,8 +9,9 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import PersonRemoveTwoToneIcon from '@mui/icons-material/PersonRemoveTwoTone';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 
+
 const DoctorList = () => {
-    
+   
     const tableContent = (
         <div className="container">
             <div className='row'>

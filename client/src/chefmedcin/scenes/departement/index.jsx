@@ -1,17 +1,45 @@
-import React from 'react';
+//index.jsx
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ChartCard from '../../components/ChartCard';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-
+import { getAllDepartement, deleteDepartement } from '../../../liaisonfrontback/operation';
+import moment from 'moment';
 const DepartList = () => {
+    const [departements, setDepartements] = useState([]);
+
+    useEffect(() => {
+        getAllDepartement((res) => {
+            if (res.data) {
+                setDepartements(res.data);
+            } else {
+                console.error("Erreur lors de la récupération des départements :", res.error);
+            }
+        });
+    }, []);
+    const handleDeleteDepartement = (id) => {
+
+        const confirmDelete = window.confirm("Voulez-vous vraiment supprimer ce département ?");
+        if (confirmDelete) {
+            deleteDepartement(id, (res) => {
+                if (res.data) {
+                    setDepartements(departements.filter(departement => departement._id !== id));
+                    console.log("Département supprimé avec succès");
+                } else {
+                    console.error("Erreur lors de la suppression du département :", res.error);
+                }
+            });
+        }
+    };
+
     const tableContent = (
         <div className="container">
             <div className='row'>
                 <div className="d-flex justify-content-end">
                     <button type="button" className="btn btn-info mb-2">
-                    <Link to="/adddepart">  <AddCircleIcon /></Link>
+                        <Link to="/adddepart">  <AddCircleIcon /></Link>
                     </button>
                 </div>
             </div>
@@ -40,6 +68,7 @@ const DepartList = () => {
             <div className="row">
                 <div className="col-md-12">
                     <div className="table-wrap">
+                   
                         <table className="table table-striped table-bordered table-hover table-checkable order-column full-width">
                             <thead>
                                 <tr>
@@ -53,100 +82,38 @@ const DepartList = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Service informatique</td>
-                                    <td>20</td>
-                                    <td>01/01/2020</td>
-                                    <td>Paris</td>
-                                    <td>John Doe</td>
-                                  
-                                    <td>Département responsable de la gestion des systèmes informatiques</td>
-                                    <td>
-                                        {/* Conteneur des boutons */}
-                                        <div className="d-flex">
-                                            {/* Icône de modification */}
-                                            <Link to="/modifDepart"> 
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success  mr-1"
-                                            >
-                                                <EditTwoToneIcon />
-                                            </button>
-                                          </Link>
-                                            {/* Icône de suppression */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-danger "
-                                            >
-                                                <RemoveCircleIcon />
-                                            </button>
-                                            
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Ressources humaines</td>
-                                    <td>15</td>
-                                    <td>05/02/2019</td>
-                                    <td>Lyon</td>
-                                    <td>Jane Smith</td>
-                                   
-                                    <td>Département responsable de la gestion du personnel</td>
-                                    <td>
-                                        {/* Conteneur des boutons */}
-                                        <div className="d-flex">
-                                            {/* Icône de modification */}
-                                         
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success  mr-1"
-                                            >
-                                                <EditTwoToneIcon />
-                                            </button>
-                                          
-                                            {/* Icône de suppression */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-danger "
-                                            >
-                                                <RemoveCircleIcon />
-                                            </button>
-                                            
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Marketing</td>
-                                    <td>25</td>
-                                    <td>10/10/2018</td>
-                                    <td>Marseille</td>
-                                    <td>Michael Johnson</td>
-                                   
-                                    <td>Département responsable des activités marketing</td>
-                                    <td>
-                                        {/* Conteneur des boutons */}
-                                        <div className="d-flex">
-                                            {/* Icône de modification */}
-                                         
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success  mr-1"
-                                            >
-                                                <EditTwoToneIcon />
-                                            </button>
-                                          
-                                            {/* Icône de suppression */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-danger "
-                                            >
-                                                <RemoveCircleIcon />
-                                            </button>
-                                            
-                                        </div>
-                                    </td>
-                                </tr>
-                                {/* Ajoutez plus de lignes pour d'autres départements */}
+                                {departements.map((departement) => (
+                                    <tr key={departement._id}>
+                                        <td>{departement.nom}</td>
+                                        <td>{departement.nombreEmployes}</td>
+                                        <td>{moment(departement.dateCreation).format('YYYY-MM-DD')}</td>
+                                        <td>{departement.localisation}</td>
+                                        <td>{departement.responsable}</td>
+                                        <td>{departement.description}</td>
+                                        <td>
+                                            {/* Conteneur des boutons */}
+                                            <div className="d-flex">
+                                                <Link to={`/modifDepart/${departement._id}`}>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-success mr-1"
+                                                    >
+                                                        <EditTwoToneIcon />
+                                                    </button>
+                                                </Link>
+                                                {/* Icône de suppression */}
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-outline-danger "
+                                                    onClick={() => handleDeleteDepartement(departement._id)}
+                                                >
+                                                    <RemoveCircleIcon />
+                                                </button>
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
 

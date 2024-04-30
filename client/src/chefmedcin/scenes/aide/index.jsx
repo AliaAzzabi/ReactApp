@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import person1Image from './images/person_1.jpg';
 import person2Image from './images/person_2.jpg';
 import person3Image from './images/person_3.jpg';
@@ -8,9 +8,34 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import PersonRemoveTwoToneIcon from '@mui/icons-material/PersonRemoveTwoTone';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import { Link } from 'react-router-dom';
-
+import { getAllAide, deleteAide } from '../../../liaisonfrontback/operation';
+import moment from 'moment';
 const AssitantList = () => {
+    const [aides, setaide] = useState([]);
 
+    useEffect(() => {
+        getAllAide((res) => {
+            if (res.data) {
+                setaide(res.data);
+            } else {
+                console.error("Erreur lors de la récupération des aides :", res.error);
+            }
+        });
+    }, []);
+    const handleDeleteAide = (id) => {
+
+        const confirmDelete = window.confirm("Voulez-vous vraiment supprimer ce Aide ?");
+        if (confirmDelete) {
+            deleteAide(id, (res) => {
+                if (res.data) {
+                    setaide(aides.filter(aide => aide._id !== id));
+                    console.log("Aide supprimé avec succès");
+                } else {
+                    console.error("Erreur lors de la suppression du Aide :", res.error);
+                }
+            });
+        }
+    };
     const tableContent = (
         <div className="container">
             <div className='row'>
@@ -56,183 +81,64 @@ const AssitantList = () => {
                                     <th>Mobile</th>
                                     <th>Email</th>
                                     <th>Médecin lié</th>
-                                    <th>Date d'adhésion</th>
                                     <th>&nbsp;</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr className="alert" role="alert">
-                                    <td>
+                                {aides.map((aide) => (
+                                    <tr key={aide._id}>
+                                         <td>
                                         <label className="checkbox-wrap checkbox-primary">
                                             <input type="checkbox" defaultChecked />
                                             <span className="checkmark" />
                                         </label>
                                     </td>
-                                    <td className="d-flex align-items-center">
-
-                                        <div className="img" style={{ backgroundImage: `url(${person1Image})`, width: '50px', height: '50px', backgroundSize: 'cover', backgroundPosition: 'center' }} />
 
 
-                                        <div className="pl-3 email">
-                                            <span>Dr. Mark Otto</span>
-                                            <span>Ajouté le : 01/03/2020</span>
-                                        </div>
-                                    </td>
+                                        <td className="d-flex align-items-center">
+                                        {aide.image && (
+                                                <img
+                                                    src={`http://localhost:4000/${aide.image.filepath}`}
+                                                    alt={aide.user.nomPrenom}
+                                                    className="img"
+                                                  
+                                                />
+                                            )}
+                                            <div className="pl-3 email">
+                                                <span>{aide.user.nomPrenom}</span>
+                                                <span>Ajouté le : {moment(aide.user.dateAdhesion).format('YYYY-MM-DD')}</span>
+                                            </div>
+                                        </td>
+                                        <td>{aide.role}</td>
+                                        <td>{aide.user.telephone}</td>
+                                        <td>{aide.user.email}</td>
+                                        <td>Dr.  {aide.medecinlie.user.nomPrenom}</td>
 
-                                    <td>Infirmière</td>
-                                    <td>1234567890</td>
-                                    <td>markotto@email.com</td>
-                                    <td>Dr. </td>
-                                    <td className="status">01/03/2020</td>
-                                    <td>
-                                        {/* Conteneur des boutons */}
-                                        <div className="d-flex">
-                                            {/* Icône de modification */}
-                                            <Link to="/modifAide">
-                                                <button
+                                        <td>
+                                            {/* Conteneur des boutons */}
+                                            <div className="d-flex">
+                                                {/* Icône de modification */}
+                                                <Link to="/modifAide"><button
                                                     type="button"
                                                     className="btn btn-outline-success  mr-1"
                                                 >
                                                     <EditTwoToneIcon />
-                                                </button>
-                                            </Link>
-                                            {/* Icône de suppression */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-danger "
-                                            >
-                                                <PersonRemoveTwoToneIcon />
-                                            </button>
+                                                </button></Link>
+                                                {/* Icône de suppression */}
+                                           
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-danger"
+                                                        onClick={() => handleDeleteAide(aide._id)}
+                                                    >
+                                                        <PersonRemoveTwoToneIcon />
+                                                    </button>
+                                               
+                                            </div>
+                                        </td>
 
-                                        </div>
-                                    </td>
-
-
-                                </tr>
-                                <tr className="alert" role="alert">
-                                    <td>
-                                        <label className="checkbox-wrap checkbox-primary">
-                                            <input type="checkbox" />
-                                            <span className="checkmark" />
-                                        </label>
-                                    </td>
-                                    <td className="d-flex align-items-center">
-                                        <div className="img" style={{ backgroundImage: `url(${person2Image})`, width: '50px', height: '50px', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                                        <div className="pl-3 email">
-                                            <span>Dr. Jacob Thornton</span>
-                                            <span>Ajouté le : 01/03/2020</span>
-                                        </div>
-                                    </td>
-
-                                    <td>Réceptionniste</td>
-                                    <td>9876543210</td>
-                                    <td>jacobthornton@email.com</td>
-                                    <td>Dr. </td>
-                                    <td className="status">01/03/2020</td>
-                                    <td>
-                                        {/* Conteneur des boutons */}
-                                        <div className="d-flex">
-                                            {/* Icône de modification */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success  mr-1"
-                                            >
-                                                <EditTwoToneIcon />
-                                            </button>
-                                            {/* Icône de suppression */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-danger "
-                                            >
-                                                <PersonRemoveTwoToneIcon />
-                                            </button>
-                                        </div>
-                                    </td>
-
-                                </tr>
-                                <tr className="alert" role="alert">
-                                    <td>
-                                        <label className="checkbox-wrap checkbox-primary">
-                                            <input type="checkbox" />
-                                            <span className="checkmark" />
-                                        </label>
-                                    </td>
-                                    <td className="d-flex align-items-center">
-                                        <div className="img" style={{ backgroundImage: `url(${person3Image})`, width: '50px', height: '50px', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                                        <div className="pl-3 email">
-                                            <span>Dr. Jacob Thornton</span>
-                                            <span>Ajouté le : 01/03/2020</span>
-                                        </div>
-                                    </td>
-
-                                    <td>Infirmière</td>
-                                    <td>9876543210</td>
-                                    <td>jacobthornton@email.com</td>
-                                    <td>Dr. </td>
-                                    <td className="status">01/03/2020</td>
-                                    <td>
-                                        {/* Conteneur des boutons */}
-                                        <div className="d-flex">
-                                            {/* Icône de modification */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success  mr-1"
-                                            >
-                                                <EditTwoToneIcon />
-                                            </button>
-                                            {/* Icône de suppression */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-danger "
-                                            >
-                                                <PersonRemoveTwoToneIcon />
-                                            </button>
-                                        </div>
-                                    </td>
-
-                                </tr>
-                                <tr className="alert" role="alert">
-                                    <td>
-                                        <label className="checkbox-wrap checkbox-primary">
-                                            <input type="checkbox" />
-                                            <span className="checkmark" />
-                                        </label>
-                                    </td>
-                                    <td className="d-flex align-items-center">
-                                        <div className="img" style={{ backgroundImage: `url(${person4Image})`, width: '50px', height: '50px', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                                        <div className="pl-3 email">
-                                            <span>Dr. Jacob Thornton</span>
-                                            <span>Ajouté le : 01/03/2020</span>
-                                        </div>
-                                    </td>
-
-                                    <td>Infirmière</td>
-                                    <td>9876543210</td>
-                                    <td>jacobthornton@email.com</td>
-                                    <td>Dr. </td>
-                                    <td className="status">01/03/2020</td>
-                                    <td>
-                                        {/* Conteneur des boutons */}
-                                        <div className="d-flex">
-                                            {/* Icône de modification */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success  mr-1"
-                                            >
-                                                <EditTwoToneIcon />
-                                            </button>
-                                            {/* Icône de suppression */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-danger "
-                                            >
-                                                <PersonRemoveTwoToneIcon />
-                                            </button>
-                                        </div>
-                                    </td>
-
-                                </tr>
-
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
@@ -256,7 +162,7 @@ const AssitantList = () => {
             </div>
 
 
-        </div>
+        </div >
     );
 
     return (

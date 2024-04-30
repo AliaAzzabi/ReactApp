@@ -1,5 +1,5 @@
-import React from 'react';
-
+import React, { useState, useEffect }  from 'react';
+import { addaides } from '../../../liaisonfrontback/operation';
 const AddAide = () => {
     const customCardStyles = {
         marginBottom: '20px',
@@ -11,6 +11,85 @@ const AddAide = () => {
         marginRight: '90px',
     };
 
+    const [aide, setAide] = useState({
+        nomPrenom: '',
+        email: '',
+        cin: '',
+        telephone: '',
+        password: '',
+        sexe: '',
+        dateNaissance: '',
+        adresse: '',
+        dateAdhesion: '',
+        role:'',
+        image:'',
+       
+    });
+    const [errors, setErrors] = useState({
+        nomPrenom: '',
+        email: '',
+        cin: '',
+        telephone: '',
+        password: '',
+        sexe: '',
+        dateNaissance: '',
+        adresse: '',
+        dateAdhesion: '',
+        role: '',
+        image:'',
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setAide({ ...aide, [name]: value });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const requiredFields = ['nomPrenom', 'email', 'cin', 'telephone', 'password', 'sexe', 'dateNaissance', 'adresse', 'dateAdhesion', 'role','image'];
+    
+        const newErrors = {};
+        requiredFields.forEach(field => {
+            if (!aide[field]) {
+                newErrors[field] = `Veuillez remplir le champ ${field}.`;
+            } else {
+                newErrors[field] = '';
+            }
+        });
+        setErrors(newErrors);
+    
+        const hasErrors = Object.values(newErrors).some(error => error);
+        if (hasErrors) {
+            return;
+        }
+    
+        
+        const aideWithId = { ...aide, id: Date.now() };
+    
+        addaides(aideWithId, (response) => {
+            if (response && !response.error) {
+                alert('Le aide a été ajouté avec succès');
+                setAide({
+                    nomPrenom: '',
+                    email: '',
+                    cin: '',
+                    telephone: '',
+                    password: '',
+                    sexe: '',
+                    dateNaissance: '',
+                    adresse: '',
+                    dateAdhesion: '',
+                    bloodGroup: '',
+                    role:'',
+                    image:'',
+                });
+                window.location.href = '/assitantList';
+            } else {
+                console.error("Erreur lors de l'ajout du Patient :", response && response.error);
+                alert('Une erreur s\'est produite lors de l\'ajout du Patient');
+            }
+        });
+    };
     return (
         <div className="container">
             <div className="row">
@@ -20,39 +99,20 @@ const AddAide = () => {
                             <header>Informations de base</header>
                         </div>
                         <div className="card-body" id="bar-parent">
-                            <form action="#" id="form_sample_1" className="form-horizontal mx-auto" style={customFormStyles}>
+                            <form action="#" id="form_sample_1" className="form-horizontal mx-auto" style={customFormStyles}  onSubmit={handleSubmit}>
                                 <div className="form-body" >
-                                    <div className="form-group row">
-                                        <label className="col-sm-2 col-form-label">Prénom
-                                            <span className="required red-star"> * </span>
-                                        </label>
+                                <div className="form-group row">
+                                        <label className="col-sm-2 col-form-label">Prénom & Nom</label>
                                         <div className="col-sm-10">
-                                            <input type="text" name="firstname" data-required={1} placeholder="entrer le prénom" className="form-control input-height" />
+                                            <input type="text" name="nomPrenom" placeholder="Entrer le prénom et le nom" className="form-control" onChange={handleChange} />
                                         </div>
                                     </div>
                                     <div className="form-group row">
-                                        <label className="col-sm-2 col-form-label">Nom de famille
-                                            <span className="required red-star"> * </span>
-                                        </label>
+                                        <label className="col-sm-2 col-form-label">Email</label>
                                         <div className="col-sm-10">
-                                            <input type="text" name="lastname" data-required={1} placeholder="entrer le nom de famille" className="form-control input-height" />
+                                            <input type="email" name="email" placeholder="Adresse e-mail" className="form-control" onChange={handleChange} />
                                         </div>
                                     </div>
-                                    <div className="form-group row">
-                                        <label className="col-sm-2 col-form-label">Email 
-                                            <span className="required red-star"> * </span>
-                                        </label>
-
-                                        <div className="col-sm-10 mb-2">
-                                            <div className="input-group">
-                                                <div className="input-group-prepend">
-                                                    <span className="input-group-text"><i className="fa fa-envelope"></i></span>
-                                                </div>
-                                                <input type="text" className="form-control input-height" name="email" placeholder="Adresse e-mail" />
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <div className="form-group row">
                                         <label className="col-sm-2 col-form-label">Mot de passe
                                             <span className="required red-star"> * </span>

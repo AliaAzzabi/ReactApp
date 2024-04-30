@@ -1,17 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ChartCard from '../../components/ChartCard';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { getAllspecialities, deleteSpecialite } from '../../../liaisonfrontback/operation';
 
 const SpecialiteList = () => {
+    const [specialites, setSpecialites] = useState([]);
+
+    useEffect(() => {
+        getAllspecialities((res) => {
+            if (res.data) {
+                setSpecialites(res.data);
+            } else {
+                console.error("Erreur lors de la récupération des specialites :", res.error);
+            }
+        });
+    }, []);
+    const handleDeleteSpecialite = (id) => {
+
+        const confirmDelete = window.confirm("Voulez-vous vraiment supprimer ce specialite ?");
+        if (confirmDelete) {
+            deleteSpecialite(id, (res) => {
+                if (res.data) {
+                    setSpecialites(specialites.filter(specialite => specialite._id !== id));
+                    console.log("Département supprimé avec succès");
+                } else {
+                    console.error("Erreur lors de la suppression du département :", res.error);
+                }
+            });
+        }
+    };
+
+
     const tableContent = (
         <div className="container">
             <div className='row'>
                 <div className="d-flex justify-content-end">
                     <button type="button" className="btn btn-info mb-2">
-                    <Link to="/addSpeciality">    <AddCircleIcon /></Link>
+                        <Link to="/addSpeciality">    <AddCircleIcon /></Link>
                     </button>
                 </div>
             </div>
@@ -49,85 +77,35 @@ const SpecialiteList = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Médecine générale</td>
-                                    <td>Spécialité médicale traitant les maladies de manière non chirurgicale.</td>
-                                    <td>
-                                        {/* Conteneur des boutons */}
-                                        <div className="d-flex">
-                                            {/* Icône de modification */}
-                                            <Link to="/modifSpecialiti"> 
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success  mr-1"
-                                            >
-                                                <EditTwoToneIcon />
-                                            </button>
-                                          </Link>
-                                            {/* Icône de suppression */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-danger "
-                                            >
-                                                <RemoveCircleIcon />
-                                            </button>
-                                            
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Chirurgie orthopédique</td>
-                                    <td>Spécialité médicale qui traite les maladies, les traumatismes et les affections dégénératives du système musculo-squelettique.</td>
-                                    <td>
-                                        {/* Conteneur des boutons */}
-                                        <div className="d-flex">
-                                            {/* Icône de modification */}
-                                         
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success  mr-1"
-                                            >
-                                                <EditTwoToneIcon />
-                                            </button>
-                                          
-                                            {/* Icône de suppression */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-danger "
-                                            >
-                                                <RemoveCircleIcon />
-                                            </button>
-                                            
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Pédiatrie</td>
-                                    <td>Spécialité médicale qui se concentre sur la santé des nourrissons, des enfants et des adolescents.</td>
-                                    <td>
-                                        {/* Conteneur des boutons */}
-                                        <div className="d-flex">
-                                            {/* Icône de modification */}
-                                         
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success  mr-1"
-                                            >
-                                                <EditTwoToneIcon />
-                                            </button>
-                                          
-                                            {/* Icône de suppression */}
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-danger "
-                                            >
-                                                <RemoveCircleIcon />
-                                            </button>
-                                            
-                                        </div>
-                                    </td>
-                                </tr>
+                                {specialites.map((specialite) => (
+                                    <tr key={specialite._id}>
+                                        <td>{specialite.nom}</td>
+                                        <td>{specialite.description}</td>
+                                        <td>
+                                            {/* Conteneur des boutons */}
+                                            <div className="d-flex">
+                                                {/* Icône de modification */}
+                                                <Link to={`/modifSpecialiti/${specialite._id}`}>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-success  mr-1"
+                                                    >
+                                                        <EditTwoToneIcon />
+                                                    </button>
+                                                </Link>
+                                                {/* Icône de suppression */}
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-outline-danger "
+                                                    onClick={() => handleDeleteSpecialite(specialite._id)}
+                                                >
+                                                    <RemoveCircleIcon />
+                                                </button>
 
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
 

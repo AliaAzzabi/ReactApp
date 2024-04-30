@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
 const User = require("../user_auth/userschema");
 
-const AideSchema = mongoose.Schema({
-   
-    education: String,
+const AdminSchema = mongoose.Schema({
+  
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
@@ -12,15 +11,12 @@ const AideSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Image"
     },
-    medecinlie: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Medecin" 
-    },
+  
 });
 
-AideSchema.post('findOneAndDelete', async function(Aide) {
+AdminSchema.post('findOneAndDelete', async function(Admin) {
     try {
-        const userId = Aide.user;
+        const userId = Admin.user;
 
         if (userId) {
             await User.findByIdAndDelete(userId);
@@ -30,4 +26,4 @@ AideSchema.post('findOneAndDelete', async function(Aide) {
     }
 });
 
-module.exports = mongoose.model("Aide", AideSchema);
+module.exports = mongoose.model("Admin", AdminSchema);

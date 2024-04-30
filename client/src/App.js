@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-
 import Sidebar from "../src/global/Sidebar"
 import Topbar from "../src/global/Topbar";
 import Dashboard from "../src/chefmedcin/scenes/dashboard";
@@ -64,8 +63,8 @@ function App() {
                   <Route path="/addSpeciality" element={<Addsp/>}/>
                   <Route path="/modifMedecin" element={<ModifMed/>}/>
                   <Route path="/modifAide" element={<ModifAide/>}/>
-                  <Route path="/modifDepart" element={<ModifDepart/>}/>
-                  <Route path="/modifSpecialiti" element={<ModifSpecialiti/>}/>
+                  <Route path="/modifDepart/:id" element={<ModifDepart />} />
+                  <Route path="/modifSpecialiti/:id" element={<ModifSpecialiti/>}/>
                   <Route path="/patientList" element={<PatientList/>}/>
                   <Route path="/addPatient" element={<AddPatient/>}/>
                   <Route path="/facture" element={<Facture/>}/>

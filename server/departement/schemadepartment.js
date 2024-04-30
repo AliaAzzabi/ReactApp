@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 
 const DepartementSchema = new mongoose.Schema({
     nom: String,
-    nombreEmployes: Number,
+    nombreEmployes: String,
     localisation: String,
     responsable: String,
-    dateCreation: Date,
+    dateCreation: { type: Date, default: Date.now },
     description: String,
 
 });

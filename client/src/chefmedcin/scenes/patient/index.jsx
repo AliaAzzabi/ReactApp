@@ -1,290 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import person1Image from './images/person_1.jpg';
 import person2Image from './images/person_2.jpg';
 import person3Image from './images/person_3.jpg';
 import person4Image from './images/person_4.jpg';
 import ChartCard from '../../components/ChartCard';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import PersonRemoveTwoToneIcon from '@mui/icons-material/PersonRemoveTwoTone';
-import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import moment from 'moment';
+import { getAllPatients } from '../../../liaisonfrontback/operation';
 
 const PatientList = () => {
+  const [patients, setpatients] = useState([]);
 
-  const tableContent = (
-    <div className='container'>
-    <div className="row">
-    <div className="col-sm-12 col-md-6">
-        <div className="dataTables_length" id="example4_length">
-            <label>Afficher :</label>
-            <select name="example_length" className="form-select form-select-sm">
-                <option value={50}>50</option>
-                <option value={20}>20</option>
-                <option value={10}>10</option>
-            </select>
-        </div>
-    </div>
-    <div className="col-sm-12 col-md-6 d-flex align-items-end justify-content-end">
-        <div id="example4_filter" className="dataTables_filter">
-            <label>Rechercher :</label>
-            <input type="search" className="form-control form-control-sm" placeholder="Rechercher..." aria-controls="example" />
-        </div>
-
-    </div>
-
-</div>
-    <div className="tab-pane" id="tab2">
-      <div className="row">
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user10.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">Pooja Patel </div>
-                </div>
-                <p>A-103, shyam gokul flats, Mahatma Road <br />Mumbai</p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
+    useEffect(() => {
+      getAllPatients((res) => {
+            if (res.data) {
+              setpatients(res.data);
+            } else {
+                console.error("Erreur lors de la récupération des patients :", res.error);
+            }
+        });
+    }, []);
+    
+    const tableContent = (
+      <div className='container'>
+        <div className="row">
+          {patients.map((patient) => (
+            <div className="col-md-4" key={patient._id}>
+              <div className="card">
+                <div className="card-body no-padding ">
+                  <div className="doctor-profile">
+             
+                    <div className="profile-usertitle">
+                      <div className="doctor-name">{patient.user.nomPrenom} </div>
+                    </div>
+                    <p> {patient.user.adresse}</p>
+                    <p> {moment(patient.user.dateNaissance).format('YYYY-MM-DD')}</p>
+                    <div>
+                      <p><i className="fa fa-phone" /><a href={`tel:${patient.user.telephone}`}> {patient.user.telephone}</a></p>
+                    </div>
+                    <div>
+                      <p><i className="fa fa-envelope" /><a href={`mailto:${patient.user.email}`}> {patient.user.email}</a></p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user1.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">Rajesh </div>
-                </div>
-                <p>45, Krishna Tower, Near Bus Stop, Satellite, <br />Mumbai
-                </p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user2.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">Sarah Smith </div>
-                </div>
-                <p>456, Estern evenue, Courtage area, <br />New York</p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
-                </div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
-      <div className="row">
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user3.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">John Deo </div>
-                </div>
-                <p>A-103, shyam gokul flats, Mahatma Road <br />Mumbai</p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user4.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">Jay Soni </div>
-                </div>
-                <p>45, Krishna Tower, Near Bus Stop, Satellite, <br />Mumbai
-                </p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user5.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">Jacob Ryan </div>
-                </div>
-                <p>456, Estern evenue, Courtage area, <br />New York</p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user6.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">Megha Trivedi </div>
-                </div>
-                <p>A-103, shyam gokul flats, Mahatma Road <br />Mumbai</p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user1.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">Rajesh </div>
-                </div>
-                <p>45, Krishna Tower, Near Bus Stop, Satellite, <br />Mumbai
-                </p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user2.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">Sarah Smith </div>
-                  <div className="name-center"> Anaesthetics </div>
-                </div>
-                <p>456, Estern evenue, Courtage area, <br />New York</p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user10.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">Pooja Patel </div>
-                  <div className="name-center"> Cardiology </div>
-                </div>
-                <p>A-103, shyam gokul flats, Mahatma Road <br />Mumbai</p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
-                </div>
+    );
+  
 
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user1.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">Rajesh </div>
-                </div>
-                <p>45, Krishna Tower, Near Bus Stop, Satellite, <br />Mumbai
-                </p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body no-padding ">
-              <div className="doctor-profile">
-                <img src="img/user/user3.jpg" className="doctor-pic" alt />
-                <div className="profile-usertitle">
-                  <div className="doctor-name">John Deo </div>
-                </div>
-                <p>A-103, shyam gokul flats, Mahatma Road <br />Mumbai</p>
-                <div>
-                  <p><i className="fa fa-phone" /><a href="tel:(123)456-7890"> (123)456-7890</a></p>
-                </div>
-                <div>
-                  <p><i className="fa fa-envelope" /><a href="mailto:adresse@example.com"> adresse@example.com</a></p>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    </div>
-
-  );
 
 
   return (

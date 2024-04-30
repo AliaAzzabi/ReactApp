@@ -12,6 +12,17 @@ const getSpecialty = async (req, res) => {
     }
 };
 
+const getSpecialtyById = async (req, res) => {
+    try {
+        const specialtie = await Specialtie.findById(req.params.id);
+        if (!specialtie) {
+            return res.status(404).json({ message: "Specialtie non trouvé" });
+        }
+        res.status(200).json(specialtie);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
   
 const addSpecialty = async (req, res) => {
@@ -51,4 +62,4 @@ const deleteSpecialty = async (req, res) => {
     }
 };
 
-module.exports = { getSpecialty, addSpecialty, updateSpecialty, deleteSpecialty };
+module.exports = { getSpecialty, addSpecialty, updateSpecialty, deleteSpecialty, getSpecialtyById };

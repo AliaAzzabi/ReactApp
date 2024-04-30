@@ -23,21 +23,14 @@ const AddDoctor = () => {
                             <form action="#" id="form_sample_1" className="form-horizontal mx-auto" style={customFormStyles}>
                                 <div className="form-body" >
                                     <div className="form-group row">
-                                        <label className="col-sm-2 col-form-label">Prénom
+                                        <label className="col-sm-2 col-form-label">Prénom & Nom
                                             <span className="required red-star"> * </span>
                                         </label>
                                         <div className="col-sm-10">
                                             <input type="text" name="firstname" data-required={1} placeholder="entrer le prénom" className="form-control input-height" />
                                         </div>
                                     </div>
-                                    <div className="form-group row">
-                                        <label className="col-sm-2 col-form-label">Nom de famille
-                                            <span className="required red-star"> * </span>
-                                        </label>
-                                        <div className="col-sm-10">
-                                            <input type="text" name="lastname" data-required={1} placeholder="entrer le nom de famille" className="form-control input-height" />
-                                        </div>
-                                    </div>
+    
                                     <div className="form-group row">
                                         <label className="col-sm-2 col-form-label">Email 
                                             <span className="required red-star"> * </span>

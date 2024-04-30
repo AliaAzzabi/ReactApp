@@ -1,6 +1,14 @@
-import React, { useState } from 'react';
+//modifDepart.jsx
+import React, { useState, useEffect } from 'react';
+import { useParams} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
+
+import { updateDepartement, getDepartementById } from '../../../liaisonfrontback/operation';
 const ModifDepart = () => {
+    
+    let { id } = useParams();
+
     const customCardStyles = {
         marginBottom: '20px',
         marginLeft: '20px',
@@ -10,6 +18,58 @@ const ModifDepart = () => {
         marginLeft: '90px',
         marginRight: '90px',
     };
+
+    const [departement, setDepartement] = useState({
+        nom: '',
+        nombreEmployes: '',
+        dateCreation: '',
+        localisation: '',
+        responsable: '',
+        description: ''
+    });
+
+    const fetchDepartement = async () => {
+        try {
+            const response = await getDepartementById(id, (data) => data);
+            if (response && !response.error) {
+                setDepartement(response);
+            } else {
+                console.error("Erreur lors de la récupération du département :", response && response.error);
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération du département :", error);
+        }
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setDepartement({ ...departement, [name]: value });
+    };
+   
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+      
+        try {
+          const callback = (response) => {
+            if (response && !response.error) {
+              alert('Le département a été mis à jour avec succès');
+              window.location.href = '/departList';
+            } else {
+              console.error("Erreur lors de la mise à jour du département :", response && response.error);
+              alert('Une erreur s\'est produite lors de la mise à jour du département');
+            }
+          };
+      
+          await updateDepartement(id, departement, callback);
+        } catch (error) {
+          console.error("Erreur lors de la mise à jour du département :", error);
+          alert('Une erreur s\'est produite lors de la mise à jour du département');
+        }
+      };
+    useEffect(() => {
+        fetchDepartement();
+    }, [id]);
+
 
     return (
         <div className="container">
@@ -31,7 +91,15 @@ const ModifDepart = () => {
                                                     <span className="required red-star"> * </span>
                                                 </label>
                                                 <div className="col-sm-10">
-                                                    <input type="text" name="Nomdudépartement" data-required={1} placeholder="entrez le Nom du département" className="form-control input-height" />
+                                                    <input
+                                                        type="text"
+                                                        name="nom"
+                                                        data-required={1}
+
+                                                        className="form-control input-height"
+                                                        value={departement.nom}
+                                                        onChange={handleChange}
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="form-group row">
@@ -39,7 +107,15 @@ const ModifDepart = () => {
                                                     <span className="required red-star"> * </span>
                                                 </label>
                                                 <div className="col-sm-10">
-                                                    <input type="text" name="Nombreemployés" data-required={1} placeholder="entrez le Nombre d'employés" className="form-control input-height" />
+                                                    <input
+                                                        type="text"
+                                                        name="nombreEmployes"
+                                                        data-required={1}
+
+                                                        className="form-control input-height"
+                                                        value={departement.nombreEmployes}
+                                                        onChange={handleChange}
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="form-group row">
@@ -49,41 +125,45 @@ const ModifDepart = () => {
                                                 <div className="col-sm-10">
                                                     <div className="input-append date">
                                                         <div id="dateIcon2" className="input-group datePicker">
-                                                            <input className="formDatePicker form-control" type="date" placeholder="Sélectionnez une date.."  />
-                                                            <span className="dateBtn">
-                                                                <a className="input-button" title="toggle" data-toggle>
-                                                                    <i className="icon-calendar" />
-                                                                </a>
-                                                                <a className="input-button" title="clear" data-clear>
-                                                                    <i className="icon-close" />
-                                                                </a>
-                                                            </span>
+                                                            <input
+                                                                className="formDatePicker form-control"
+                                                                type="date"
+                                                                name="dateCreation"
+                                                                value={departement.dateCreation}
+                                                                onChange={handleChange}
+                                                            />
                                                         </div>
                                                     </div>
                                                 </div>
+
                                             </div>
-                                           
+
                                             <div className="form-group row">
                                                 <label className="col-sm-2 col-form-label">Localisation
                                                     <span className="required red-star"> * </span>
                                                 </label>
                                                 <div className="col-sm-10">
-                                                    <input type="text" name="Localisation" data-required={1} placeholder="entrez votre Localisation" className="form-control input-height" /> </div>
-                                            </div>
-                                            <div className="form-group row">
-                                                <label className="col-sm-2 col-form-label">Numéro de téléphone portable
-                                                    <span className="required red-star"> * </span>
-                                                </label>
-                                                <div className="col-sm-10">
-                                                    <input name="number" type="text" placeholder="numéro de téléphone portable" className="form-control input-height" />
+                                                    <input type="text"
+                                                        name="localisation"
+                                                        data-required={1}
+                                                        value={departement.localisation}
+                                                        onChange={handleChange}
+                                                        className="form-control input-height"
+                                                    />
                                                 </div>
                                             </div>
+
                                             <div className="form-group row">
                                                 <label className="col-sm-2 col-form-label">Responsable
                                                     <span className="required red-star"> * </span>
                                                 </label>
                                                 <div className="col-sm-10">
-                                                <input type="text" name="responsable" data-required={1} placeholder="Responsable .." className="form-control input-height" />
+                                                    <input type="text"
+                                                        name="responsable"
+                                                        data-required={1}
+                                                        value={departement.responsable}
+                                                        onChange={handleChange}
+                                                        className="form-control input-height" />
                                                 </div>
                                             </div>
                                             <div className="form-group row">
@@ -91,15 +171,32 @@ const ModifDepart = () => {
                                                     <span className="required red-star"> * </span>
                                                 </label>
                                                 <div className="col-sm-10">
-                                                    <textarea name="address" placeholder="description" className="form-control-textarea" rows={5} cols={130} />
+                                                    <textarea
+                                                        name="description"
+
+                                                        className="form-control-textarea"
+                                                        rows={5}
+                                                        cols={130}
+                                                        value={departement.description}
+                                                        onChange={handleChange}
+                                                    />
                                                 </div>
                                             </div>
-                                            
+
                                             <div className="form-actions">
                                                 <div className="col-lg-12 p-t-20 text-center">
-                                                    <button type="button" className="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect m-b-10 m-r-20 btn-circle btn btn-primary  mr-2">Soumettre</button>
-                                                    <button type="button" className="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect m-b-10 btn-circle btn btn-danger">Annuler</button>
-                                                </div>
+                                                    <button
+                                                        type="button"
+                                                        className="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect m-b-10 m-r-20 btn-circle btn btn-primary mr-2"
+                                                        onClick={handleSubmit}
+                                                    >
+                                                        Soumettre
+                                                    </button>                                
+                                                    <Link to="/departList">
+                                                        <button type="button" className="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect m-b-10 btn-circle btn btn-danger">
+                                                            Annuler
+                                                        </button>
+                                                    </Link>                                                </div>
                                             </div>
                                         </div>
                                     </form>
