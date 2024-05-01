@@ -5,19 +5,16 @@ const validator = require('validator')
 const Schema = mongoose.Schema
 
 const userSchema = new Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  role: {
-    type: String,
-    required: true
-  }
+  cin: String,
+  nomPrenom: String, 
+ telephone:String,
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  sexe: String,
+  dateNaissance: Date, 
+  adresse: String,
+  role: String,
+  dateAdhesion: { type: Date, default: Date.now } 
 })
 
 // static signup method
