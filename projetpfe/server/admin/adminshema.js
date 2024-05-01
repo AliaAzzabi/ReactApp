@@ -1,20 +1,22 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const User = require("../models/userModel");
-const patientSchema = new mongoose.Schema({
- 
-   
+
+const AdminSchema = mongoose.Schema({
+  
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
+    image: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Image"
+    },
   
-    bloodGroup: String,
-
-    
 });
-patientSchema.post('findOneAndDelete', async function(Patient) {
+
+AdminSchema.post('findOneAndDelete', async function(Admin) {
     try {
-        const userId = Patient.user;
+        const userId = Admin.user;
 
         if (userId) {
             await User.findByIdAndDelete(userId);
@@ -24,5 +26,4 @@ patientSchema.post('findOneAndDelete', async function(Patient) {
     }
 });
 
-
-module.exports = mongoose.model('Patient', patientSchema);
+module.exports = mongoose.model("Admin", AdminSchema);

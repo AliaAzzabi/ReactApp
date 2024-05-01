@@ -1,6 +1,6 @@
 const Patient = require('./patientshema');
 const bcrypt = require('bcrypt');
-const User = require("../user_auth/userschema");
+const User = require("../models/userModel");
 
 const expressHandler = require("express-async-handler");
 

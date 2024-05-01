@@ -5,7 +5,7 @@ import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
-import { getAllspecialities, deleteSpecialite } from '../liaisonfrontback/operation';
+import { getAllspecialities, updateSpecialite, deleteSpecialite } from '../liaisonfrontback/operation';
 import {
     Card,
     CardHeader,
@@ -23,38 +23,61 @@ function ListeSpecialite() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { user } = useContext(AuthContext);
+    const [selectedSpecialite, setSelectedSpecialite] = useState(null);
 
     useEffect(() => {
         getAllspecialities((res) => {
             if (res.data) {
                 setSpecialites(res.data);
             } else {
-                console.error("Erreur lors de la récupération des specialites :", res.error);
+                console.error("Erreur lors de la récupération des spécialités :", res.error);
             }
         });
-    }, []);
+    }, [specialites]); 
 
     const handleDeleteSpecialite = (id) => {
-        const confirmDelete = window.confirm("Voulez-vous vraiment supprimer ce specialite ?");
+        const confirmDelete = window.confirm("Voulez-vous vraiment supprimer cette spécialité ?");
         if (confirmDelete) {
             deleteSpecialite(id, (res) => {
                 if (res.data) {
                     setSpecialites(specialites.filter(specialite => specialite._id !== id));
-                    console.log("Département supprimé avec succès");
+                    console.log("Spécialité supprimée avec succès");
                 } else {
-                    console.error("Erreur lors de la suppression du département :", res.error);
+                    console.error("Erreur lors de la suppression de la spécialité :", res.error);
                 }
             });
         }
     };
 
-    const openModal = (selectedAssistant) => {
-        console.log("Modal opened with assistant:", selectedAssistant);
+    const openModal = (specialite) => {
+        setSelectedSpecialite(specialite);
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
+        setSelectedSpecialite(null);
+    };
+
+    const handleUpdateSpecialite = (e) => {
+        e.preventDefault();
+        if (selectedSpecialite) {
+            const formData = new FormData(e.target);
+            const updatedSpecialite = {
+                nom: formData.get('nom'),
+                description: formData.get('description'),
+            };
+            updateSpecialite(selectedSpecialite._id, updatedSpecialite, (res) => {
+                if (res.data) {
+                    const updatedSpecialites = specialites.map(specialite => (specialite._id === res.data._id ? res.data : specialite));
+                    setSpecialites(updatedSpecialites);
+                    closeModal();
+                    console.log("Spécialité modifiée avec succès");
+                } else {
+                    console.error("Erreur lors de la modification de la spécialité :", res.error);
+                }
+            });
+        }
     };
 
     if (!user) {
@@ -82,7 +105,7 @@ function ListeSpecialite() {
                                 <div className="mb-8 ml-8 flex items-center mr-8 justify-between gap-8">
                                     <div>
                                         <Typography variant="h5" color="blue-gray">
-                                            Liste des spécialité
+                                            Liste des spécialités
                                         </Typography>
                                     </div>
                                     <div className="flex flex-col gap-2 sm:flex-row mt-2">
@@ -121,7 +144,7 @@ function ListeSpecialite() {
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex items-center space-x-4">
                                                             <Tooltip content="Modifier" className="text-indigo-500 dark:text-indigo-400">
-                                                                <IconButton variant="text" className='text-indigo-700' onClick={() => openModal({ img, name, email, job, org, naiss, telephone })}>
+                                                                <IconButton variant="text" className='text-indigo-700' onClick={() => openModal(specialite)}>
                                                                     <PencilIcon className="h-4 w-4" />
                                                                 </IconButton>
                                                             </Tooltip>
@@ -160,14 +183,14 @@ function ListeSpecialite() {
                                 <div className='  dark:bg-gray-800 dark:text-gray-50 text-gray-800 overflow-hidden'>
                                     <h1 className="mb-8  dark:bg-gray-800 dark:text-gray-50 leading-7 text-gray-800 ">Entrer les informations :</h1>
                                 </div>
-                                <form class="max-w-sm mx-auto">
+                                <form class="max-w-sm mx-auto" onSubmit={handleUpdateSpecialite}>
                                     <div class="relative z-0 w-full mb-10 group">
-                                        <input type="text" name="nom" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
+                                        <input type="text" name="nom" defaultValue={selectedSpecialite?.nom} class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
                                         <label for="nom" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Nom</label>
                                     </div>
                                     <div class="relative z-0 w-full mb-10 group">
                                         <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
-                                        <textarea id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Description..."></textarea>
+                                        <textarea id="message" rows="4" name="description" defaultValue={selectedSpecialite?.description} class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Description..."></textarea>
                                     </div>
                                     <div className="flex justify-end mt-4">
                                         <Button onClick={closeModal} size="sm" className=' text-gray-700 bg-gray-200 '>

@@ -7,6 +7,8 @@ const {createDepartement, getAllDepartements, updateDepartement, deleteDeparteme
 const { getSpecialty, addSpecialty, updateSpecialty, deleteSpecialty, getSpecialtyById } = require('./specialité/controllerspecialité');
 const { getAide, addaides, updateAide, deleteAide, getAideById } = require('./aide/controlleraide');
 const {getMedecins, addMedecin, updateMedecin, deleteMedecin, getMedecinById} = require ('./medecin/controllermedecin');
+const { getAdmin, addAdmin, updateAdmin, deleteAdmin, getAdminById } = require ('./admin/controlleradmin');
+const  { getPatient, addPatient, updatePatient, deletePatient, gePatientById } = require('./patient/controllerpatient');
 const router = express.Router();
 
 router.use(cors());
@@ -35,6 +37,18 @@ router.post("/addMedecin",upload.single("image"), addMedecin);
 router.put("/updateMedecin/:id",upload.single("image"), updateMedecin);
 router.get("/getMedecinById/:id", getMedecinById);
 router.delete("/deleteMedecin/:id", deleteMedecin);
+
+router.get("/getAdmin", getAdmin);
+router.post("/addAdmin",upload.single("image"), addAdmin); 
+router.put("/updateAdmin/:id",upload.single("image"), updateAdmin);
+router.get("/getAdminById/:id", getAdminById);
+router.delete("/deleteAdmin/:id", deleteAdmin);
+
+router.get("/getPatient", getPatient);
+router.post("/addPatient", addPatient); 
+router.put("/updatePatient/:id", updatePatient);
+router.get("/gePatientById/:id", gePatientById);
+router.delete("/deletePatient/:id", deletePatient);
 
   
 module.exports = { router };
