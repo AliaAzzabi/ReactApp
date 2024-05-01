@@ -13,7 +13,7 @@ const verifyToken = (req, res, next) => {
       return res.status(401).json({ success: false, error: 'Invalid token' });
     }
 
-    req.userId = decoded.userId;
+    req.clientId = decoded.clientId;
     next();
   });
 };

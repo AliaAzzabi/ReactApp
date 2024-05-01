@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Users = require('./userschema');
 const { secretKey } = require("./config"); 
-const {verifyToken } = require("./authmiddleware");
+
 const authenticateUser = expressHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -24,10 +24,10 @@ const authenticateUser = expressHandler(async (req, res) => {
   }
 });
 const protectedRouteHandler = (req, res) => {
-  res.json({ success: true, message: 'Vous avez accès à  protégé!', userId: req.userId });
+  res.json({ success: true, message: 'Vous avez accès à  protégé!', clientId: req.clientId });
 };
 
 
 
   
-module.exports = { authenticateUser ,protectedRouteHandler};
+module.exports = { authenticateUser};

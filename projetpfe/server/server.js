@@ -3,12 +3,13 @@ require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
 const userRoutes = require('./routes/user')
-
+const { router } = require("./routes");
 // express app
 const app = express()
 
 // middleware
 app.use(express.json())
+app.use("/", router);
 
 app.use((req, res, next) => {
   console.log(req.path, req.method)

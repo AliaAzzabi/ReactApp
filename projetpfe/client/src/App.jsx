@@ -19,12 +19,16 @@ import ListePatient from './pages/ListePatient';
 import Salle from './pages/salle';
 import ListeAssistant from './pages/ListeAssistants';
 import AddPatient from './pages/AddPatient';
+import AddSpecialte from './pages/addSpecialté';
+import ListeSpecialite from './pages/ListeSpecialte';
 import Calendar from './pages/Calendar';
  import AddAssistant from './pages/addAssistant';
  import AddMedecin from './pages/addMedecin';
  import ListeMedecin from './pages/ListeMedecin';
  import Profile from './pages/Profile';
  import Login from './pages/login';
+ import ListeDepartement from './pages/ListeDepartement';
+ import AddDepartement from './pages/AddDepartemnt';
 
 
 function App() {
@@ -53,6 +57,12 @@ function App() {
         <Route exact path="/addPatient" element={<AddPatient />} />
         <Route exact path="/calender" element={<Calendar />} />
         <Route exact path="/login" element={<Login />} />
+
+        <Route exact path="/addSpecialte" element={<AddSpecialte />} />
+        <Route exact path="/listeSpecialite" element={<ListeSpecialite />} />
+
+        <Route exact path="/addDepartement" element={<AddDepartement />} />
+        <Route exact path="/listeDepartement" element={<ListeDepartement />} />
 
       </Routes>
     </>

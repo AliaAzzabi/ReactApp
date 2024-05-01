@@ -3,54 +3,29 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const { upload } = require("./image/upload");
-const { getSpecialty, addSpecialty, updateSpecialty, deleteSpecialty, getSpecialtyById } = require('./specialité/controllerspecialité');
-const {createDepartement, getAllDepartements, updateDepartement, deleteDepartement,getDepartementById} = require ('./departement/controllerdepartement');
-const {getMedecins, addMedecin, updateMedecin, deleteMedecin, getMedecinById} = require ('./medecin/controllermedecin');
-const { getAide, addaides, updateAide, deleteAide, getAideById } = require('./aide/controlleraide');
-const { getAdmin, addAdmin, updateAdmin, deleteAdmin, getAdminById } = require ('./admin/controlleradmin');
-const  { getPatient, addPatient, updatePatient, deletePatient, gePatientById } = require('./patient/controllerpatient');
-const { authenticateUser, protectedRouteHandler } = require('./user_auth/controller');
+const { getSpecialty, addSpecialty, updateSpecialty, deleteSpecialty } = require('./specialité/controllerspecialité');
+const {createDepartement, getAllDepartements, updateDepartement, deleteDepartement} = require ('./departement/controllerdepartement');
+const {getMedecins, addMedecin, updateMedecin, deleteMedecin} = require ('./medecin/controllermedecin');
+const { authenticateUser } = require('./user_auth/controller');
 const router = express.Router();
-const { verifyToken } =require( "./user_auth/authmiddleware");
 router.use(cors());
 
 router.get("/getAllspecialities", getSpecialty);
 router.post("/addspecialite", addSpecialty); 
 router.put("/updateSpecialite/:id", updateSpecialty);
-router.get("/getSpecialtyById/:id", getSpecialtyById);
 router.delete("/deleteSpecialite/:id", deleteSpecialty);
 
 router.get("/getAllDepartement", getAllDepartements);
 router.post("/addDepartement", createDepartement); 
 router.put("/updateDepartement/:id", updateDepartement);
-router.get("/getDepartementById/:id", getDepartementById);
 router.delete("/deleteDepartement/:id", deleteDepartement);
 
 router.post('/authenticate', authenticateUser);
-router.get("/protectedRoute", verifyToken, protectedRouteHandler);
+
 router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 router.get("/getMedecins", getMedecins);
 router.post("/addMedecin",upload.single("image"), addMedecin); 
 router.put("/updateMedecin/:id",upload.single("image"), updateMedecin);
-router.get("/getMedecinById/:id", getMedecinById);
 router.delete("/deleteMedecin/:id", deleteMedecin);
-
-router.get("/getAide", getAide);
-router.post("/addaides",upload.single("image"), addaides); 
-router.put("/updateAide/:id",upload.single("image"), updateAide);
-router.get("/getAideById/:id", getAideById);
-router.delete("/deleteAide/:id", deleteAide);
-
-router.get("/getAdmin", getAdmin);
-router.post("/addAdmin",upload.single("image"), addAdmin); 
-router.put("/updateAdmin/:id",upload.single("image"), updateAdmin);
-router.get("/getAdminById/:id", getAdminById);
-router.delete("/deleteAdmin/:id", deleteAdmin);
-
-router.get("/getPatient", getPatient);
-router.post("/addPatient", addPatient); 
-router.put("/updatePatient/:id", updatePatient);
-router.get("/gePatientById/:id", gePatientById);
-router.delete("/deletePatient/:id", deletePatient);
   
 module.exports = { router };

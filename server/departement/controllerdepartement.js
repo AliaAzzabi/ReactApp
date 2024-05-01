@@ -22,7 +22,7 @@ exports.getAllDepartements = async (req, res) => {
     }
 };
 
-
+// Obtenir un département par son ID
 exports.getDepartementById = async (req, res) => {
     try {
         const departement = await Departement.findById(req.params.id);

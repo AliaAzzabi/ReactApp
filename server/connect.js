@@ -17,6 +17,14 @@ const connect = async () => {
             console.error("La collection specialties n'existe pas dans la base de données");
         }
 
+        // Vérifier si la collection assistants existe
+        const assistantsExists = await db.listCollections({ name: 'assistants' }).toArray();
+        if (assistantsExists.length > 0) {
+            console.log("Connexion à la collection assistants réussie");
+        } else {
+            console.error("La collection assistants n'existe pas dans la base de données");
+        }
+
         // Vérifier si la collection medecins existe
         const medecinsExists = await db.listCollections({ name: 'medecins' }).toArray();
         if (medecinsExists.length > 0) {
