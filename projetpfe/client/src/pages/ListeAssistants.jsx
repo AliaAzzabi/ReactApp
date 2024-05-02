@@ -9,7 +9,7 @@ import FilterButton from '../components/DropdownFilter';
 import Datepicker from '../components/Datepicker';
 import { Link } from 'react-router-dom';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
-import { getAllAide, deleteAide, getAideById, updateAide } from '../liaisonfrontback/operation'; // Importez la fonction Axios pour récupérer les utilisateurs
+import { getAllAide, deleteAide, updateAide } from '../liaisonfrontback/operation'; // Importez la fonction Axios pour récupérer les utilisateurs
 import {
   Card,
   CardHeader,
@@ -30,87 +30,78 @@ import {
 function ListeAssistant() {
   const [users, setUsers] = useState([]); // État pour stocker les données des utilisateurs récupérées depuis l'API
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedAssistant, setSelectedAssistant] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useContext(AuthContext);
   const [aides, setaide] = useState([]);
+  const [selectedAide, setSelectedAide] = useState(null);
 
   useEffect(() => {
-      getAllAide((res) => {
-          if (res.data) {
-              setaide(res.data);
-          } else {
-              console.error("Erreur lors de la récupération des aides :", res.error);
-          }
-      });
-  }, []);
+    getAllAide((res) => {
+      if (res.data) {
+        setaide(res.data);
+      } else {
+        console.error("Erreur lors de la récupération des aides :", res.error);
+      }
+    });
+  }, [aides]);
   const handleDeleteAide = (id) => {
 
-      const confirmDelete = window.confirm("Voulez-vous vraiment supprimer ce Aide ?");
-      if (confirmDelete) {
-          deleteAide(id, (res) => {
-              if (res.data) {
-                  setaide(aides.filter(aide => aide._id !== id));
-                  console.log("Aide supprimé avec succès");
-              } else {
-                  console.error("Erreur lors de la suppression du Aide :", res.error);
-              }
-          });
-      }
+    const confirmDelete = window.confirm("Voulez-vous vraiment supprimer ce Aide ?");
+    if (confirmDelete) {
+      deleteAide(id, (res) => {
+        if (res.data) {
+          setaide(aides.filter(aide => aide._id !== id));
+          console.log("Aide supprimé avec succès");
+        } else {
+          console.error("Erreur lors de la suppression du Aide :", res.error);
+        }
+      });
+    }
   };
   if (!aides) {
     return <Navigate to="/login" />;
   }
- // Ajouter une nouvelle variable d'état pour stocker l'identifiant de l'assistant sélectionné
-const [selectedAssistantId, setSelectedAssistantId] = useState(null);
 
-const openModal = (id) => {
-  console.log("Modal opened with assistant:", id);
-  setIsModalOpen(true);
-  setSelectedAssistantId(id); // Mettre à jour l'identifiant de l'assistant sélectionné
-};
+  const openModal = (id) => {
+    console.log("Modal opened with assistant:", id);
+    setSelectedAide(selectedAide);
+    setIsModalOpen(true);
+  };
 
-const fetchaides = async (id) => { // Prendre l'identifiant de l'assistant comme paramètre
-  try {
-    const response = await getAideById(id); // Utiliser l'identifiant pour récupérer les données de l'assistant
-    if (response && !response.error) {
-      setupdateaides(response);
-    } else {
-      console.error("Erreur lors de la récupération de l'assistant :", response && response.error);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedAide(null);
+  };
+
+
+  const handleUpdateAide = (e) => {
+    e.preventDefault();
+    if (selectedAide) {
+      const formData = new FormData(e.target);
+      const updatedAide = {
+        cin: formData.get('cin'),
+        sexe: formData.get('sexe'),
+        nomPrenom: formData.get('nomPrenom'),
+        telephone: formData.get('telephone'),
+        role: formData.get('role'),
+        email: formData.get('email'),
+        medecinlié: formData.get('medecinlié'),
+        password: formData.get('password'),
+      };
+      updateAide(selectedAide._id, updatedAide, (res) => {
+        if (res.data) {
+          const updatedAide = aides.map(aide => (aide._id === res.data._id ? res.data : aide));
+          setDepartements(updatedAide);
+          closeModal(); // Fermer le modal après la mise à jour réussie
+          console.log("aide modifié avec succès");
+        } else {
+          console.error("Erreur lors de la modification du aide :", res.error);
+        }
+      });
     }
-  } catch (error) {
-    console.error("Erreur lors de la récupération de l'assistant :", error);
-  }
-};
+  };
 
-useEffect(() => {
-  if (selectedAssistantId) { // Vérifier si un assistant est sélectionné
-    fetchaides(selectedAssistantId); // Appeler fetchaides avec l'identifiant de l'assistant sélectionné
-  }
-}, [selectedAssistantId]); // Déclencher l'effet lorsque l'identifiant de l'assistant sélectionné change
 
-// Modifier la fonction handleSubmit pour utiliser l'identifiant de l'assistant sélectionné
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const id = selectedAssistantId; // Utiliser l'identifiant de l'assistant sélectionné
-  try {
-    const callback = (response) => {
-      if (response && !response.error) {
-        alert('L\'assistant a été mis à jour avec succès');
-        closeModal(); // Fermer le modal après la mise à jour réussie
-        // Réactualiser la liste des assistants ou effectuer toute autre action nécessaire
-      } else {
-        console.error("Erreur lors de la mise à jour de l'assistant :", response && response.error);
-        alert('Une erreur s\'est produite lors de la mise à jour de l\'assistant');
-      }
-    };
-
-    await updateAide(id, updateaides, callback);
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour de l'assistant :", error);
-    alert('Une erreur s\'est produite lors de la mise à jour de l\'assistant');
-  }
-};
 
 
   return (
@@ -178,20 +169,10 @@ const handleSubmit = async (e) => {
                             color="blue-gray"
                             className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
                           >
-                            Date d'adhésion
+                            Poste
 
                           </Typography>
                         </th>                                    <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
-                          <Typography
-                            variant="small"
-                            color="blue-gray"
-                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
-                          >
-                            Date de naissance
-
-                          </Typography>
-                        </th>
-                        <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                           <Typography
                             variant="small"
                             color="blue-gray"
@@ -201,7 +182,27 @@ const handleSubmit = async (e) => {
 
                           </Typography>
                         </th>
+                        <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                          <Typography
+                            variant="small"
+                            color="blue-gray"
+                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
+                          >
 
+                            Email
+                          </Typography>
+                        </th>
+
+                        <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                          <Typography
+                            variant="small"
+                            color="blue-gray"
+                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
+                          >
+
+                            Médecin lié
+                          </Typography>
+                        </th>
                         <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                           <Typography
                             variant="small"
@@ -223,32 +224,45 @@ const handleSubmit = async (e) => {
                             <div className="flex items-center gap-3">
 
                               <div className="flex flex-col">
-                                <Typography
-                                  variant="small"
-                                  color="blue-gray"
-                                  className="font-normal"
-                                  name="nomPrenom"
-                                >
-                                  {aide.user.nomPrenom}
+                                <Typography variant="small" color="blue-gray" className="font-normal">
+                                  {aide.image && (
+                                    <div className="flex items-center gap-2">
+                                      <Avatar
+                                        src={`http://localhost:4000/${aide.image.filepath}`}
+                                        
+                                        size="small" // Vous pouvez ajuster la taille selon vos besoins (small, medium, large)
+                                      />
+                                      <div>
+                                        <span>{aide.user.nomPrenom}</span><br/>
+                                        <span>Ajouté le :
+                                          {new Date(aide.user.dateAdhesion).toLocaleDateString()}</span>
+                                      </div>
+                                    </div>
+                                  )}
                                 </Typography>
-                                <Typography
+
+                               
+                              </div>
+                            </div>
+                          </td>
+                          <td className='p-4 border-b border-blue-gray-50'>
+                          <Typography
                                   variant="small"
                                   color="blue-gray"
                                   className="font-normal opacity-70 dark:text-white"
                                   name="email"
                                 >
-                                  {aide.user.email}
+                                  {aide.user.role}
                                 </Typography>
-                              </div>
-                            </div>
                           </td>
-                          <td className='p-4 border-b border-blue-gray-50'>
+
+                           <td className='p-4 border-b border-blue-gray-50'>
                             <Typography
                               variant="small"
                               color="blue-gray"
                               className="font-normal"
-                            >
-                              {new Date(aide.user.dateAdhesion).toLocaleDateString()}
+                            >  {aide.user.telephone}
+                           
                             </Typography>
                           </td>
 
@@ -257,14 +271,15 @@ const handleSubmit = async (e) => {
                             color="blue-gray"
                             className="font-normal"
                           >
-                            {new Date(aide.user.dateNaissance).toLocaleDateString()}
+                             {aide.user.email}
                           </Typography></td>
                           <td className='p-4 border-b border-blue-gray-50'><Typography
                             variant="small"
                             color="blue-gray"
                             className="font-normal"
                           >
-                            {aide.user.telephone}
+                         {aide.medecin?.user?.nomPrenom}
+
                           </Typography> </td>
                           <td className='p-4 border-b border-blue-gray-50'>
                             <div className="flex items-center">
@@ -274,7 +289,7 @@ const handleSubmit = async (e) => {
                                 </IconButton>
                               </Tooltip>
                               <Tooltip content="Supprimer" className="text-white bg-red-400 rounded-md">
-                                <IconButton variant="text" className='text-red-800'  onClick={() => handleDeleteAide(aide._id)}>
+                                <IconButton variant="text" className='text-red-800' onClick={() => handleDeleteAide(aide._id)}>
                                   <TrashIcon className="h-4 w-4" />
                                 </IconButton>
                               </Tooltip>
@@ -314,7 +329,7 @@ const handleSubmit = async (e) => {
                   <div className="flex mb-4">
                     <div className="flex flex-col mr-4">
                       <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
-                      Cin
+                        Cin
                       </label>
                       <input
                         type="text"
@@ -327,7 +342,7 @@ const handleSubmit = async (e) => {
                     </div>
                     <div className="flex flex-col mr-4">
                       <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
-                        
+
                         Nom & Prénom
                       </label>
                       <input
@@ -337,13 +352,13 @@ const handleSubmit = async (e) => {
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                         placeholder="Entrez le nom et prénom"
                         value={selectedAssistantId.nomPrenom}
-                        
+
                       />
                     </div>
                     <div className="flex flex-col mr-4">
                       <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
-                        
-                       Adresse
+
+                        Adresse
                       </label>
                       <input
                         type="text"
@@ -352,11 +367,11 @@ const handleSubmit = async (e) => {
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                         placeholder="Entrez le nom et prénom"
                         value={selectedAssistantId.adresse}
-                         
+
                       />
                     </div>
                   </div>
-                 
+
                   <div className="flex mb-4">
 
 
@@ -371,7 +386,7 @@ const handleSubmit = async (e) => {
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                         placeholder="Entrez le numéro de téléphone"
                         value={selectedAssistantId.telephone}
-                         
+
                       />
                     </div>
                     <div className="flex flex-col mr-4">
@@ -385,10 +400,10 @@ const handleSubmit = async (e) => {
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                         placeholder="Entrez le numéro de téléphone"
                         value={selectedAssistantId.email}
-                         
+
                       />
                     </div>
-                    
+
                     <div className="flex flex-col mr-4">
                       <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
                         date de naissance
@@ -399,14 +414,14 @@ const handleSubmit = async (e) => {
                   <div className="flex mb-4">
                     <div className="flex flex-col mr-4">
                       <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
-                      Date d'adhésion
+                        Date d'adhésion
                       </label>
                       <Datepicker />
                     </div>
                     <div className="flex flex-col mr-4">
                       <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
-                        
-                       education
+
+                        education
                       </label>
                       <input
                         type="text"
@@ -415,12 +430,12 @@ const handleSubmit = async (e) => {
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                         placeholder="Entrez le nom et prénom"
                         value={selectedAssistantId.education}
-                       
+
                       />
                     </div>
-                    
+
                   </div>
-                  
+
                   <div className="flex mb-4">
 
 

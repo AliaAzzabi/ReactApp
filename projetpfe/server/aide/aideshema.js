@@ -12,7 +12,7 @@ const AideSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Image"
     },
-    medecinlie: {
+    medecin: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Medecin" 
     },
@@ -31,3 +31,4 @@ AideSchema.post('findOneAndDelete', async function(Aide) {
 });
 
 module.exports = mongoose.model("Aide", AideSchema);
+
