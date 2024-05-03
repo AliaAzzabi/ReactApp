@@ -10,15 +10,15 @@ const expressHandler = require("express-async-handler");
 
 const getAide = async (req, res) => {
     try {
-        
+
         const aides = await Aide.find({})
-            .populate('user')  
-            .populate('image') 
+            .populate('user')
+            .populate('image')
             .populate({
                 path: 'medecin',
                 populate: { path: 'user' }
-              });
-        
+            });
+
         res.send(aides);
     } catch (err) {
         console.error("Erreur lors de la recherche des aides :", err);
@@ -32,14 +32,14 @@ const getAideById = async (req, res) => {
             .populate('user')
             .populate('image')
             .populate('medecin');
-        
+
         if (!aide) {
             return res.status(404).json({ message: "Aide non trouvée" });
         }
-        
+
         res.status(200).json(aide);
     } catch (error) {
-        
+
         res.status(500).json({ message: error.message });
     }
 };
@@ -84,7 +84,7 @@ const addaides = expressHandler(async (req, res) => {
         const newAide = new Aide({
             user: savedUser._id,
             medecin: medecinId,
-            
+
             education: education,
             image: savedImage._id,
         });
@@ -102,8 +102,8 @@ const addaides = expressHandler(async (req, res) => {
             sexe: savedUser.sexe,
             role: savedUser.role,
             education: savedAide.education,
-            dateNaissance:savedUser.dateNaissance,
-            adresse:savedUser.adresse,
+            dateNaissance: savedUser.dateNaissance,
+            adresse: savedUser.adresse,
             image: {
                 filename: savedImage.filename,
                 filepath: savedImage.filepath,
@@ -134,13 +134,13 @@ const updateAide = async (req, res) => {
             adresse,
         };
 
-        const medecintId = await Medecin.findOne({ nom: medecin }).select('_id');
+        const medecintId = await Medecin.findById(medecin).select('_id');
 
         if (!medecintId) {
             return res.status(400).json({ error: "Le médecin spécifié n'existe pas" });
         }
 
-        updateData.medecin = medecintId;
+        updateData.medecin = medecintId._id;
 
         if (req.file) {
             const newImage = new Image({

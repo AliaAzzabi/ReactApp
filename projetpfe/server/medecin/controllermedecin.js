@@ -13,7 +13,7 @@ const getMedecins = async (req, res) => {
         const medecins = await Medecin.find({})
             .populate({
                 path: 'user',
-                select: 'nomPrenom telephone email dateAdhesion dateNaissance adresse sexe' 
+                select: 'nomPrenom telephone email dateAdhesion dateNaissance adresse sexe password role' 
             })
             .populate('departement')
             .populate('specialite')

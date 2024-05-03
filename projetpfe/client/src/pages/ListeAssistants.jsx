@@ -9,7 +9,8 @@ import FilterButton from '../components/DropdownFilter';
 import Datepicker from '../components/Datepicker';
 import { Link } from 'react-router-dom';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
-import { getAllAide, deleteAide, updateAide } from '../liaisonfrontback/operation'; // Importez la fonction Axios pour récupérer les utilisateurs
+import { getAllAide, deleteAide, updateAide } from '../liaisonfrontback/operation';
+import { getMedecins } from '../liaisonfrontback/operation';
 import {
   Card,
   CardHeader,
@@ -28,80 +29,94 @@ import {
 } from "@material-tailwind/react";
 
 function ListeAssistant() {
-  const [users, setUsers] = useState([]); // État pour stocker les données des utilisateurs récupérées depuis l'API
+  const [users, setUsers] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useContext(AuthContext);
-  const [aides, setaide] = useState([]);
+  const [aides, setAides] = useState([]);
   const [selectedAide, setSelectedAide] = useState(null);
+  const [selectedMedecinId, setSelectedMedecinId] = useState(null); 
+  const [medecins, setMedecins] = useState([]);
+
+  useEffect(() => {
+    getMedecins((res) => {
+      if (res.data) {
+        setMedecins(res.data);
+      } else {
+        console.error("Error fetching doctors:", res.error);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     getAllAide((res) => {
       if (res.data) {
-        setaide(res.data);
+        setAides(res.data);
       } else {
         console.error("Erreur lors de la récupération des aides :", res.error);
       }
     });
   }, [aides]);
-  const handleDeleteAide = (id) => {
 
-    const confirmDelete = window.confirm("Voulez-vous vraiment supprimer ce Aide ?");
+  const handleDeleteAide = (id) => {
+    const confirmDelete = window.confirm("Voulez-vous vraiment supprimer cet assistant ?");
     if (confirmDelete) {
       deleteAide(id, (res) => {
         if (res.data) {
-          setaide(aides.filter(aide => aide._id !== id));
+          setAides(aides.filter(aide => aide._id !== id));
           console.log("Aide supprimé avec succès");
         } else {
-          console.error("Erreur lors de la suppression du Aide :", res.error);
+          console.error("Erreur lors de la suppression de l'assistant :", res.error);
         }
       });
     }
   };
-  if (!aides) {
+
+  if (!user) {
     return <Navigate to="/login" />;
   }
 
-  const openModal = (id) => {
-    console.log("Modal opened with assistant:", id);
-    setSelectedAide(selectedAide);
+  const openModal = (aide) => {
+    setSelectedAide(aide);
+    setSelectedMedecinId(aide.medecinlie); 
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedAide(null);
+    setSelectedMedecinId(null); 
   };
-
 
   const handleUpdateAide = (e) => {
     e.preventDefault();
     if (selectedAide) {
       const formData = new FormData(e.target);
+      const selectedMedecin = medecins.find(medecin => medecin._id === formData.get('medecin'));
       const updatedAide = {
         cin: formData.get('cin'),
-        sexe: formData.get('sexe'),
         nomPrenom: formData.get('nomPrenom'),
+        adresse: formData.get('adresse'),
         telephone: formData.get('telephone'),
-        role: formData.get('role'),
         email: formData.get('email'),
-        medecinlié: formData.get('medecinlié'),
+        education: formData.get('education'),
+        medecin: selectedMedecin?._id,
+        role: formData.get('role'),
         password: formData.get('password'),
+        image: formData.get('image'),
       };
       updateAide(selectedAide._id, updatedAide, (res) => {
         if (res.data) {
-          const updatedAide = aides.map(aide => (aide._id === res.data._id ? res.data : aide));
-          setDepartements(updatedAide);
-          closeModal(); // Fermer le modal après la mise à jour réussie
-          console.log("aide modifié avec succès");
+          const updatedAides = aides.map((aide) => (aide._id === res.data._id? res.data : aide));
+          setAides(updatedAides);
+          closeModal();
+          console.log("Assistant modifié avec succès");
         } else {
-          console.error("Erreur lors de la modification du aide :", res.error);
+          console.error("Erreur lors de la modification de l'assistant :", res.error);
         }
       });
     }
   };
-
-
 
 
   return (
@@ -128,7 +143,7 @@ function ListeAssistant() {
 
                   </div>
                   <div className="flex flex-col gap-2 sm:flex-row mt-2">
-                    <Link to="/addMedecin" className="btn bg-indigo-500 hover:bg-indigo-600 text-white flex items-center">
+                    <Link to="/addAssistant" className="btn bg-indigo-500 hover:bg-indigo-600 text-white flex items-center">
                       <svg className="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
                         <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
                       </svg>
@@ -146,12 +161,10 @@ function ListeAssistant() {
                 </div>
               </CardHeader>
               <CardBody className="overflow-x-auto px-0 dark:bg-gray-800 text-gray-500">
-                <div className="overflow-y-auto max-h-[800px]">
-
-                  {/* Table */}
-                  <table className="mt-4 w-full min-w-max table-auto text-left">
+                                <div className="overflow-y-auto max-h-[800px]">
+                                    <table className="mt-4 w-full min-w-max table-auto text-left">
                     <thead>
-                      <tr>
+                    <tr className="bg-gray-50 dark:bg-gray-700">
                         <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                           <Typography
                             variant="small"
@@ -215,54 +228,53 @@ function ListeAssistant() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
                       {aides.map((aide) => (
                         <tr key={aide._id}>
 
 
-                          <td className='p-4 border-b border-blue-gray-50'>
+
+                          <td >
                             <div className="flex items-center gap-3">
-
+                              <Avatar src={`http://localhost:4000/${aide.image.filepath}`} size="sm" />
                               <div className="flex flex-col">
-                                <Typography variant="small" color="blue-gray" className="font-normal">
-                                  {aide.image && (
-                                    <div className="flex items-center gap-2">
-                                      <Avatar
-                                        src={`http://localhost:4000/${aide.image.filepath}`}
-                                        
-                                        size="small" // Vous pouvez ajuster la taille selon vos besoins (small, medium, large)
-                                      />
-                                      <div>
-                                        <span>{aide.user.nomPrenom}</span><br/>
-                                        <span>Ajouté le :
-                                          {new Date(aide.user.dateAdhesion).toLocaleDateString()}</span>
-                                      </div>
-                                    </div>
-                                  )}
+                                <Typography
+                                  variant="small"
+                                  color="blue-gray"
+                                  className="font-normal"
+                                  name="nomPrenom"
+                                >
+                                  {aide.user.nomPrenom}
                                 </Typography>
-
-                               
+                                <Typography
+                                  variant="small"
+                                  color="blue-gray"
+                                  className="font-normal opacity-70 dark:text-white"
+                                  name="dateAdhesion"
+                                >
+                                  Ajouté le : {new Date(aide.user.dateAdhesion).toLocaleDateString()}
+                                </Typography>
                               </div>
                             </div>
                           </td>
                           <td className='p-4 border-b border-blue-gray-50'>
-                          <Typography
-                                  variant="small"
-                                  color="blue-gray"
-                                  className="font-normal opacity-70 dark:text-white"
-                                  name="email"
-                                >
-                                  {aide.user.role}
-                                </Typography>
+                            <Typography
+                              variant="small"
+                              color="blue-gray"
+                              className="font-normal opacity-70 dark:text-white"
+                              name="role"
+                            >
+                              {aide.user.role}
+                            </Typography>
                           </td>
 
-                           <td className='p-4 border-b border-blue-gray-50'>
+                          <td className='p-4 border-b border-blue-gray-50'>
                             <Typography
                               variant="small"
                               color="blue-gray"
                               className="font-normal"
                             >  {aide.user.telephone}
-                           
+
                             </Typography>
                           </td>
 
@@ -271,20 +283,20 @@ function ListeAssistant() {
                             color="blue-gray"
                             className="font-normal"
                           >
-                             {aide.user.email}
+                            {aide.user.email}
                           </Typography></td>
                           <td className='p-4 border-b border-blue-gray-50'><Typography
                             variant="small"
                             color="blue-gray"
                             className="font-normal"
                           >
-                         {aide.medecin?.user?.nomPrenom}
+                            {aide.medecin?.user?.nomPrenom}
 
                           </Typography> </td>
                           <td className='p-4 border-b border-blue-gray-50'>
                             <div className="flex items-center">
                               <Tooltip content="Modifier" className="text-white bg-indigo-500 rounded-md">
-                                <IconButton variant="text" className='text-indigo-700' onClick={() => openModal(aide._id)}>
+                                <IconButton variant="text" className='text-indigo-700' onClick={() => openModal(aide)}>
                                   <PencilIcon className="h-4 w-4" />
                                 </IconButton>
                               </Tooltip>
@@ -295,7 +307,7 @@ function ListeAssistant() {
                               </Tooltip>
                             </div>
                           </td>
-                          {/* Ajoutez d'autres colonnes avec les données de l'utilisateur au besoin */}
+
                         </tr>
                       ))}
                     </tbody>
@@ -325,7 +337,7 @@ function ListeAssistant() {
                 <div className='  dark:bg-gray-800 dark:text-gray-50 text-gray-800 overflow-hidden'>
                   <h1 className="mb-8  dark:bg-gray-800 dark:text-gray-50 leading-7 text-gray-800 ">Entrer les informations :</h1>
                 </div>
-                <form>
+                <form onSubmit={handleUpdateAide}>
                   <div className="flex mb-4">
                     <div className="flex flex-col mr-4">
                       <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
@@ -333,11 +345,11 @@ function ListeAssistant() {
                       </label>
                       <input
                         type="text"
-                        id="name"
-                        name="name"
+                        id="cin"
+                        name="cin"
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                         placeholder="Entrez le nom et prénom"
-                        value={selectedAssistantId.cin}
+                        defaultValue={selectedAide.user.cin}
                       />
                     </div>
                     <div className="flex flex-col mr-4">
@@ -347,11 +359,11 @@ function ListeAssistant() {
                       </label>
                       <input
                         type="text"
-                        id="name"
+                        id="nomPrenom"
                         name="nomPrenom"
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
-                        placeholder="Entrez le nom et prénom"
-                        value={selectedAssistantId.nomPrenom}
+                        placeholder="Entrez votre nouveau nom é prénom"
+                        defaultValue={selectedAide.user.nomPrenom}
 
                       />
                     </div>
@@ -362,11 +374,11 @@ function ListeAssistant() {
                       </label>
                       <input
                         type="text"
-                        id="name"
+                        id="adresse"
                         name="adresse"
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
-                        placeholder="Entrez le nom et prénom"
-                        value={selectedAssistantId.adresse}
+                        placeholder="Entrez votre nouveau Adresse"
+                        defaultValue={selectedAide.user.adresse}
 
                       />
                     </div>
@@ -381,11 +393,11 @@ function ListeAssistant() {
                       </label>
                       <input
                         type="tel"
-                        id="tel"
+                        id="telephone"
                         name="telephone"
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                         placeholder="Entrez le numéro de téléphone"
-                        value={selectedAssistantId.telephone}
+                        defaultValue={selectedAide.user.telephone}
 
                       />
                     </div>
@@ -395,29 +407,15 @@ function ListeAssistant() {
                       </label>
                       <input
                         type="text"
-                        id="tel"
+                        id="email"
                         name="email"
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
-                        placeholder="Entrez le numéro de téléphone"
-                        value={selectedAssistantId.email}
+                        placeholder="Entrez Votre nouveau email"
+                        defaultValue={selectedAide.user.email}
 
                       />
                     </div>
 
-                    <div className="flex flex-col mr-4">
-                      <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
-                        date de naissance
-                      </label>
-                      <Datepicker />
-                    </div>
-                  </div>
-                  <div className="flex mb-4">
-                    <div className="flex flex-col mr-4">
-                      <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
-                        Date d'adhésion
-                      </label>
-                      <Datepicker />
-                    </div>
                     <div className="flex flex-col mr-4">
                       <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
 
@@ -425,38 +423,78 @@ function ListeAssistant() {
                       </label>
                       <input
                         type="text"
-                        id="name"
+                        id="education"
                         name="education"
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
-                        placeholder="Entrez le nom et prénom"
-                        value={selectedAssistantId.education}
+                        placeholder="Entrez une description a votre éducation"
+                        defaultValue={selectedAide.education}
 
                       />
                     </div>
-
                   </div>
 
+
                   <div className="flex mb-4">
-
-
-                    <div className="flex flex-col mr-4">
-
-                      <label htmlFor="job" className="mb-1 text-sm font-medium text-blue-gray-900">
+                    <div className="flex flex-col mr-4 ">
+                      <label htmlFor="medecinlie" className="mb-1 text-sm font-medium text-blue-gray-900">
                         Médecin lié
                       </label>
                       <select
-                        id="poste"
-                        name="poste"
-                        className=" dark:bg-gray-800 dark:text-gray-50 text-gray-800 mb-1 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
+                        id="medecinlie"
+                        name="medecin"
+                        className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 mb-1 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
+                        value={selectedAide ? selectedAide.medecinlie : ''}
+                        onChange={(e) => {
+                          const selectedMedecinId = e.target.value;
+                          setSelectedAide({
+                            ...selectedAide,
+                            medecinlie: selectedMedecinId
+                          });
+                        }}
                       >
-                        <option value="" disabled selected>
+                        <option value="" disabled>
                           Sélectionnez
                         </option>
-                        <option value="1">dr.ff</option>
-                        <option value="2">dr.</option>
+                        {medecins.map((medecin) => (
+                          <option
+                            key={medecin._id}
+                            value={medecin._id}
+                          >
+                            {medecin.user.nomPrenom}
+                          </option>
+                        ))}
                       </select>
+
+
+                    </div>
+                    <div className="flex flex-col mr-4 ">
+                      <label htmlFor="role" className="mb-1 text-sm font-medium text-blue-gray-900">
+                        Poste
+                      </label>
+                      <input
+                        type="text"
+                        id="role"
+                        name="role"
+                        className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
+                        placeholder="Entrez le nouveau rôle"
+                        defaultValue={selectedAide.user.role}
+                      />
+                    </div>
+                    <div className="flex flex-col mr-4 ">
+                      <label htmlFor="role" className="mb-1 text-sm font-medium text-blue-gray-900">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        id="role"
+                        name="password"
+                        className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
+                        placeholder="Entrez le nouveau password"
+                       defaultValue={selectedAide.user.password}
+                      />
                     </div>
                   </div>
+
 
                   <div className="flex justify-end mt-4">
                     <Button onClick={closeModal} size="sm" className=' text-gray-700 bg-gray-200 '>
