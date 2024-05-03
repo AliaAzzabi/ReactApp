@@ -148,6 +148,7 @@ export const deleteMedecin = (id, callback) => {
     .catch((err) => callback(err));
 }
 
+<<<<<<< HEAD
 export const getPatient = async (id) => {
   try {
     const response = await api.get(`/getPatient`);
@@ -181,3 +182,5 @@ export const updatePatient = (id, updatedData, callback) => {
     .then((message) => callback(message))
     .catch((err) => callback(err));
 }
+=======
+>>>>>>> a4c5710f3c1a27b6538aca618b478ded2901c90d

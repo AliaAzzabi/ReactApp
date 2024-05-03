@@ -40,6 +40,7 @@ router.post("/addMedecin",upload.single("image"), addMedecin);
 router.put("/updateMedecin/:id",upload.single("image"), updateMedecin);
 router.get("/getMedecinById/:id", getMedecinById);
 router.delete("/deleteMedecin/:id", deleteMedecin);
+router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 router.get("/getAdmin", getAdmin);
 router.post("/addAdmin",upload.single("image"), addAdmin); 

@@ -13,7 +13,10 @@ const userSchema = new Schema({
   sexe: String,
   dateNaissance: Date, 
   adresse: String,
-  role: String,
+  role: {
+    type: String, 
+    required: true 
+},
   dateAdhesion: { type: Date, default: Date.now } 
 })
 

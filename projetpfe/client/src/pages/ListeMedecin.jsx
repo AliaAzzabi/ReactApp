@@ -124,7 +124,11 @@ function ListeMedecin() {
                 image: formData.get('image'),
                 specialite: selectedSpecialite,
                 departement: selectedDepartement,
+<<<<<<< HEAD
                 
+=======
+                image: formData.get('image'),
+>>>>>>> a4c5710f3c1a27b6538aca618b478ded2901c90d
                 
             };
             console.log('updatedMedecin:', updatedMedecin); // Add this line
