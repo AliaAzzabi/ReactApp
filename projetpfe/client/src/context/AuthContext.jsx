@@ -1,21 +1,23 @@
-import { createContext, useReducer, useEffect } from 'react'
-
-export const AuthContext = createContext()
+import { createContext, useReducer, useEffect } from 'react';
+export const AuthContext = createContext();
 
 export const authReducer = (state, action) => {
   switch (action.type) {
     case 'LOGIN':
-      return { user: action.payload }
+      return { ...state, user: action.payload };
     case 'LOGOUT':
-      return { user: null }
+      return { ...state, user: null };
+    case 'SET_LOADING':
+      return { ...state, loading: action.payload };
     default:
-      return state
+      return state;
   }
-}
+};
 
 export const AuthContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, { 
-    user: null
+    user: null,
+    loading: true, // Indicateur de chargement initial
   });
 
   useEffect(() => {
@@ -24,13 +26,16 @@ export const AuthContextProvider = ({ children }) => {
     if (user) {
       dispatch({ type: 'LOGIN', payload: user }); 
     }
+    
+    // Mettre à jour l'état de chargement initial après la récupération des informations d'authentification
+    dispatch({ type: 'SET_LOADING', payload: false });
   }, []);
 
   console.log('AuthContext state:', state);
   
   return (
     <AuthContext.Provider value={{ ...state, dispatch }}>
-      { children }
+      { !state.loading && children } {/* Rendre les enfants uniquement lorsque le chargement initial est terminé */}
     </AuthContext.Provider>
   );
 };

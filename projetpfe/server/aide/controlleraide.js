@@ -5,16 +5,20 @@ const User = require("../models/userModel");
 const Image = require("../image/imagemodel");
 const Medecin = require('../medecin/medecinshema');
 
+
 const expressHandler = require("express-async-handler");
 
 const getAide = async (req, res) => {
     try {
-        
+
         const aides = await Aide.find({})
-            .populate('user')  
-            .populate('image') 
-            .populate('medecinlie'); 
-        
+            .populate('user')
+            .populate('image')
+            .populate({
+                path: 'medecin',
+                populate: { path: 'user' }
+            });
+
         res.send(aides);
     } catch (err) {
         console.error("Erreur lors de la recherche des aides :", err);
@@ -27,15 +31,15 @@ const getAideById = async (req, res) => {
         const aide = await Aide.findById(req.params.id)
             .populate('user')
             .populate('image')
-            .populate('medecinlie');
-        
+            .populate('medecin');
+
         if (!aide) {
             return res.status(404).json({ message: "Aide non trouvée" });
         }
-        
+
         res.status(200).json(aide);
     } catch (error) {
-        
+
         res.status(500).json({ message: error.message });
     }
 };
@@ -44,7 +48,7 @@ const getAideById = async (req, res) => {
 
 const addaides = expressHandler(async (req, res) => {
     try {
-        const { cin, sexe, nomPrenom, telephone, role, email, password, dateAdhesion, medecinlie, education, dateNaissance, adresse } = req.body;
+        const { cin, sexe, nomPrenom, telephone, role, email, password, dateAdhesion, medecin, education, dateNaissance, adresse } = req.body;
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const existingUser = await User.findOne({ email: email });
@@ -52,7 +56,7 @@ const addaides = expressHandler(async (req, res) => {
             return res.status(400).json({ error: "Cet email est déjà utilisé." });
         }
 
-        let medecinId = await Medecin.findOne({ nom: medecinlie }).select('_id');
+        let medecinId = await Medecin.findOne({ nom: medecin }).select('_id');
         if (!medecinId) {
             return res.status(400).json({ error: "Le médecin spécifié n'existe pas" });
         }
@@ -79,8 +83,8 @@ const addaides = expressHandler(async (req, res) => {
 
         const newAide = new Aide({
             user: savedUser._id,
-            medecinlie: medecinId,
-            
+            medecin: medecinId,
+
             education: education,
             image: savedImage._id,
         });
@@ -91,15 +95,15 @@ const addaides = expressHandler(async (req, res) => {
             _id: savedAide._id,
             cin: savedUser.cin,
             nomPrenom: savedUser.nomPrenom,
-            medecinlie: medecinId,
+            medecin: medecinId,
             telephone: savedUser.telephone,
             email: savedUser.email,
             dateAdhesion: savedUser.dateAdhesion,
             sexe: savedUser.sexe,
             role: savedUser.role,
             education: savedAide.education,
-            dateNaissance:savedUser.dateNaissance,
-            adresse:savedUser.adresse,
+            dateNaissance: savedUser.dateNaissance,
+            adresse: savedUser.adresse,
             image: {
                 filename: savedImage.filename,
                 filepath: savedImage.filepath,
@@ -113,7 +117,7 @@ const addaides = expressHandler(async (req, res) => {
 
 
 const updateAide = async (req, res) => {
-    const { cin, sexe, nomPrenom, telephone, email, password, dateAdhesion, role, medecinlie, education, dateNaissance, adresse } = req.body;
+    const { cin, sexe, nomPrenom, telephone, email, password, dateAdhesion, role, medecin, education, dateNaissance, adresse } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         let updateData = {
@@ -130,13 +134,13 @@ const updateAide = async (req, res) => {
             adresse,
         };
 
-        const medecintId = await Medecin.findOne({ nom: medecinlie }).select('_id');
+        const medecintId = await Medecin.findById(medecin).select('_id');
 
         if (!medecintId) {
             return res.status(400).json({ error: "Le médecin spécifié n'existe pas" });
         }
 
-        updateData.medecinlie = medecintId;
+        updateData.medecin = medecintId._id;
 
         if (req.file) {
             const newImage = new Image({

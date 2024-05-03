@@ -9,6 +9,9 @@ const { getAide, addaides, updateAide, deleteAide, getAideById } = require('./ai
 const {getMedecins, addMedecin, updateMedecin, deleteMedecin, getMedecinById} = require ('./medecin/controllermedecin');
 const { getAdmin, addAdmin, updateAdmin, deleteAdmin, getAdminById } = require ('./admin/controlleradmin');
 const  { getPatient, addPatient, updatePatient, deletePatient, gePatientById } = require('./patient/controllerpatient');
+const {creerRendezVous, getAllRendezVous, getRendezVousById, updateRendezVous, deleteRendezVous}= require("./rdv/rdvController")
+const requireAuth = require('./middleware/requireAuth');
+const rdvController = require('./rdv/rdvController');
 const router = express.Router();
 
 router.use(cors());
@@ -49,6 +52,14 @@ router.post("/addPatient", addPatient);
 router.put("/updatePatient/:id", updatePatient);
 router.get("/gePatientById/:id", gePatientById);
 router.delete("/deletePatient/:id", deletePatient);
+
+
+// Créer un rendez-vous (nécessite une authentification)
+router.post('/creerRDV', requireAuth, creerRendezVous);
+router.get('/AllRDV', getAllRendezVous);
+router.get('/getRDVById/:id', getRendezVousById);
+router.put('/modifierRDV/:id', updateRendezVous);
+router.delete('/supprimerRDV/:id', deleteRendezVous);
 
   
 module.exports = { router };

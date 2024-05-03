@@ -26,7 +26,7 @@ function CalendarComponent() {
         { value: "yellow", label: "Yellow Theme" },
         { value: "green", label: "Green Theme" },
         { value: "purple", label: "Purple Theme" }
-    ]; 
+    ];
 
     // Utilisez useEffect pour mettre à jour les jours du calendrier lorsque le mois ou l'année change
     useEffect(() => {
@@ -69,43 +69,43 @@ function CalendarComponent() {
     };
 
     return (
-        <div className="antialiased font-serif dark:bg-gray-900 h-screen">
-           <div className="container mx-auto px-4 py-2 md:py-24">
-    <div className='bg-white rounded-t-lg shadow overflow-hidden'>
-        <h1 className="ml-8 text-xl mb-8 mt-8  text-center leading-7 text-gray-600 font-serif ">Planificateur de rendez-vous</h1>
-    </div>
+        <>
+            <div className="container overflow-y-auto ">
+                <div className='bg-white rounded-t-lg shadow overflow-hidden'>
+                    <h1 className="ml-8 text-xl mb-8 mt-8  text-center leading-7 text-gray-600 font-serif ">Planificateur de rendez-vous</h1>
+                </div>
 
-    <div className="bg-white rounded-b-lg shadow overflow-hidden">
+                <div className="bg-white rounded-b-lg shadow overflow-hidden">
 
-        <div className="flex flex-col sm:flex-row items-center justify-between py-2 px-6">
-            <div className="sm:w-auto mb-4 sm:mb-0">
-                <span className="text-lg font-bold text-gray-800">{MONTH_NAMES[month]}</span>
-                <span className="ml-1 text-lg text-gray-600 font-normal">{year}</span>
-            </div>
-            <div className="border rounded-lg px-1" style={{ paddingTop: '2px' }}>
-                <button
-                    type="button"
-                    className={`leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center ${month === 0 && 'cursor-not-allowed opacity-25'}`}
-                    disabled={month === 0}
-                    onClick={() => { setMonth(month - 1); getNoOfDays(); }}
-                >
-                    <svg className="h-6 w-6 text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button>
-                <div className="border-r inline-flex h-6"></div>
-                <button
-                    type="button"
-                    className={`leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 p-1 ${month === 11 && 'cursor-not-allowed opacity-25'}`}
-                    disabled={month === 11}
-                    onClick={() => { setMonth(month + 1); getNoOfDays(); }}
-                >
-                    <svg className="h-6 w-6 text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </button>
-            </div>
-        </div>
+                    <div className="flex flex-col sm:flex-row items-center justify-between py-2 px-6">
+                        <div className="sm:w-auto mb-4 sm:mb-0">
+                            <span className="text-lg font-bold text-gray-800">{MONTH_NAMES[month]}</span>
+                            <span className="ml-1 text-lg text-gray-600 font-normal">{year}</span>
+                        </div>
+                        <div className="border rounded-lg px-1" style={{ paddingTop: '2px' }}>
+                            <button
+                                type="button"
+                                className={`leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center ${month === 0 && 'cursor-not-allowed opacity-25'}`}
+                                disabled={month === 0}
+                                onClick={() => { setMonth(month - 1); getNoOfDays(); }}
+                            >
+                                <svg className="h-6 w-6 text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <div className="border-r inline-flex h-6"></div>
+                            <button
+                                type="button"
+                                className={`leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 p-1 ${month === 11 && 'cursor-not-allowed opacity-25'}`}
+                                disabled={month === 11}
+                                onClick={() => { setMonth(month + 1); getNoOfDays(); }}
+                            >
+                                <svg className="h-6 w-6 text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                     <div className="-mx-1 -mb-1">
                         <div className="flex flex-wrap" style={{ marginBottom: '-40px' }}>
                             {DAYS.map((day, index) => (
@@ -124,13 +124,14 @@ function CalendarComponent() {
                                         onClick={() => showEventModal(date)}
                                         className={`inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 ${isToday(date) ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-blue-200'}`}
                                     >{date}</div>
-                                    <div style={{ height: '80px' }} className="overflow-y-auto mt-1">
-                                        {events.filter(event => new Date(event.event_date).toDateString() === new Date(year, month, date).toDateString()).map((event, index) => (
-                                            <div key={index} className={`px-2 py-1 rounded-lg mt-1 overflow-hidden border border-${event.event_theme}-200 text-${event.event_theme}-800 bg-${event.event_theme}-100`}>
-                                                <p className="text-sm truncate leading-tight">{event.event_title}</p>
-                                            </div>
-                                        ))}
-                                    </div>
+                                   <div style={{ height: '80px' }} className="overflow-y-auto mt-1">
+    {events.filter(event => new Date(event.event_date).toDateString() === new Date(year, month, date).toDateString()).map((event, index) => (
+        <div key={index} className="px-2 cursor-pointer py-1 rounded-lg mt-1 bg-blue-300 overflow-hidden"  onClick={() => showEventModal(date)}>
+            <p className="text-sm truncate leading-tight ">{event.event_title}</p>
+        </div>
+    ))}
+</div>
+
                                 </div>
                             ))}
                         </div>
@@ -156,37 +157,37 @@ function CalendarComponent() {
                                 <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" type="text" value={eventDate} readOnly />
                             </div>
                             <div className="mb-4">
-    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Start time</label>
-    <input type="time" id="startTime" name="startTime" className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" />
-</div>
+                                <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Start time</label>
+                                <input type="time" id="startTime" name="startTime" className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" />
+                            </div>
 
                             <div className="inline-block w-64 mb-4">
                                 <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Docteur</label>
                                 <div className="relative">
-                                    <select  className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700">
-                                        
-                                            <option >Dr. mahjoub</option>
-                                            <option >Dr. mlouka</option>
-                                            <option >Dr. mahfoudh</option>
-                                            <option >Dr. monia</option>
-                                      
+                                    <select className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700">
+
+                                        <option >Dr. mahjoub</option>
+                                        <option >Dr. mlouka</option>
+                                        <option >Dr. mahfoudh</option>
+                                        <option >Dr. monia</option>
+
                                     </select>
-                                    
+
                                 </div>
                             </div>
-          
-    
-    <div className="mb-4">
-    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Partager avec le patient via</label>
-    <div className="flex space-x-4">
-        <input type="radio" id="email" name="shareVia" className="form-radio h-5 w-5 text-gray-600" />
-        <label htmlFor="email" className="text-gray-800 text-sm">Email</label>
-        <input type="radio" id="sms" name="shareVia" className="form-radio h-5 w-5 text-gray-600" />
-        <label htmlFor="sms" className="text-gray-800 text-sm">SMS</label>
-        <input type="radio" id="whatsapp" name="shareVia" className="form-radio h-5 w-5 text-gray-600" />
-        <label htmlFor="whatsapp" className="text-gray-800 text-sm">Email et SMS</label>
-    </div>
-</div>
+
+
+                            <div className="mb-4">
+                                <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Partager avec le patient via</label>
+                                <div className="flex space-x-4">
+                                    <input type="radio" id="email" name="shareVia" className="form-radio h-5 w-5 text-gray-600" />
+                                    <label htmlFor="email" className="text-gray-800 text-sm">Email</label>
+                                    <input type="radio" id="sms" name="shareVia" className="form-radio h-5 w-5 text-gray-600" />
+                                    <label htmlFor="sms" className="text-gray-800 text-sm">SMS</label>
+                                    <input type="radio" id="whatsapp" name="shareVia" className="form-radio h-5 w-5 text-gray-600" />
+                                    <label htmlFor="whatsapp" className="text-gray-800 text-sm">Email et SMS</label>
+                                </div>
+                            </div>
                             <div className="mt-8 text-right">
                                 <button type="button" className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2" onClick={() => setOpenEventModal(false)}>
                                     Annuler
@@ -199,7 +200,7 @@ function CalendarComponent() {
                     </div>
                 </div>
             }
-        </div>
+       </>
     );
 }
 

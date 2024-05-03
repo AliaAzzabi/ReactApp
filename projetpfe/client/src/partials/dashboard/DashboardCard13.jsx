@@ -2,147 +2,77 @@ import React from 'react';
 
 function DashboardCard13() {
   return (
-    <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
-      <header className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
-        <h2 className="font-semibold text-slate-800 dark:text-slate-100">Income/Expenses</h2>
-      </header>
-      <div className="p-3">
-        {/* Card content */}
-        {/* "Today" group */}
-        <div>
-          <header className="text-xs uppercase text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-700 dark:bg-opacity-50 rounded-sm font-semibold p-2">
-            Today
-          </header>
-          <ul className="my-1">
-            {/* Item */}
-            <li className="flex px-2">
-              <div className="w-9 h-9 rounded-full shrink-0 bg-rose-500 my-2 mr-3">
-                <svg className="w-9 h-9 fill-current text-rose-50" viewBox="0 0 36 36">
-                  <path d="M17.7 24.7l1.4-1.4-4.3-4.3H25v-2H14.8l4.3-4.3-1.4-1.4L11 18z" />
-                </svg>
-              </div>
-              <div className="grow flex items-center border-b border-slate-100 dark:border-slate-700 text-sm py-2">
-                <div className="grow flex justify-between">
-                  <div className="self-center">
-                    <a className="font-medium text-slate-800 hover:text-slate-900 dark:text-slate-100 dark:hover:text-white" href="#0">
-                      Qonto
-                    </a>{' '}
-                    billing
-                  </div>
-                  <div className="shrink-0 self-start ml-2">
-                    <span className="font-medium text-slate-800 dark:text-slate-100">-$49.88</span>
-                  </div>
-                </div>
-              </div>
-            </li>
-            {/* Item */}
-            <li className="flex px-2">
-              <div className="w-9 h-9 rounded-full shrink-0 bg-emerald-500 my-2 mr-3">
-                <svg className="w-9 h-9 fill-current text-emerald-50" viewBox="0 0 36 36">
-                  <path d="M18.3 11.3l-1.4 1.4 4.3 4.3H11v2h10.2l-4.3 4.3 1.4 1.4L25 18z" />
-                </svg>
-              </div>
-              <div className="grow flex items-center border-b border-slate-100 dark:border-slate-700 text-sm py-2">
-                <div className="grow flex justify-between">
-                  <div className="self-center">
-                    <a className="font-medium text-slate-800 hover:text-slate-900 dark:text-slate-100 dark:hover:text-white" href="#0">
-                      Cruip.com
-                    </a>{' '}
-                    Market Ltd 70 Wilson St London
-                  </div>
-                  <div className="shrink-0 self-start ml-2">
-                    <span className="font-medium text-emerald-500">+249.88</span>
-                  </div>
-                </div>
-              </div>
-            </li>
-            {/* Item */}
-            <li className="flex px-2">
-              <div className="w-9 h-9 rounded-full shrink-0 bg-emerald-500 my-2 mr-3">
-                <svg className="w-9 h-9 fill-current text-emerald-50" viewBox="0 0 36 36">
-                  <path d="M18.3 11.3l-1.4 1.4 4.3 4.3H11v2h10.2l-4.3 4.3 1.4 1.4L25 18z" />
-                </svg>
-              </div>
-              <div className="grow flex items-center border-b border-slate-100 dark:border-slate-700 text-sm py-2">
-                <div className="grow flex justify-between">
-                  <div className="self-center">
-                    <a className="font-medium text-slate-800 hover:text-slate-900 dark:text-slate-100 dark:hover:text-white" href="#0">
-                      Notion Labs Inc
-                    </a>
-                  </div>
-                  <div className="shrink-0 self-start ml-2">
-                    <span className="font-medium text-emerald-500">+99.99</span>
-                  </div>
-                </div>
-              </div>
-            </li>
-            {/* Item */}
-            <li className="flex px-2">
-              <div className="w-9 h-9 rounded-full shrink-0 bg-emerald-500 my-2 mr-3">
-                <svg className="w-9 h-9 fill-current text-emerald-50" viewBox="0 0 36 36">
-                  <path d="M18.3 11.3l-1.4 1.4 4.3 4.3H11v2h10.2l-4.3 4.3 1.4 1.4L25 18z" />
-                </svg>
-              </div>
-              <div className="grow flex items-center border-b border-slate-100 dark:border-slate-700 text-sm py-2">
-                <div className="grow flex justify-between">
-                  <div className="self-center">
-                    <a className="font-medium text-slate-800 hover:text-slate-900 dark:text-slate-100 dark:hover:text-white" href="#0">
-                      Market Cap Ltd
-                    </a>
-                  </div>
-                  <div className="shrink-0 self-start ml-2">
-                    <span className="font-medium text-emerald-500">+1,200.88</span>
-                  </div>
-                </div>
-              </div>
-            </li>
-            {/* Item */}
-            <li className="flex px-2">
-              <div className="w-9 h-9 rounded-full shrink-0 bg-slate-200 my-2 mr-3">
-                <svg className="w-9 h-9 fill-current text-slate-400" viewBox="0 0 36 36">
-                  <path d="M21.477 22.89l-8.368-8.367a6 6 0 008.367 8.367zm1.414-1.413a6 6 0 00-8.367-8.367l8.367 8.367zM18 26a8 8 0 110-16 8 8 0 010 16z" />
-                </svg>
-              </div>
-              <div className="grow flex items-center border-b border-slate-100 dark:border-slate-700 text-sm py-2">
-                <div className="grow flex justify-between">
-                  <div className="self-center">
-                    <a className="font-medium text-slate-800 hover:text-slate-900 dark:text-slate-100 dark:hover:text-white" href="#0">
-                      App.com
-                    </a>{' '}
-                    Market Ltd 70 Wilson St London
-                  </div>
-                  <div className="shrink-0 self-start ml-2">
-                    <span className="font-medium text-slate-800 dark:text-slate-100 line-through">+$99.99</span>
-                  </div>
-                </div>
-              </div>
-            </li>
-            {/* Item */}
-            <li className="flex px-2">
-              <div className="w-9 h-9 rounded-full shrink-0 bg-rose-500 my-2 mr-3">
-                <svg className="w-9 h-9 fill-current text-rose-50" viewBox="0 0 36 36">
-                  <path d="M17.7 24.7l1.4-1.4-4.3-4.3H25v-2H14.8l4.3-4.3-1.4-1.4L11 18z" />
-                </svg>
-              </div>
-              <div className="grow flex items-center text-sm py-2">
-                <div className="grow flex justify-between">
-                  <div className="self-center">
-                    <a className="font-medium text-slate-800 hover:text-slate-900 dark:text-slate-100 dark:hover:text-white" href="#0">
-                      App.com
-                    </a>{' '}
-                    Market Ltd 70 Wilson St London
-                  </div>
-                  <div className="shrink-0 self-start ml-2">
-                    <span className="font-medium text-slate-800 dark:text-slate-100">-$49.88</span>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
+
+
+    <div className="bg-white rounded-xl border-[1px] border-border p-5 xl:mt-6">
+      <h2 className="text-sm mb-4 font-medium">Today Appointments</h2>
+      <div className="grid grid-cols-12 gap-2 items-center">
+        <p className="text-textGray text-[12px] col-span-3 font-light">2 hrs later</p>
+        <div className="flex-colo relative col-span-2">
+          <hr className="w-[2px] h-20 bg-border"></hr>
+          <div className="w-7 h-7 flex-colo text-sm bg-opacity-10 bg-orange-500 text-orange-500 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 16 16" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"></path>
+            </svg>
+          </div>
         </div>
+        <a className="flex flex-col gap-1 col-span-6" href="/appointments">
+          <h2 className="text-xs font-medium">Minahil Khan</h2>
+          <p className="text-[12px] font-light text-textGray">
+            "10:00 AM" - "12:00 PM"
+          </p>
+        </a>
       </div>
+      <div className="grid grid-cols-12 gap-2 items-center">
+        <p className="text-textGray text-[12px] col-span-3 font-light">2 hrs later</p>
+        <div className="flex-colo relative col-span-2">
+          <hr className="w-[2px] h-20 bg-border"></hr>
+          <div class="w-7 h-7 flex-colo text-sm bg-opacity-10
+                   false
+                  false
+                  bg-green-500 text-green-500
+                   rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+            </svg>
+          </div>
+        </div>
+        <a className="flex flex-col gap-1 col-span-6" href="/appointments">
+          <h2 className="text-xs font-medium">Minahil Khan</h2>
+          <p className="text-[12px] font-light text-textGray">
+            "10:00 AM" - "12:00 PM"
+          </p>
+        </a>
+      </div>
+
+      <div className="grid grid-cols-12 gap-2 items-center">
+        <p className="text-textGray text-[12px] col-span-3 font-light">2 hrs later</p>
+        <div className="flex-colo relative col-span-2">
+          <hr className="w-[2px] h-20 bg-border"></hr>
+
+          <div class="w-7 h-7 flex-colo text-sm bg-opacity-10
+                   false
+                  bg-red-500 text-red-500
+                  false
+                   rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"></path>
+            </svg>
+
+          </div>
+        </div>
+        <a className="flex flex-col gap-1 col-span-6" href="/appointments">
+          <h2 className="text-xs font-medium">Minahil Khan</h2>
+          <p className="text-[12px] font-light text-textGray">
+            "10:00 AM" - "12:00 PM"
+          </p>
+        </a>
+      </div>
+
     </div>
   );
 }
+
 
 export default DashboardCard13;

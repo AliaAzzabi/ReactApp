@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { AuthContext } from '../context/AuthContext';
 import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
@@ -33,7 +33,7 @@ function AddSpecialte() {
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { user } = useContext(AuthContext);
-    
+    const Navigation = useNavigate();
 
     if (!user) {
         return <Navigate to="/login" />;
@@ -63,8 +63,9 @@ function AddSpecialte() {
                     description: '',
 
                 });
-                return <Navigate to="/listeSpecialite" />;
-                
+                //return <Navigate to="/listeSpecialite" />;
+                Navigation('/listeSpecialite');
+
              //   history.push('/listeSpecialite');
             } else {
                 console.error("Erreur lors de l'ajout du specialite :", response && response.error);
@@ -125,7 +126,7 @@ function AddSpecialte() {
 
 
                                 <div className="mt-6 flex items-center justify-end gap-x-6">
-                                    <button type="button" className="text-sm font-semibold leading-6 dark:text-gray-50 text-gray-900 py-2 px-4 rounded-full" >Annuler</button>
+                                <button type="button" onClick={() => Navigation('/listeSpecialite')} className="text-gray-500 dark:bg-gray-800">Annuler</button>
                                     <button type="submit" className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"  >Ajouter</button>
                                 </div>
                             </form>

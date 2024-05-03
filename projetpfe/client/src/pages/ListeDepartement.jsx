@@ -5,7 +5,8 @@ import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
-import { getAllDepartement, deleteDepartement, } from '../liaisonfrontback/operation';
+import Datepicker from '../components/Datepicker';
+import { getAllDepartement, deleteDepartement, updateDepartement } from '../liaisonfrontback/operation';
 import moment from 'moment';
 import {
     Card,
@@ -18,14 +19,15 @@ import {
     Tooltip,
     Avatar,
 } from "@material-tailwind/react";
+import DatePicker from 'react-flatpickr';
 
 function ListeDepartement() {
-  
+
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { user } = useContext(AuthContext);
-
     const [departements, setDepartements] = useState([]);
+    const [selectedDepartement, setSelectedDepartement] = useState(null);
 
     useEffect(() => {
         getAllDepartement((res) => {
@@ -35,7 +37,7 @@ function ListeDepartement() {
                 console.error("Erreur lors de la récupération des départements :", res.error);
             }
         });
-    }, []);
+    }, [departements]);
     const handleDeleteDepartement = (id) => {
 
         const confirmDelete = window.confirm("Voulez-vous vraiment supprimer ce département ?");
@@ -50,17 +52,45 @@ function ListeDepartement() {
             });
         }
     };
-  
 
-    const openModal = (selectedAssistant) => {
-        console.log("Modal opened with assistant:", selectedAssistant);
+
+    const openModal = (selectedDepartement) => {
+        console.log("Modal opened with departement:", selectedDepartement);
+        setSelectedDepartement(selectedDepartement);
         setIsModalOpen(true);
     };
 
+
     const closeModal = () => {
         setIsModalOpen(false);
+        setSelectedDepartement(null);
     };
-
+    
+    const handleUpdateDepartement = (e) => {
+        e.preventDefault();
+        if (selectedDepartement) {
+            const formData = new FormData(e.target);
+            const updatedDepartement = {
+                nom: formData.get('nom'),
+                localisation: formData.get('localisation'),
+                responsable: formData.get('responsable'),
+                dateCreation: formData.get('dateCreation'),
+                nombreEmployes: formData.get('nombreEmployes'),
+                description: formData.get('description'),
+            };
+           updateDepartement(selectedDepartement._id, updatedDepartement, (res) => {
+                if (res.data) {
+                    const updatedDepartement = departements.map(departement => (departement._id === res.data._id ? res.data : departement));
+                    setDepartements(updatedDepartement);
+                    closeModal(); // Fermer le modal après la mise à jour réussie
+                    console.log("Département modifié avec succès");
+                } else {
+                    console.error("Erreur lors de la modification du département :", res.error);
+                }
+            });
+        }
+    };
+    
     if (!user) {
         return <Navigate to="/login" />;
     }
@@ -86,15 +116,15 @@ function ListeDepartement() {
                                 <div className="mb-8 ml-8 flex items-center mr-8 justify-between gap-8">
                                     <div>
                                         <Typography variant="h5" color="blue-gray">
-                                            Liste des spécialité
+                                            Liste des départements
                                         </Typography>
                                     </div>
                                     <div className="flex flex-col gap-2 sm:flex-row mt-2">
-                                        <Link to="/addSpecialte" className="btn bg-indigo-500 hover:bg-indigo-600 text-white flex items-center">
+                                        <Link to="/addDepartement" className="btn bg-indigo-500 hover:bg-indigo-600 text-white flex items-center">
                                             <svg className="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
                                                 <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
                                             </svg>
-                                            <span className="hidden xs:block ml-2">Ajouter une spécialité</span>
+                                            <span className="hidden xs:block ml-2">Ajouter un département</span>
                                         </Link>
                                     </div>
                                 </div>
@@ -114,9 +144,9 @@ function ListeDepartement() {
                                             <tr className="bg-gray-50 dark:bg-gray-700">
                                                 <th className="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nom du département</th>
                                                 <th className="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nombre d'employés</th>
-                                               <th className="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Localisation</th>
+                                                <th className="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Localisation</th>
                                                 <th className="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Responsable</th>
-                                            
+
                                                 <th className="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"></th>
                                             </tr>
                                         </thead>
@@ -125,13 +155,13 @@ function ListeDepartement() {
                                                 <tr key={departement._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                                     <td className="px-6 py-4 whitespace-nowrap">{departement.nom}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap">{departement.nombreEmployes}</td>
-                                                  
+
                                                     <td className="px-6 py-4 whitespace-nowrap">{departement.localisation}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap">{departement.responsable}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex items-center space-x-4">
                                                             <Tooltip content="Modifier" className="text-indigo-500 dark:text-indigo-400">
-                                                                <IconButton variant="text" className='text-indigo-700' >
+                                                                <IconButton variant="text" className='text-indigo-700' onClick={() => openModal(departement)}>
                                                                     <PencilIcon className="h-4 w-4" />
                                                                 </IconButton>
                                                             </Tooltip>
@@ -170,18 +200,42 @@ function ListeDepartement() {
                                 <div className='  dark:bg-gray-800 dark:text-gray-50 text-gray-800 overflow-hidden'>
                                     <h1 className="mb-8  dark:bg-gray-800 dark:text-gray-50 leading-7 text-gray-800 ">Entrer les informations :</h1>
                                 </div>
-                                <form onSubmit={handleSubmit} class="max-w-sm mx-auto">
-                                    <div class="relative z-0 w-full mb-10 group">
-                                        <input type="text" name="nom" value={selectedDepartement.nom} onChange={handleChange} class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                                        <label for="nom" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Nom</label>
+                                <form onSubmit={handleUpdateDepartement} className="max-w-sm mx-auto">
+                                    <div className="relative z-0 w-full mb-6 group">
+                                        <div className="relative z-0 group">
+                                            <label htmlFor="nom" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nom</label>
+                                            <input type="text" name="nom" defaultValue={selectedDepartement.nom} className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder="" required />
+                                        </div>
+
                                     </div>
-                                    <div class="relative z-0 w-full mb-10 group">
-                                        <label for="nombreEmployes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre d'employés</label>
-                                        <input type="text" name="nombreEmployes" value={selectedDepartement.nombreEmployes} onChange={handleChange} class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
+                                    <div className="grid grid-cols-3 gap-6">
+                                        <div className="relative z-0 group">
+                                            <label htmlFor="localisation" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Localisation</label>
+                                            <input type="text" name="localisation" defaultValue={selectedDepartement.localisation} className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder="" required />
+                                        </div>
+                                        <div className="relative z-0 group">
+                                            <label htmlFor="responsable" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Responsable</label>
+                                            <input type="text" name="responsable" defaultValue={selectedDepartement.responsable} className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder="" required />
+                                        </div>
+                                        <div className="relative z-0 group">
+                                            <label htmlFor="nombreEmployes" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">N.Employés</label>
+                                            <input type="number" name="nombreEmployes" defaultValue={selectedDepartement.nombreEmployes} className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder="" required />
+                                        </div>
                                     </div>
-                                    {/* Ajoutez d'autres champs ici avec la même logique */}
-                                    <div className="flex justify-end mt-4">
-                                        <Button onClick={closeModal} size="sm" className=' text-gray-700 bg-gray-200 '>
+                                    <div className="grid grid-cols-2 gap-6 mt-6">
+                                       
+                                        <div className="relative z-0 group">
+                                            <label htmlFor="dateCreation" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date de création</label>
+                                            <Datepicker />                                    
+                                        </div>
+                                      
+                                    </div>
+                                    <div className="relative z-0 w-full mb-6 group">
+                                        <label htmlFor="description" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
+                                        <input type="text" name="description" defaultValue={selectedDepartement.description} className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder="" required />
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <Button onClick={closeModal} size="sm" className='text-gray-700 bg-gray-200'>
                                             Annuler
                                         </Button>
                                         <Button type="submit" size="sm" color="indigo" className="ml-2">
@@ -189,9 +243,11 @@ function ListeDepartement() {
                                         </Button>
                                     </div>
                                 </form>
+
                             </div>
                         </div>
                     )}
+
                 </main>
             </div>
         </div>

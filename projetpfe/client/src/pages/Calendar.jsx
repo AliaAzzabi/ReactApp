@@ -6,6 +6,7 @@ import DashboardAvatars from '../partials/dashboard/DashboardAvatars';
 import FilterButton from '../components/DropdownFilter';
 import Datepicker from '../components/Datepicker';
 import { Link } from 'react-router-dom';
+import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import {
     Card,
     CardHeader,
@@ -41,13 +42,16 @@ function Calendar() {
                 <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
                 <main>
+                <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
 
-                        <div className=" ml-8 mr-8 dark:bg-gary-800 sm:flex sm:justify-between sm:items-center">
-                  
-                 <CalendarComponent/>
-                        </div> {/**calender */}
+                        <WelcomeBanner />
 
-                    
+
+                     <CalendarComponent />
+                        
+                    </div> {/**calender */}
+
+
                 </main>
             </div>
         </div>

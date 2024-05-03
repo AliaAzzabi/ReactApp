@@ -1,17 +1,17 @@
-import React, { useState,useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Navigate } from "react-router-dom";
 import { AuthContext } from '../context/AuthContext';
-
-
 import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import DashboardAvatars from '../partials/dashboard/DashboardAvatars';
 import FilterButton from '../components/DropdownFilter';
 import Datepicker from '../components/Datepicker';
-import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
-
 import { Link } from 'react-router-dom';
+import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
+import { getMedecins, deleteMedecin } from '../liaisonfrontback/operation';
+import { getAllspecialities, getAllDepartement } from '../liaisonfrontback/operation';
+import { UpdateMedecin } from '../liaisonfrontback/operation';
 import {
     Card,
     CardHeader,
@@ -29,90 +29,123 @@ import {
     Tooltip,
 } from "@material-tailwind/react";
 
-const TABS = [
-    {
-        label: "All",
-        value: "all",
-    },
-    {
-        label: "Monitored",
-        value: "monitored",
-    },
-    {
-        label: "Unmonitored",
-        value: "unmonitored",
-    },
-];
-
-const TABLE_HEAD = ["Nom et prénom", "Spécialités", "Téléphone", "date de naissance", ""];
-
-const TABLE_ROWS = [
-    {
-        img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-3.jpg",
-        name: "John Michael",
-        email: "john@creative-tim.com",
-        job: "radiologue",
-        org: "Organization",
-        naiss: "22/12/1989",
-        telephone: "0123456789",
-
-    },
-    {
-        img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-2.jpg",
-        name: "Alexa Liras",
-        email: "alexa@creative-tim.com",
-        job: "radiologue",
-        org: "Organization",
-        naiss: "22/12/1989",
-        telephone: "0123456789",
-    },
-    {
-        img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-1.jpg",
-        name: "Laurent Perrier",
-        email: "laurent@creative-tim.com",
-        job: "radiologue",
-        org: "Organization",
-        telephone: "0123456789",
-        naiss: "22/12/1989",
-    },
-    {
-        img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-4.jpg",
-        name: "Michael Levi",
-        email: "michael@creative-tim.com",
-        job: "radiologue",
-        org: "Organization",
-        naiss: "22/12/1989",
-        telephone: "0123456789",
-    },
-    {
-        img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-5.jpg",
-        name: "Richard Gran",
-        email: "richard@creative-tim.com",
-        job: "radiologue",
-        org: "Organization",
-        naiss: "22/12/1989",
-        telephone: "0123456789",
-    },
-];
-
 function ListeMedecin() {
-
+    const [users, setUsers] = useState([]);
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [selectedAssistant, setSelectedAssistant] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false); // État pour gérer l'ouverture et la fermeture du modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const { user } = useContext(AuthContext);
+    const [medecins, setmedecins] = useState([]);
+    const [selectedMedecin, setSelectedMedecin] = useState(null);
+    const [Specialite, setSpecialite] = useState([]);
+    const [departement, setdepartement] = useState([]);
+    const [selectedSpecialite, setSelectedSpecialite] = useState('');
+    const [selectedDepartement, setSelectedDepartement] = useState('');
+
+    const [selectedDepartementId, setSelectedDepatementId] = useState(null);
+    const [selectedSpecialiteId, setSelectedSpecialiteId] = useState(null);
+
+
+    useEffect(() => {
+        getAllspecialities((res) => {
+            if (res.data) {
+                setSpecialite(res.data);
+            } else {
+                console.error("Error fetching spécialité:", res.error);
+            }
+        });
+    }, []);
+    useEffect(() => {
+        getAllDepartement((res) => {
+            if (res.data) {
+                setdepartement(res.data);
+            } else {
+                console.error("Error fetching departement:", res.error);
+            }
+        });
+    }, []);
+
+    useEffect(() => {
+        getMedecins((res) => {
+            if (res.data) {
+                setmedecins(res.data);
+            } else {
+                console.error("Erreur lors de la récupération des médecin :", res.error);
+            }
+        });
+    }, [medecins]);
+
+    const handleDeleteMedecins = (id) => {
+        const confirmDelete = window.confirm("Voulez-vous vraiment supprimer cet médecin ?");
+        if (confirmDelete) {
+            deleteMedecin(id, (res) => {
+                if (res.data) {
+                    setmedecins(medecins.filter(medecin => medecin._id !== id));
+                    console.log("Médecin supprimé avec succès");
+                } else {
+                    console.error("Erreur lors de la suppression de Medecin :", res.error);
+                }
+            });
+        }
+    };
+
 
     if (!user) {
         return <Navigate to="/login" />;
-      }
-    const openModal = (selectedAssistant) => {
-        console.log("Modal opened with assistant:", selectedAssistant);
+    }
+
+    const openModal = (medecin) => {
+        setSelectedMedecin(medecin);
+        setSelectedSpecialiteId(medecin.specialite._id);
+        setSelectedDepatementId(medecin.departement._id);
         setIsModalOpen(true);
     };
+
+
     const closeModal = () => {
-        // Logique pour fermer le modal
         setIsModalOpen(false);
+        setSelectedMedecin(null);
+        setSelectedSpecialiteId(null);
+        setSelectedDepatementId(null);
+
     };
+
+    const handleUpdateMedecin = (e) => {
+        e.preventDefault();
+        if (selectedMedecin) {
+            const formData = new FormData(e.target);
+            const updatedMedecin = {
+                cin: formData.get('cin'),
+                nomPrenom: formData.get('nomPrenom'),
+                adresse: formData.get('adresse'),
+                telephone: formData.get('telephone'),
+                email: formData.get('email'),
+                role: formData.get('role'),
+                password: formData.get('password'),
+                image: formData.get('image'),
+                specialite: selectedSpecialite,
+                departement: selectedDepartement,
+                
+                
+            };
+            console.log('updatedMedecin:', updatedMedecin); // Add this line
+            UpdateMedecin(selectedMedecin._id, updatedMedecin, (res) => {
+                if (res.data) {
+                    const updatedMedecins = medecins.map((medecin) => (medecin._id === res.data._id ? res.data : medecin));
+                    setmedecins(updatedMedecins);
+                    closeModal();
+                    console.log("Médecin modifié avec succès");
+                } else {
+                    if (res.error) {
+                        console.error("Erreur lors de la modification du médecin :", res.error);
+                    } else {
+                        console.error("Erreur inattendue lors de la modification du médecin.");
+                    }
+                }
+            });
+        }
+    };
+
+
 
     return (
         <div className="flex h-screen overflow-hidden">
@@ -126,17 +159,14 @@ function ListeMedecin() {
 
                 <main>
                     <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
-                        {/* Dashboard actions */}<WelcomeBanner />
-                        
-
-                        {/* Cards */}
-
+                        {/* Dashboard actions */}
+                        <WelcomeBanner />
                         <Card className="h-full w-full dark:bg-gray-800">
                             <CardHeader floated={false} shadow={false} className=" dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-none">
                                 <div className=" mb-8 ml-8 flex items-center mr-8 justify-between gap-8">
                                     <div>
                                         <Typography variant="h5" color="blue-gray">
-                                            Liste des médecins
+                                            Liste des Assistants
                                         </Typography>
 
                                     </div>
@@ -145,7 +175,7 @@ function ListeMedecin() {
                                             <svg className="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
                                                 <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
                                             </svg>
-                                            <span className="hidden xs:block ml-2">Ajouter un médecin</span>
+                                            <span className="hidden xs:block ml-2">Ajouter un assistant</span>
                                         </Link>
                                     </div>
                                 </div>
@@ -160,111 +190,156 @@ function ListeMedecin() {
                             </CardHeader>
                             <CardBody className="overflow-x-auto px-0 dark:bg-gray-800 text-gray-500">
                                 <div className="overflow-y-auto max-h-[800px]">
+
+                                    {/* Table */}
                                     <table className="mt-4 w-full min-w-max table-auto text-left">
                                         <thead>
                                             <tr>
-                                                {TABLE_HEAD.map((head, index) => (
-                                                    <th
-                                                        key={head}
-                                                        className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700"
+                                                <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                                                    <Typography
+                                                        variant="small"
+                                                        color="blue-gray"
+                                                        className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
                                                     >
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
-                                                        >
-                                                            {head}
+                                                        Nom et prénom
 
-                                                        </Typography>
-                                                    </th>
-                                                ))}
+                                                    </Typography>
+                                                </th>
+
+                                                <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                                                    <Typography
+                                                        variant="small"
+                                                        color="blue-gray"
+                                                        className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
+                                                    >
+                                                        Spécialité
+
+                                                    </Typography>
+                                                </th>
+                                                <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                                                    <Typography
+                                                        variant="small"
+                                                        color="blue-gray"
+                                                        className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
+                                                    >
+                                                        Département
+
+                                                    </Typography>
+                                                </th>
+                                                <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                                                    <Typography
+                                                        variant="small"
+                                                        color="blue-gray"
+                                                        className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
+                                                    >
+                                                        Téléphone
+
+                                                    </Typography>
+                                                </th>
+                                                <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                                                    <Typography
+                                                        variant="small"
+                                                        color="blue-gray"
+                                                        className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
+                                                    >
+
+                                                        Email
+                                                    </Typography>
+                                                </th>
+
+
+                                                <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                                                    <Typography
+                                                        variant="small"
+                                                        color="blue-gray"
+                                                        className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
+                                                    >
+
+
+                                                    </Typography>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {TABLE_ROWS.map(
-                                                ({ img, name, email, job, org, naiss, telephone }, index) => {
-                                                    const isLast = index === TABLE_ROWS.length - 1;
-                                                    const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
-
-                                                    return (
-                                                        <tr key={name}>
-                                                            <td className={classes}>
-                                                                <div className="flex items-center gap-3">
-                                                                    <Avatar src={img} alt={name} size="sm" />
-                                                                    <div className="flex flex-col">
-                                                                        <Typography
-                                                                            variant="small"
-                                                                            color="blue-gray"
-                                                                            className="font-normal"
-                                                                        >
-                                                                            {name}
-                                                                        </Typography>
-                                                                        <Typography
-                                                                            variant="small"
-                                                                            color="blue-gray"
-                                                                            className="font-normal opacity-70 dark:text-white"
-                                                                        >
-                                                                            {email}
-                                                                        </Typography>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
+                                            {medecins.map((medecin) => (
+                                                <tr key={medecin._id}>
 
 
-                                                            <td className={classes}>
+
+                                                    <td >
+                                                        <div className="flex items-center gap-3">
+                                                            <Avatar src={`http://localhost:4000/${medecin.image.filepath}`} size="sm" />
+                                                            <div className="flex flex-col">
                                                                 <Typography
                                                                     variant="small"
                                                                     color="blue-gray"
                                                                     className="font-normal"
+                                                                    name="nomPrenom"
                                                                 >
-                                                                    {job}
+                                                                    {medecin.user.nomPrenom}
                                                                 </Typography>
-                                                            </td>
-
-
-                                                            <td className={classes}>
                                                                 <Typography
                                                                     variant="small"
                                                                     color="blue-gray"
-                                                                    className="font-normal"
+                                                                    className="font-normal opacity-70 dark:text-white"
+                                                                    name="dateAdhesion"
                                                                 >
-                                                                    {telephone}
+                                                                    Ajouté le : {new Date(medecin.user.dateAdhesion).toLocaleDateString()}
                                                                 </Typography>
-                                                            </td>
-                                                            <td className={classes}>
-                                                                <Typography
-                                                                    variant="small"
-                                                                    color="blue-gray"
-                                                                    className="font-normal"
-                                                                >
-                                                                    {naiss}
-                                                                </Typography>
-                                                            </td>
+                                                            </div>
+                                                        </div>
+                                                    </td>
 
-                                                            <td className={classes}>
-                                                                <div className="flex items-center">
-                                                                    <Tooltip content="Modifier" className="text-white bg-indigo-500 rounded-md">
-                                                                        <IconButton variant="text" className='text-indigo-700' onClick={() => openModal({ img, name, email, job, org, naiss, telephone })}>
-                                                                            <PencilIcon className="h-4 w-4" />
-                                                                        </IconButton>
-                                                                    </Tooltip>
-                                                                    <Tooltip content="Supprimer" className="text-white bg-red-400 rounded-md">
-                                                                        <IconButton variant="text" className='text-red-800'>
-                                                                            <TrashIcon className="h-4 w-4" />
-                                                                        </IconButton>
-                                                                    </Tooltip>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                },
-                                            )}
+                                                    <td className="p-4 border-b border-blue-gray-50">
+                                                        <Typography variant="small" color="blue-gray" className="font-normal">
+                                                            {medecin.specialite.nom}                                                         </Typography>
+                                                    </td>
+
+                                                    <td className="p-4 border-b border-blue-gray-50">
+                                                        <Typography variant="small" color="blue-gray" className="font-normal">
+                                                            {medecin.departement.localisation}                                                         </Typography>
+                                                    </td>
+                                                    <td className='p-4 border-b border-blue-gray-50'>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue-gray"
+                                                            className="font-normal"
+                                                        >  {medecin.user.telephone}
+
+                                                        </Typography>
+                                                    </td>
+
+                                                    <td className='p-4 border-b border-blue-gray-50'><Typography
+                                                        variant="small"
+                                                        color="blue-gray"
+                                                        className="font-normal"
+                                                    >
+                                                        {medecin.user.email}
+                                                    </Typography></td>
+
+                                                    <td className='p-4 border-b border-blue-gray-50'>
+                                                        <div className="flex items-center">
+                                                            <Tooltip content="Modifier" className="text-white bg-indigo-500 rounded-md">
+                                                                <IconButton variant="text" className='text-indigo-700' onClick={() => openModal(medecin)}>
+                                                                    <PencilIcon className="h-4 w-4" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip content="Supprimer" className="text-white bg-red-400 rounded-md">
+                                                                <IconButton variant="text" className='text-red-800' onClick={() => handleDeleteMedecins(medecin._id)}>
+                                                                    <TrashIcon className="h-4 w-4" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </div>
+                                                    </td>
+
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
 
                                 </div>
                             </CardBody>
-                            <CardFooter className="text-gray-500 flex items-center justify-between border-t border-blue-gray-50 p-4">
+                            <CardFooter className="text-gray-500 flex items-center justify-between  border-blue-gray-50 p-4">
                                 <Typography variant="small" color="blue-gray" className=" font-normal ">
                                     Page 1 of 10
                                 </Typography>
@@ -278,8 +353,8 @@ function ListeMedecin() {
                                 </div>
                             </CardFooter>
                         </Card>
-
                     </div>
+                    {/*** */}
                     {isModalOpen && (
                         <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center">
                             <div className="dark:bg-gray-900 dark:text-gray-50 text-gray-800 absolute inset-0 bg-black opacity-50"></div>
@@ -287,33 +362,53 @@ function ListeMedecin() {
                                 <div className='  dark:bg-gray-800 dark:text-gray-50 text-gray-800 overflow-hidden'>
                                     <h1 className="mb-8  dark:bg-gray-800 dark:text-gray-50 leading-7 text-gray-800 ">Entrer les informations :</h1>
                                 </div>
-                                <form>
+                                <form onSubmit={handleUpdateMedecin}>
                                     <div className="flex mb-4">
                                         <div className="flex flex-col mr-4">
                                             <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
-                                                Prénom
+                                                Cin
                                             </label>
                                             <input
                                                 type="text"
-                                                id="name"
-                                                name="name"
+                                                id="cin"
+                                                name="cin"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                                                 placeholder="Entrez le nom et prénom"
+                                                defaultValue={selectedMedecin.user.cin}
                                             />
                                         </div>
                                         <div className="flex flex-col mr-4">
                                             <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
-                                                Nom
+
+                                                Nom & Prénom
                                             </label>
                                             <input
                                                 type="text"
-                                                id="name"
-                                                name="name"
+                                                id="nomPrenom"
+                                                name="nomPrenom"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
-                                                placeholder="Entrez le nom et prénom"
+                                                placeholder="Entrez votre nouveau nom é prénom"
+                                                defaultValue={selectedMedecin.user.nomPrenom}
+
+                                            />
+                                        </div>
+                                        <div className="flex flex-col mr-4">
+                                            <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
+
+                                                Adresse
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="adresse"
+                                                name="adresse"
+                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
+                                                placeholder="Entrez votre nouveau Adresse"
+                                                defaultValue={selectedMedecin.user.adresse}
+
                                             />
                                         </div>
                                     </div>
+
                                     <div className="flex mb-4">
 
 
@@ -323,40 +418,113 @@ function ListeMedecin() {
                                             </label>
                                             <input
                                                 type="tel"
-                                                id="tel"
-                                                name="tel"
+                                                id="telephone"
+                                                name="telephone"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                                                 placeholder="Entrez le numéro de téléphone"
+                                                defaultValue={selectedMedecin.user.telephone}
+
                                             />
                                         </div>
                                         <div className="flex flex-col mr-4">
                                             <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
-                                                date de naissance
+                                                email
                                             </label>
-                                            <Datepicker />
+                                            <input
+                                                type="text"
+                                                id="email"
+                                                name="email"
+                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
+                                                placeholder="Entrez Votre nouveau email"
+                                                defaultValue={selectedMedecin.user.email}
+
+                                            />
                                         </div>
+                                        <div className="flex flex-col mr-4 ">
+                                            <label htmlFor="role" className="mb-1 text-sm font-medium text-blue-gray-900">
+                                                Password
+                                            </label>
+                                            <input
+                                                type="password"
+                                                id="password"
+                                                name="password"
+                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
+
+                                                defaultValue={selectedMedecin.user.password}
+                                            />
+                                        </div>
+
+
                                     </div>
+
+
                                     <div className="flex mb-4">
-
-
                                         <div className="flex flex-col mr-4">
-
-                                            <label htmlFor="job" className="mb-1 text-sm font-medium text-blue-gray-900">
-                                                Spécialités
+                                            <label htmlFor="medecinlie" className="mb-1 text-sm font-medium text-blue-gray-900">
+                                                Spécialité
                                             </label>
                                             <select
-                                                id="poste"
-                                                name="poste"
-                                                className=" dark:bg-gray-800 dark:text-gray-50 text-gray-800 mb-1 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
-                                            >
-                                                <option value="" disabled selected>
+                                                id="specialite"
+                                                name="specialite"
+                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 mb-1 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
+                                                value={selectedSpecialite}
+                                                onChange={(e) => setSelectedSpecialite(e.target.value)}                                            >
+                                                <option value="" disabled>
                                                     Sélectionnez
                                                 </option>
-                                                <option value="1">Radiologue</option>
-                                                <option value="2">Généraliste</option>
+                                                {Specialite.map((sep) => (
+                                                    <option
+                                                        key={sep._id}
+                                                        value={sep._id}
+                                                    >
+                                                        {sep.nom}
+                                                    </option>
+                                                ))}
                                             </select>
+
+                                        </div>
+                                        <div className="flex flex-col mr-4">
+                                            <label htmlFor="medecinlie" className="mb-1 text-sm font-medium text-blue-gray-900">
+                                                Département
+                                            </label>
+                                            <select
+                                                id="departement"
+                                                name="departement"
+                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 mb-1 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
+                                                value={selectedDepartement}
+                                                onChange={(e) => setSelectedDepartement(e.target.value)}                                            >
+                                                <option value="" disabled>
+                                                    Sélectionnez
+                                                </option>
+                                                {departement.map((depart) => (
+                                                    <option
+                                                        key={depart._id}
+                                                        value={depart._id}
+                                                    >
+                                                        {depart.localisation}
+                                                    </option>
+                                                ))}
+                                            </select>
+
+
+                                        </div>
+                                        <div className="flex flex-col mr-4">
+                                            <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
+
+                                                Role
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="role"
+                                                name="role"
+                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
+                                                placeholder="Entrez votre nouveau Role"
+                                                defaultValue={selectedMedecin.user.role}
+
+                                            />
                                         </div>
                                     </div>
+
 
                                     <div className="flex justify-end mt-4">
                                         <Button onClick={closeModal} size="sm" className=' text-gray-700 bg-gray-200 '>

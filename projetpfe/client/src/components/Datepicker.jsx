@@ -1,27 +1,25 @@
 import React from 'react';
 import Flatpickr from 'react-flatpickr';
 
-function Datepicker({
-  align
-}) {
+function Datepicker({ align }) {
+  const defaultDate = new Date().toISOString(); // Définir la date par défaut au format ISOString
 
   const options = {
-    mode: 'range',
     static: true,
     monthSelectorType: 'static',
-    dateFormat: 'M j, Y',
-    defaultDate: [new Date().setDate(new Date().getDate() - 6), new Date()],
+    dateFormat: 'Y-m-d',
+    defaultDate: defaultDate, // Utiliser la date par défaut
     prevArrow: '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
     nextArrow: '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
     onReady: (selectedDates, dateStr, instance) => {
-      instance.element.value = dateStr.replace('to', '-');
-      const customClass = (align) ? align : '';
+      instance.element.value = dateStr;
+      const customClass = align ? align : '';
       instance.calendarContainer.classList.add(`flatpickr-${customClass}`);
     },
     onChange: (selectedDates, dateStr, instance) => {
-      instance.element.value = dateStr.replace('to', '-');
+      instance.element.value = dateStr;
     },
-  }
+  };
 
   return (
     <div className="relative">

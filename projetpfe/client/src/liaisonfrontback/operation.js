@@ -97,7 +97,7 @@ export const addaides = (aide, callback) => {
 
 export const updateAide = (id, updatedData, callback) => {
   api.put(`/updateAide/${id}`, updatedData)
-    .then((message) => callback(message))
+    .then((response) => callback(response.data))
     .catch((err) => callback(err));
 }
 
@@ -107,3 +107,77 @@ export const deleteAide = (id, callback) => {
     .catch((err) => callback(err));
 }
 
+
+export const getMedecins = (callback) => {
+  api.get('/getMedecins')
+    .then((res) => callback(res))
+    .catch((error) => callback({ error }));
+}
+
+export const getMedecinById = async (id) => {
+  try {
+    const response = await api.get(`/getMedecinById/${id}`);
+    return response.data;
+  } catch (error) {
+    return { error: error.message };
+}
+}
+
+export const addMedecin = (aide, callback) => {
+  api.post('/addMedecin', aide)
+    .then((res) => {
+      console.log('Received response:', res);
+      callback(res);
+    })
+    .catch((err) => {
+      console.error('Error:', err);
+      callback(err);
+    });
+}
+
+export const UpdateMedecin = (id, updatedData, callback) => {
+  api.put(`/updateMedecin/${id}`, updatedData)
+    .then((message) => callback(message))
+    .catch((err) => callback(err));
+}
+
+
+export const deleteMedecin = (id, callback) => {
+  api.delete(`/deleteMedecin/${id}`)
+    .then((res) => callback(res))
+    .catch((err) => callback(err));
+}
+
+export const getPatient = async (id) => {
+  try {
+    const response = await api.get(`/getPatient`);
+    return response.data;
+  } catch (error) {
+    return { error: error.message };
+  }
+}
+
+export const addPatient = (patient, callback) => {
+  api.post('/addPatient', patient)
+      .then((res) => {
+          console.log('Received response:', res);
+          callback(res.data); // Appeler le callback avec la réponse
+      })
+      .catch((err) => {
+          console.error('Error:', err.response.data);
+          callback(err.response.data); // Appeler le callback avec l'erreur
+      });
+};
+
+export const deletePatient = (id, callback) => {
+  api.delete(`/deletePatient/${id}`)
+    .then((res) => callback(res))
+    .catch((err) => callback(err));
+}
+
+
+export const updatePatient = (id, updatedData, callback) => {
+  api.put(`/updatePatient/${id}`, updatedData)
+    .then((message) => callback(message))
+    .catch((err) => callback(err));
+}

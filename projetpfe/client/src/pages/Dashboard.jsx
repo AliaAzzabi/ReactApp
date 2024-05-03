@@ -100,10 +100,12 @@ function Dashboard() {
               {/* Card (Recent Activity) */}
               <DashboardCard12 />
               {/* Card (Income/Expenses) */}
-              <DashboardCard13 />
               
             </div>
+<div className="grid grid-cols-2">
 
+              <DashboardCard13 />
+              </div>
           </div>
         </main>
 
