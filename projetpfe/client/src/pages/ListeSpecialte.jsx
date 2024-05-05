@@ -25,7 +25,8 @@ function ListeSpecialite() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [filteredSpecialites, setFilteredSpecialites] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
     
     const { user } = useContext(AuthContext);
     const [selectedSpecialite, setSelectedSpecialite] = useState(null);
@@ -47,6 +48,15 @@ function ListeSpecialite() {
         setFilteredSpecialites(filtered);
     }, [searchTerm, specialites]);
 
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredSpecialites.slice(indexOfFirstItem, indexOfLastItem);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+    const nextPage = () => setCurrentPage(currentPage + 1);
+
+    const prevPage = () => setCurrentPage(currentPage - 1);
 
     const handleDeleteSpecialite = (id) => {
         const confirmDelete = window.confirm("Voulez-vous vraiment supprimer cette spécialité ?");
@@ -150,7 +160,7 @@ function ListeSpecialite() {
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                                        {filteredSpecialites.map((specialite) => (
+                                        {currentItems.map((specialite) => (
                                                 <tr key={specialite._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                                     <td className="px-6 py-4 whitespace-nowrap">{specialite.nom}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap">{specialite.description}</td>
@@ -176,17 +186,18 @@ function ListeSpecialite() {
                             </CardBody>
                             <CardFooter className="text-gray-500 flex items-center justify-between border-t border-blue-gray-50 p-4">
                                 <Typography variant="small" color="blue-gray" className=" font-normal ">
-                                    Page 1 of 10
+                                    Page {currentPage} of {Math.ceil(filteredSpecialites.length / itemsPerPage)}
                                 </Typography>
                                 <div className="flex gap-2 ">
-                                    <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
+                                    <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800' onClick={prevPage} disabled={currentPage === 1}>
                                         <FaArrowLeft />
                                     </Button>
-                                    <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
+                                    <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800' onClick={nextPage} disabled={currentPage === Math.ceil(filteredSpecialites.length / itemsPerPage)}>
                                         <FaArrowRight /> 
                                     </Button>
                                 </div>
                             </CardFooter>
+
                         </Card>
                     </div>
                     {isModalOpen && (

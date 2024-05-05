@@ -43,20 +43,22 @@ function ListeMedecin() {
     const [selectedSpecialite, setSelectedSpecialite] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
 
+
+
     const [selectedSpecialiteId, setSelectedSpecialiteId] = useState(null);
     // Fonction de filtrage des spécialités par nom
     useEffect(() => {
-        const filtered = medecins.filter(medecin =>
-            medecin.user.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
+        const filtered = medecins.filter((medecin) =>
+          medecin.user.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setFilteredMedecin(filtered);
-    }, [searchTerm, medecins]);
+      }, [searchTerm, medecins]);
 
     useEffect(() => {
         getAllspecialities((res) => {
             if (res.data) {
                 setSpecialite(res.data);
-                
+
             } else {
                 console.error("Error fetching spécialité:", res.error);
             }
@@ -142,6 +144,27 @@ function ListeMedecin() {
         }
     };
 
+    // Ajoutez un nouvel état pour suivre quelle page est actuellement affichée
+    const [currentPage, setCurrentPage] = useState(1);
+
+
+    // Définissez le nombre de médecins à afficher par page
+    const medecinsPerPage = 5;
+
+    // Calculez l'index de début et de fin pour les médecins de la page actuelle
+    const indexOfLastMedecin = currentPage * medecinsPerPage;
+    const indexOfFirstMedecin = indexOfLastMedecin - medecinsPerPage;
+    const currentMedecins = filteredMedecins.slice(indexOfFirstMedecin, indexOfLastMedecin);
+
+    // Créez une fonction pour passer à la page précédente
+    const handlePrevPage = () => {
+        setCurrentPage((prevPage) => prevPage - 1);
+    };
+
+    // Créez une fonction pour passer à la page suivante
+    const handleNextPage = () => {
+        setCurrentPage((prevPage) => prevPage + 1);
+    };
 
 
     return (
@@ -250,7 +273,7 @@ function ListeMedecin() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {filteredMedecins.map((medecin) => (
+                                            {currentMedecins.map((medecin) => (
                                                 <tr key={medecin._id}>
 
 
@@ -327,13 +350,25 @@ function ListeMedecin() {
                             </CardBody>
                             <CardFooter className="text-gray-500 flex items-center justify-between  border-blue-gray-50 p-4">
                                 <Typography variant="small" color="blue-gray" className=" font-normal ">
-                                    Page 1 of 10
+                                Page {currentPage} of {Math.ceil(filteredMedecins.length / medecinsPerPage)}
                                 </Typography>
-                                <div className="flex gap-2 ">
-                                    <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
+                                <div className="flex justify-between mt-4">
+                                    <Button
+                                        variant="outlined"
+                                        size="sm"
+                                        className='text-gray-500 dark:bg-gray-800'
+                                        onClick={handlePrevPage}
+                                        disabled={currentPage === 1} // Désactive le bouton s'il est sur la première page
+                                    >
                                         <FaArrowLeft /> {/* Utilisez l'icône de flèche gauche */}
                                     </Button>
-                                    <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
+                                    <Button
+                                        variant="outlined"
+                                        size="sm"
+                                        className='text-gray-500 dark:bg-gray-800'
+                                        onClick={handleNextPage}
+                                        disabled={indexOfLastMedecin >= filteredMedecins.length} // Désactive le bouton s'il est sur la dernière page
+                                    >
                                         <FaArrowRight /> {/* Utilisez l'icône de flèche droite */}
                                     </Button>
                                 </div>

@@ -27,20 +27,27 @@ const getSpecialtyById = async (req, res) => {
   
 const addSpecialty = async (req, res) => {
     try {
-        
         const { nom, description } = req.body;
-        console.log(req.body);
-        const newSpecialties = new Specialtie({ nom, description });
-        const savedSpecialties = await newSpecialties.save();
+
+        const existingSpecialty = await Specialtie.findOne({ nom: nom });
+        if (existingSpecialty) {
+            return res.status(400).json({ error: "Cette spécialité existe déjà." });
+        }
+
+       
+        const newSpecialty = new Specialtie({ nom, description });
+        const savedSpecialty = await newSpecialty.save();
+
         res.status(201).json({
-            nom: savedSpecialties.nom,
-            description: savedSpecialties.description,
+            nom: savedSpecialty.nom,
+            description: savedSpecialty.description,
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Erreur interne du serveur" });
     }
 };
+
 
 
 const updateSpecialty = async (req, res) => {

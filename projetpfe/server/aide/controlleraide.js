@@ -55,7 +55,7 @@ const addaides = expressHandler(async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ error: "Cet email est déjà utilisé." });
         }
-
+       
         let medecinId = await Medecin.findOne({ _id: medecin }).select('_id');
 
 
@@ -202,4 +202,13 @@ const deleteAide = async (req, res) => {
     }
 };
 
-module.exports = { getAide, addaides, updateAide, deleteAide, getAideById }; 
+const checkAideEmailExistence = async (email) => {
+    try {
+        const existingAide = await Aide.findOne({ email: email });
+        return existingAide !== null;
+    } catch (error) {
+        console.error("Erreur lors de la vérification de l'existence de l'email de l'aide :", error);
+        throw new Error("Erreur lors de la vérification de l'existence de l'email de l'aide");
+    }
+};
+module.exports = { getAide, addaides, updateAide, deleteAide, getAideById, checkAideEmailExistence }; 

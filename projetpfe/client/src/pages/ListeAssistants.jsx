@@ -40,15 +40,15 @@ function ListeAssistant() {
   const [selectedMedecinId, setSelectedMedecinId] = useState(null);
   const [medecins, setMedecins] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const assistantsPerPage = 5;
   useEffect(() => {
     const filtered = aides.filter(aide =>
-        aide.user.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
+      aide.user.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredAssitants(filtered);
-}, [searchTerm, aides]);
-
-
+  }, [searchTerm, aides]);
+  
   useEffect(() => {
     getMedecins((res) => {
       if (res.data) {
@@ -128,7 +128,20 @@ function ListeAssistant() {
       });
     }
   };
+  const AidePerPage = 5;
+   
 
+  const indexOfLastAide = currentPage * assistantsPerPage;
+  const indexOfFirstAide = (currentPage - 1) * assistantsPerPage;
+  const currentAssistants = filteredAssitants.slice(indexOfFirstAide, indexOfLastAide);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prevPage) => prevPage - 1);
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -247,7 +260,7 @@ function ListeAssistant() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                      {filteredAssitants.map((aide) => (
+                      {currentAssistants.map((aide) => (
                         <tr key={aide._id}>
 
 
@@ -335,17 +348,30 @@ function ListeAssistant() {
               </CardBody>
               <CardFooter className="text-gray-500 flex items-center justify-between  border-blue-gray-50 p-4">
                 <Typography variant="small" color="blue-gray" className=" font-normal ">
-                  Page 1 of 10
+                  Page {currentPage} of {Math.ceil(filteredAssitants.length / AidePerPage)}
                 </Typography>
-                <div className="flex gap-2 ">
-                  <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
+                <div className="flex justify-between mt-4">
+                  <Button
+                    variant="outlined"
+                    size="sm"
+                    className='text-gray-500 dark:bg-gray-800'
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1} // Désactive le bouton s'il est sur la première page
+                  >
                     <FaArrowLeft /> {/* Utilisez l'icône de flèche gauche */}
                   </Button>
-                  <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
+                  <Button
+                    variant="outlined"
+                    size="sm"
+                    className='text-gray-500 dark:bg-gray-800'
+                    onClick={handleNextPage}
+                    disabled={indexOfLastAide >= filteredAssitants.length} // Désactive le bouton s'il est sur la dernière page
+                  >
                     <FaArrowRight /> {/* Utilisez l'icône de flèche droite */}
                   </Button>
                 </div>
               </CardFooter>
+
             </Card>
           </div>
           {isModalOpen && (
@@ -452,8 +478,8 @@ function ListeAssistant() {
                   </div>
 
 
-                  <div className="flex mb-4">
-                    <div className="flex flex-col mr-4 ">
+                  <div className="flex flex-col mb-4 sm:flex-row sm:justify-between">
+                    <div className="flex flex-col mr-4 mb-4 sm:mb-0">
                       <label htmlFor="medecinlie" className="mb-1 text-sm font-medium text-blue-gray-900">
                         Médecin lié
                       </label>
@@ -482,10 +508,8 @@ function ListeAssistant() {
                           </option>
                         ))}
                       </select>
-
-
                     </div>
-                    <div className="flex flex-col mr-4 ">
+                    <div className="flex flex-col mr-4">
                       <label htmlFor="role" className="mb-1 text-sm font-medium text-blue-gray-900">
                         Poste
                       </label>
@@ -498,7 +522,7 @@ function ListeAssistant() {
                         defaultValue={selectedAide.user.role}
                       />
                     </div>
-                    <div className="flex flex-col mr-4 ">
+                    <div className="flex flex-col mr-4">
                       <label htmlFor="role" className="mb-1 text-sm font-medium text-blue-gray-900">
                         Password
                       </label>
@@ -512,6 +536,7 @@ function ListeAssistant() {
                       />
                     </div>
                   </div>
+
 
 
                   <div className="flex justify-end mt-4">

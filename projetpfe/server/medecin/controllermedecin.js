@@ -86,7 +86,7 @@ const addmed = expressHandler(async (req, res) => {
         });
 
         const savedMed = await newMed.save();
-
+console.log(savedMed);
         res.status(201).json({
             _id: savedMed._id,
             cin: savedUser.cin,
@@ -188,5 +188,6 @@ const deleteMedecin = async (req, res) => {
         res.status(400).send({ error: `Erreur lors de la suppression du médecin : ${err.message}` });
     }
 };
+
 
 module.exports = { getMedecins, updateMedecin, deleteMedecin, getMedecinById, addmed }; 

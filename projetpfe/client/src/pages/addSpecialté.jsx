@@ -50,11 +50,11 @@ function AddSpecialte() {
         setspecialite({ ...specialite, [name]: value });
     };
 
+
+
     const handleSubmit = (e) => {
         e.preventDefault();
-       
-
-     
+    
        addspecialite({ ...specialite, id: Date.now() }, (response) => {
             if (response && !response.error) {
                 alert('La specialite a été ajouté avec succès');

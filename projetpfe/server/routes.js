@@ -6,7 +6,7 @@ const User = require('./models/userModel');
 const { upload } = require("./image/upload");
 const {createDepartement, getAllDepartements, updateDepartement, deleteDepartement,getDepartementById} = require ('./departement/controllerdepartement');
 const { getSpecialty, addSpecialty, updateSpecialty, deleteSpecialty, getSpecialtyById } = require('./specialité/controllerspecialité');
-const { getAide, addaides, updateAide, deleteAide, getAideById } = require('./aide/controlleraide');
+const { getAide, addaides, updateAide, deleteAide, getAideById ,checkAideEmailExistence} = require('./aide/controlleraide');
 const {getMedecins,  updateMedecin, deleteMedecin, getMedecinById, addmed} = require ('./medecin/controllermedecin');
 const { getAdmin, addAdmin, updateAdmin, deleteAdmin, getAdminById } = require ('./admin/controlleradmin');
 const  { getPatient, addPatient, updatePatient, deletePatient, gePatientById } = require('./patient/controllerpatient');
@@ -64,16 +64,6 @@ router.get('/getRDVById/:id', getRendezVousById);
 router.put('/modifierRDV/:id', updateRendezVous);
 router.delete('/supprimerRDV/:id', deleteRendezVous);
 
-router.post('/checkemail', async (req, res) => {
-    try {
-        const { email } = req.body;
-        const existingUser = await User.findOne({ email: email });
-        res.json({ exists: existingUser !== null });
-    } catch (error) {
-        console.error("Erreur lors de la vérification de l'existence de l'email :", error);
-        res.status(500).json({ exists: false, error: "Erreur lors de la vérification de l'existence de l'email" });
-    }
-});
 
-  
+router.post('/checkAideEmailExistence', checkAideEmailExistence);
 module.exports = { router };

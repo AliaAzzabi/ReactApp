@@ -10,6 +10,7 @@ import Datepicker from '../components/Datepicker';
 import { Link } from 'react-router-dom';
 import { addaides } from '../liaisonfrontback/operation';
 import { getMedecins } from '../liaisonfrontback/operation';
+
 import {
     Card,
     CardHeader,
@@ -31,6 +32,7 @@ function AddAssistant() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const Navigation = useNavigate();
     const [medecins, setMedecins] = useState([]);
+
 
     const handleMedecinChange = (e) => {
         const selectedMedecinId = e.target.value;
@@ -61,7 +63,7 @@ function AddAssistant() {
         education: '',
         image: null,
         adresse: '',
-        medecin: null, 
+        medecin: null,
     });
 
     const { user } = useContext(AuthContext);
@@ -79,48 +81,43 @@ function AddAssistant() {
             [name]: value
         });
     };
+    const [error, setError] = useState(null);
 
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const formData = new FormData();
-        formData.append('image', aide.image);
-
-
-        Object.keys(aide).forEach((key) => {
-            if (key !== 'image') {
-                formData.append(key, aide[key]);
-            }
-        });
-
-        addaides(formData, (response) => {
-            if (response && !response.error) {
-                alert('Le aide a été ajouté avec succès');
-                setaide({
-
-                    cin: '',
-                    nomPrenom: '',
-                    email: '',
-                    dateNaissance: '',
-                    role: '',
-                    telephone: '',
-                    password: '',
-                    sexe: '',
-                    dateAdhesion: '',
-                    education: '',
-                    image: null,
-                    adresse: '',
-                    medecin: null, 
-                });
-                console.log(formData);
-                Navigation('/listeAssistant');
-            } else {
-                console.error("Erreur lors de l'ajout du aide :", response && response.error);
-                alert('Une erreur s\'est produite lors de l\'ajout du aide');
-            }
-        });
+    
+        try {
+            const formData = new FormData();
+            formData.append('image', aide.image);
+            formData.append('cin', aide.cin);
+            formData.append('nomPrenom', aide.nomPrenom);
+            formData.append('telephone', aide.telephone);
+            formData.append('email', aide.email);
+            formData.append('password', aide.password);
+            formData.append('sexe', aide.sexe);
+            formData.append('dateAdhesion', aide.dateAdhesion);
+            formData.append('dateNaissance', aide.dateNaissance);
+            formData.append('role', aide.role);
+            formData.append('adresse', aide.adresse);
+            formData.append('medecin', aide.medecin);
+            formData.append('education', aide.education);
+    
+            const callback = (response) => {
+                if (response && response.status >= 200 && response.status < 300) {
+                    alert('Assistant ajouté avec succès')
+                    Navigation('/listeAssistant');
+                } else {
+                    setError('email existe déja.');
+                    alert('Cet email est déjà utilisé.');
+                }
+            };
+    
+            const response = await addaides(formData, callback);
+        } catch (error) {
+            setError(error.message);
+        }
     };
+
 
 
     if (!user) {
@@ -382,7 +379,8 @@ function AddAssistant() {
 
                                     {/* Form Actions */}
                                     <div className="mt-6 flex items-center justify-end gap-x-6">
-                                        <button type="button" onClick={() => Navigation('/listeAssistant')} className="text-sm font-semibold leading-6 dark:text-gray-50 text-gray-900">Annuler</button>
+                                       
+                                    <button type="button" onClick={() => Navigation('/listeAssistant')} className="text-gray-500 dark:bg-gray-800">Annuler</button>
                                         <button type="submit" className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Ajouter</button>
                                     </div>
                                 </form>

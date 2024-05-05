@@ -6,7 +6,7 @@ import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 
 import { getAllspecialities } from '../liaisonfrontback/operation';
-import { addmed , checkEmailExistence } from '../liaisonfrontback/operation';
+import { addmed  } from '../liaisonfrontback/operation';
 import {
     Card,
     CardHeader,
@@ -78,43 +78,46 @@ function AddMedecin() {
             });
         }
     };
-
-    const handleSubmit = (e) => {
+    const [error, setError] = useState(null);
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const formData = new FormData();
-
-        // Ajouter l'image au FormData
-        formData.append('image', medecin.image);
-
-        // Ajouter d'autres champs au FormData en utilisant les valeurs des champs de formulaire directement
-        formData.append('cin', e.target.cin.value);
-        formData.append('nomPrenom', e.target.nomPrenom.value);
-        formData.append('telephone', e.target.telephone.value);
-        formData.append('email', e.target.email.value);
-        formData.append('password', e.target.password.value);
-        formData.append('sexe', e.target.sexe.value);
-        formData.append('dateAdhesion', e.target.dateAdhesion.value);
-        formData.append('dateNaissance', e.target.dateNaissance.value);
-        formData.append('role', 'médecin');
-        formData.append('adresse', e.target.adresse.value);
-        formData.append('specialite', e.target.specialite.value);
-
-        addmed(formData, (response) => {
-            console.log(formData);
-            if (response && !response.error) {
-              
-                alert('Le médecin a été ajouté avec succès');
-                // Réinitialiser le formulaire après l'ajout réussi
-                e.target.reset();
-                // Maintenant, loggez le FormData
-                Navigation('/listeMedecin');
+        try {
+          const formData = new FormData();
+      
+          // Ajouter l'image au FormData
+          formData.append('image', medecin.image);
+      
+          // Ajouter d'autres champs au FormData en utilisant les valeurs des champs de formulaire directement
+          formData.append('cin', e.target.cin.value);
+          formData.append('nomPrenom', e.target.nomPrenom.value);
+          formData.append('telephone', e.target.telephone.value);
+          formData.append('email', e.target.email.value);
+          formData.append('password', e.target.password.value);
+          formData.append('sexe', e.target.sexe.value);
+          formData.append('dateAdhesion', e.target.dateAdhesion.value);
+          formData.append('dateNaissance', e.target.dateNaissance.value);
+          formData.append('role', 'médecin');
+          formData.append('adresse', e.target.adresse.value);
+          formData.append('specialite', e.target.specialite.value);
+      
+          const callback = (response) => {
+            if (response && response.status >= 200 && response.status < 300) {
+              alert('Médecin ajouté avec succès')
+              Navigation('/listeMedecin');
             } else {
-                console.error("Erreur lors de l'ajout du médecin :", response && response.error);
-                alert('Une erreur s\'est produite lors de l\'ajout du médecin');
+              setError('email existe déja.');
+              alert('Cet email est déjà utilisé.');
             }
-        });
-    };
+          };
+      
+          const response = await addmed(formData, callback);
+    
+      
+        } catch (error) {
+          console.error("Erreur lors de l'ajout du médecin :", error);
+          alert('Une erreur s\'est produite lors de l\'ajout du médecin');
+        }
+      };
 
 
     if (!user) {
