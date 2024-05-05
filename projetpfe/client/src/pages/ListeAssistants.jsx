@@ -7,6 +7,7 @@ import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import DashboardAvatars from '../partials/dashboard/DashboardAvatars';
 import FilterButton from '../components/DropdownFilter';
 import Datepicker from '../components/Datepicker';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { getAllAide, deleteAide, updateAide } from '../liaisonfrontback/operation';
@@ -30,13 +31,23 @@ import {
 
 function ListeAssistant() {
   const [users, setUsers] = useState([]);
+  const [filteredAssitants, setFilteredAssitants] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useContext(AuthContext);
   const [aides, setAides] = useState([]);
   const [selectedAide, setSelectedAide] = useState(null);
-  const [selectedMedecinId, setSelectedMedecinId] = useState(null); 
+  const [selectedMedecinId, setSelectedMedecinId] = useState(null);
   const [medecins, setMedecins] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const filtered = aides.filter(aide =>
+        aide.user.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredAssitants(filtered);
+}, [searchTerm, aides]);
+
 
   useEffect(() => {
     getMedecins((res) => {
@@ -78,14 +89,14 @@ function ListeAssistant() {
 
   const openModal = (aide) => {
     setSelectedAide(aide);
-    setSelectedMedecinId(aide.medecinlie); 
+    setSelectedMedecinId(aide.medecinlie);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedAide(null);
-    setSelectedMedecinId(null); 
+    setSelectedMedecinId(null);
   };
 
   const handleUpdateAide = (e) => {
@@ -107,7 +118,7 @@ function ListeAssistant() {
       };
       updateAide(selectedAide._id, updatedAide, (res) => {
         if (res.data) {
-          const updatedAides = aides.map((aide) => (aide._id === res.data._id? res.data : aide));
+          const updatedAides = aides.map((aide) => (aide._id === res.data._id ? res.data : aide));
           setAides(updatedAides);
           closeModal();
           console.log("Assistant modifié avec succès");
@@ -157,14 +168,21 @@ function ListeAssistant() {
                       <path strokeWidth="2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                     </svg>
                   </div>
-                  <input type="text" id="table-search-users" className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Chercher" />
+                  <input
+                    type="text"
+                    id="table-search-users"
+                    className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Chercher"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
               </CardHeader>
               <CardBody className="overflow-x-auto px-0 dark:bg-gray-800 text-gray-500">
-                                <div className="overflow-y-auto max-h-[800px]">
-                                    <table className="mt-4 w-full min-w-max table-auto text-left">
+                <div className="overflow-y-auto max-h-[800px]">
+                  <table className="mt-4 w-full min-w-max table-auto text-left">
                     <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-700">
+                      <tr className="bg-gray-50 dark:bg-gray-700">
                         <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                           <Typography
                             variant="small"
@@ -229,7 +247,7 @@ function ListeAssistant() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                      {aides.map((aide) => (
+                      {filteredAssitants.map((aide) => (
                         <tr key={aide._id}>
 
 
@@ -321,10 +339,10 @@ function ListeAssistant() {
                 </Typography>
                 <div className="flex gap-2 ">
                   <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
-                    Previous
+                    <FaArrowLeft /> {/* Utilisez l'icône de flèche gauche */}
                   </Button>
                   <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
-                    Next
+                    <FaArrowRight /> {/* Utilisez l'icône de flèche droite */}
                   </Button>
                 </div>
               </CardFooter>
@@ -490,7 +508,7 @@ function ListeAssistant() {
                         name="password"
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
                         placeholder="Entrez le nouveau password"
-                       defaultValue={selectedAide.user.password}
+                        defaultValue={selectedAide.user.password}
                       />
                     </div>
                   </div>

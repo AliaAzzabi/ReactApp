@@ -56,7 +56,10 @@ const addaides = expressHandler(async (req, res) => {
             return res.status(400).json({ error: "Cet email est déjà utilisé." });
         }
 
-        let medecinId = await Medecin.findOne({ nom: medecin }).select('_id');
+        let medecinId = await Medecin.findOne({ _id: medecin }).select('_id');
+
+
+    
         if (!medecinId) {
             return res.status(400).json({ error: "Le médecin spécifié n'existe pas" });
         }
@@ -117,8 +120,10 @@ const addaides = expressHandler(async (req, res) => {
 
 
 const updateAide = async (req, res) => {
+   
     const { cin, sexe, nomPrenom, telephone, email, password, dateAdhesion, role, medecin, education, dateNaissance, adresse } = req.body;
     try {
+        console.log(req._id);
         const hashedPassword = await bcrypt.hash(password, 10);
         let updateData = {
             nomPrenom,

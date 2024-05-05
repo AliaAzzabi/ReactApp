@@ -1,5 +1,4 @@
 const Medecin = require('./medecinshema');
-const Departement = require('../departement/schemadepartment');
 const Specialite = require('../specialité/specialitiesSchema');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
@@ -13,43 +12,41 @@ const getMedecins = async (req, res) => {
         const medecins = await Medecin.find({})
             .populate({
                 path: 'user',
-                select: 'nomPrenom telephone email dateAdhesion dateNaissance adresse sexe password role' 
+                select: 'nomPrenom telephone email dateAdhesion dateNaissance adresse sexe password role'
             })
-            .populate('departement')
+
             .populate('specialite')
             .populate('image');
 
         res.send(medecins);
     } catch (err) {
         console.error("Erreur lors de la recherche des Médecins :", err);
-        res.status(500).send("Erreur serveur: " + err.message); 
+        res.status(500).send("Erreur serveur: " + err.message);
     }
 };
 
 const getMedecinById = async (req, res) => {
+
     try {
         const medecin = await Medecin.findById(req.params.id)
             .populate('user')
             .populate('image')
-            .populate('departement')
             .populate('specialite');
-        
+
         if (!medecin) {
             return res.status(404).json({ message: "Medecin non trouvée" });
         }
-        
+
         res.status(200).json(medecin);
     } catch (error) {
-        
+
         res.status(500).json({ message: error.message });
     }
 };
-
-
-
-const addMedecin = expressHandler(async (req, res) => {
+const addmed = expressHandler(async (req, res) => {
+    console.log(req.body);
     try {
-        const { cin, sexe, nomPrenom, departement, specialite, telephone, role, email, password, dateAdhesion, dateNaissance, adresse } = req.body;
+        const { cin, sexe, nomPrenom, telephone, role, email, password, dateAdhesion, specialite, dateNaissance, adresse } = req.body;
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const existingUser = await User.findOne({ email: email });
@@ -57,14 +54,9 @@ const addMedecin = expressHandler(async (req, res) => {
             return res.status(400).json({ error: "Cet email est déjà utilisé." });
         }
 
-        let departementId = await Departement.findOne({ nom: departement }).select('_id');
-        if (!departementId) {
-            return res.status(400).json({ error: "Le département spécifié n'existe pas" });
-        }
-
-        let specialiteId = await Specialite.findOne({ nom: specialite }).select('_id');
-        if (!specialiteId) {
-            return res.status(400).json({ error: "La spécialité spécifiée n'existe pas" });
+        let specialiteid = await Specialite.findOne({ _id: specialite }).select('_id');
+        if (!specialiteid) {
+            return res.status(400).json({ error: "L'ID de la spécialité spécifiée n'existe pas." });
         }
 
         const newImage = new Image({
@@ -78,38 +70,35 @@ const addMedecin = expressHandler(async (req, res) => {
             email: email,
             password: hashedPassword,
             nomPrenom: nomPrenom,
-            telephone: telephone, 
+            telephone: telephone,
             dateAdhesion: dateAdhesion,
             sexe: sexe,
-            dateNaissance: dateNaissance, 
-            adresse: adresse, 
+            dateNaissance: dateNaissance,
+            adresse: adresse,
             role: role,
         });
         const savedUser = await newUser.save();
 
-        const newMedecin = new Medecin({
+        const newMed = new Medecin({
             user: savedUser._id,
-            departement: departementId,
-            specialite: specialiteId,
-           
+            specialite: specialiteid._id,
             image: savedImage._id,
         });
 
-        const savedMedecin = await newMedecin.save();
+        const savedMed = await newMed.save();
 
         res.status(201).json({
-            _id: savedMedecin._id,
+            _id: savedMed._id,
             cin: savedUser.cin,
             nomPrenom: savedUser.nomPrenom,
-            departement: departementId,
-            specialite: specialiteId,
+            specialite: specialiteid._id,
             telephone: savedUser.telephone,
             email: savedUser.email,
             dateAdhesion: savedUser.dateAdhesion,
-            dateNaissance:savedUser.dateNaissance,
-            adresse:savedUser.adresse,
             sexe: savedUser.sexe,
             role: savedUser.role,
+            dateNaissance: savedUser.dateNaissance,
+            adresse: savedUser.adresse,
             image: {
                 filename: savedImage.filename,
                 filepath: savedImage.filepath,
@@ -121,34 +110,39 @@ const addMedecin = expressHandler(async (req, res) => {
     }
 });
 
+
+
+
+
+
 const updateMedecin = async (req, res) => {
-    const { cin, sexe, nomPrenom, departement, specialite, telephone, email, password, dateAdhesion, role, dateNaissance, adresse } = req.body;
+    console.log(req.body);
+    console.log(req._id);
+    const { cin, sexe, nomPrenom, specialite, telephone, email, password, dateAdhesion, role, dateNaissance, adresse } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         let updateData = {
             nomPrenom,
-            telephone, 
+            telephone,
             email,
             dateAdhesion,
             role,
             cin,
             sexe,
-            password: hashedPassword, 
-            dateNaissance: dateNaissance, 
+            password: hashedPassword,
+            dateNaissance: dateNaissance,
             adresse: adresse,
         };
 
-        const departementId = await Departement.findOne({ nom: departement }).select('_id');
         const specialiteId = await Specialite.findOne({ nom: specialite }).select('_id');
 
-        if (!departementId || !specialiteId) {
+        if (!specialiteId) {
             return res.status(400).json({ error: "Le département ou la spécialité spécifiée n'existe pas" });
         }
 
-       
-        updateData.departement = departementId;
-        updateData.specialite = specialiteId;
 
+        updateData.specialite = specialiteId;
+        {/** 
        
         if (req.file) {
             const newImage = new Image({
@@ -158,24 +152,24 @@ const updateMedecin = async (req, res) => {
             const savedImage = await newImage.save();
             updateData.image = savedImage._id;
         }
-
+*/}
         const updatedMedecin = await Medecin.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
         const updatedUser = await User.findByIdAndUpdate(updatedMedecin.user, {
             nomPrenom,
-            telephone, 
+            telephone,
             email,
             hashedPassword,
             sexe,
             cin,
             dateAdhesion,
-            dateNaissance, 
-            adresse, 
+            dateNaissance,
+            adresse,
             role,
         });
 
         if (updatedMedecin && updatedUser) {
-            res.status(200).json({ message: 'Médecin et utilisateur mis à jour avec succès', data: { medecin: updatedMedecin, user: updatedUser } });
+            res.status(200).json({ message: 'Médecin et utilisateur mis à jour avec succès', data: { medecin: updateData, user: updatedUser } });
         } else {
             res.status(404).json({ error: 'Médecin ou utilisateur non trouvé' });
         }
@@ -195,4 +189,4 @@ const deleteMedecin = async (req, res) => {
     }
 };
 
-module.exports = { getMedecins, addMedecin, updateMedecin, deleteMedecin, getMedecinById }; 
+module.exports = { getMedecins, updateMedecin, deleteMedecin, getMedecinById, addmed }; 

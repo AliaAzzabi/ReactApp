@@ -7,6 +7,7 @@ import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import DashboardAvatars from '../partials/dashboard/DashboardAvatars';
 import FilterButton from '../components/DropdownFilter';
 import Datepicker from '../components/Datepicker';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { getMedecins, deleteMedecin } from '../liaisonfrontback/operation';
@@ -34,35 +35,34 @@ function ListeMedecin() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { user } = useContext(AuthContext);
+    const [filteredMedecins, setFilteredMedecin] = useState([]);
     const [medecins, setmedecins] = useState([]);
     const [selectedMedecin, setSelectedMedecin] = useState(null);
     const [Specialite, setSpecialite] = useState([]);
     const [departement, setdepartement] = useState([]);
     const [selectedSpecialite, setSelectedSpecialite] = useState('');
-    const [selectedDepartement, setSelectedDepartement] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const [selectedDepartementId, setSelectedDepatementId] = useState(null);
     const [selectedSpecialiteId, setSelectedSpecialiteId] = useState(null);
-
+    // Fonction de filtrage des spécialités par nom
+    useEffect(() => {
+        const filtered = medecins.filter(medecin =>
+            medecin.user.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredMedecin(filtered);
+    }, [searchTerm, medecins]);
 
     useEffect(() => {
         getAllspecialities((res) => {
             if (res.data) {
                 setSpecialite(res.data);
+                
             } else {
                 console.error("Error fetching spécialité:", res.error);
             }
         });
     }, []);
-    useEffect(() => {
-        getAllDepartement((res) => {
-            if (res.data) {
-                setdepartement(res.data);
-            } else {
-                console.error("Error fetching departement:", res.error);
-            }
-        });
-    }, []);
+
 
     useEffect(() => {
         getMedecins((res) => {
@@ -94,10 +94,11 @@ function ListeMedecin() {
     }
 
     const openModal = (medecin) => {
+        console.log(medecin);
         setSelectedMedecin(medecin);
-        setSelectedSpecialiteId(medecin.specialite._id);
-        setSelectedDepatementId(medecin.departement._id);
+        setSelectedSpecialiteId(medecin.specialite.value);
         setIsModalOpen(true);
+
     };
 
 
@@ -105,7 +106,6 @@ function ListeMedecin() {
         setIsModalOpen(false);
         setSelectedMedecin(null);
         setSelectedSpecialiteId(null);
-        setSelectedDepatementId(null);
 
     };
 
@@ -121,10 +121,9 @@ function ListeMedecin() {
                 email: formData.get('email'),
                 role: formData.get('role'),
                 password: formData.get('password'),
-                image: formData.get('image'),
-                specialite: selectedSpecialite,
-                departement: selectedDepartement,
-                     };
+                //   image: formData.get('image'),
+                specialite: specialite.value,
+            };
             console.log('updatedMedecin:', updatedMedecin); // Add this line
             UpdateMedecin(selectedMedecin._id, updatedMedecin, (res) => {
                 if (res.data) {
@@ -164,7 +163,7 @@ function ListeMedecin() {
                                 <div className=" mb-8 ml-8 flex items-center mr-8 justify-between gap-8">
                                     <div>
                                         <Typography variant="h5" color="blue-gray">
-                                            Liste des Assistants
+                                            Liste des Médecins
                                         </Typography>
 
                                     </div>
@@ -183,8 +182,9 @@ function ListeMedecin() {
                                             <path strokeWidth="2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="table-search-users" className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Chercher" />
+                                    <input type="text" id="table-search-users" className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Chercher" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                                 </div>
+
                             </CardHeader>
                             <CardBody className="overflow-x-auto px-0 dark:bg-gray-800 text-gray-500">
                                 <div className="overflow-y-auto max-h-[800px]">
@@ -214,16 +214,7 @@ function ListeMedecin() {
 
                                                     </Typography>
                                                 </th>
-                                                <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
-                                                    >
-                                                        Département
 
-                                                    </Typography>
-                                                </th>
                                                 <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                                                     <Typography
                                                         variant="small"
@@ -259,7 +250,7 @@ function ListeMedecin() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {medecins.map((medecin) => (
+                                            {filteredMedecins.map((medecin) => (
                                                 <tr key={medecin._id}>
 
 
@@ -293,10 +284,7 @@ function ListeMedecin() {
                                                             {medecin.specialite.nom}                                                         </Typography>
                                                     </td>
 
-                                                    <td className="p-4 border-b border-blue-gray-50">
-                                                        <Typography variant="small" color="blue-gray" className="font-normal">
-                                                            {medecin.departement.localisation}                                                         </Typography>
-                                                    </td>
+
                                                     <td className='p-4 border-b border-blue-gray-50'>
                                                         <Typography
                                                             variant="small"
@@ -343,10 +331,10 @@ function ListeMedecin() {
                                 </Typography>
                                 <div className="flex gap-2 ">
                                     <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
-                                        Previous
+                                        <FaArrowLeft /> {/* Utilisez l'icône de flèche gauche */}
                                     </Button>
                                     <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
-                                        Next
+                                        <FaArrowRight /> {/* Utilisez l'icône de flèche droite */}
                                     </Button>
                                 </div>
                             </CardFooter>
@@ -465,15 +453,15 @@ function ListeMedecin() {
                                                 id="specialite"
                                                 name="specialite"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 mb-1 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
-                                                value={selectedSpecialite}
-                                                onChange={(e) => setSelectedSpecialite(e.target.value)}                                            >
+                                                //  value={selectedSpecialiteId}
+                                                onChange={(e) => setSelectedSpecialiteId(e.target.value)}                                            >
                                                 <option value="" disabled>
                                                     Sélectionnez
                                                 </option>
                                                 {Specialite.map((sep) => (
                                                     <option
                                                         key={sep._id}
-                                                        value={sep._id}
+                                                        value={sep.nom}
                                                     >
                                                         {sep.nom}
                                                     </option>
@@ -481,31 +469,7 @@ function ListeMedecin() {
                                             </select>
 
                                         </div>
-                                        <div className="flex flex-col mr-4">
-                                            <label htmlFor="medecinlie" className="mb-1 text-sm font-medium text-blue-gray-900">
-                                                Département
-                                            </label>
-                                            <select
-                                                id="departement"
-                                                name="departement"
-                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 mb-1 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
-                                                value={selectedDepartement}
-                                                onChange={(e) => setSelectedDepartement(e.target.value)}                                            >
-                                                <option value="" disabled>
-                                                    Sélectionnez
-                                                </option>
-                                                {departement.map((depart) => (
-                                                    <option
-                                                        key={depart._id}
-                                                        value={depart._id}
-                                                    >
-                                                        {depart.localisation}
-                                                    </option>
-                                                ))}
-                                            </select>
 
-
-                                        </div>
                                         <div className="flex flex-col mr-4">
                                             <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
 

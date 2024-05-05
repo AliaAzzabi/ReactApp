@@ -6,25 +6,24 @@ const Schema = mongoose.Schema
 
 const userSchema = new Schema({
   cin: String,
-  nomPrenom: String, 
- telephone:String,
+  nomPrenom: String,
+  telephone: String,
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   sexe: String,
-  dateNaissance: Date, 
+  dateNaissance: Date,
   adresse: String,
   role: {
-    type: String, 
-    required: true 
-},
-  dateAdhesion: { type: Date, default: Date.now } 
+    type: String,
+    required: true
+  },
+  dateAdhesion: { type: Date, default: Date.now }
 })
 
-// static signup method
-userSchema.statics.signup = async function(email, password,role) {
+userSchema.statics.signup = async function (email, password, role, nomPrenom) {
 
   // validation
-  if (!email || !password || !role) {
+  if (!email || !password || !role || !nomPrenom) {
     throw Error('All fields must be filled')
   }
   if (!validator.isEmail(email)) {
@@ -43,13 +42,13 @@ userSchema.statics.signup = async function(email, password,role) {
   const salt = await bcrypt.genSalt(10)
   const hash = await bcrypt.hash(password, salt)
 
-  const user = await this.create({ email, password: hash, role })
+  const user = await this.create({ email, password: hash, role, nomPrenom })
 
   return user
 }
 
 // static login method
-userSchema.statics.login = async function(email, password) {
+userSchema.statics.login = async function (email, password) {
 
   if (!email || !password) {
     throw Error('All fields must be filled')
@@ -67,5 +66,6 @@ userSchema.statics.login = async function(email, password) {
 
   return user
 }
+
 
 module.exports = mongoose.model('User', userSchema)

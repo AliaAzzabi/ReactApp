@@ -36,11 +36,9 @@ function AddAssistant() {
         const selectedMedecinId = e.target.value;
         setaide({
             ...aide,
-            medecin: selectedMedecinId, // Mettre à jour avec l'ID du médecin sélectionné
+            medecin: selectedMedecinId,
         });
     };
-
-
     useEffect(() => {
         getMedecins((res) => {
             if (res.data) {
@@ -63,7 +61,7 @@ function AddAssistant() {
         education: '',
         image: null,
         adresse: '',
-        medecin: null,
+        medecin: null, 
     });
 
     const { user } = useContext(AuthContext);
@@ -113,7 +111,9 @@ function AddAssistant() {
                     education: '',
                     image: null,
                     adresse: '',
+                    medecin: null, 
                 });
+                console.log(formData);
                 Navigation('/listeAssistant');
             } else {
                 console.error("Erreur lors de l'ajout du aide :", response && response.error);
@@ -157,40 +157,41 @@ function AddAssistant() {
                                                 <div className="sm:col-span-3">
                                                     <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">CIN *</label>
                                                     <div className="mt-2">
-                                                        <input type="text" name="cin" id="cin" value={aide.cin} onChange={handleInputChange} autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                        <input type="text" name="cin" id="cin" value={aide.cin} onChange={handleInputChange} autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" required />
                                                     </div>
                                                 </div>
                                                 {/* First Name */}
                                                 <div className="sm:col-span-3">
                                                     <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Nom & Prénom *</label>
                                                     <div className="mt-2">
-                                                        <input type="text" name="nomPrenom" id="nomPrenom" value={aide.nomPrenom} onChange={handleInputChange} autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                        <input type="text" name="nomPrenom" id="nomPrenom" value={aide.nomPrenom} onChange={handleInputChange} autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" required />
                                                     </div>
                                                 </div>
                                                 {/* Email */}
                                                 <div className="sm:col-span-3">
                                                     <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Email *</label>
                                                     <div className="mt-2">
-                                                        <input id="email" name="email" type="email" value={aide.email} onChange={handleInputChange} autoComplete="email" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                        <input id="email" name="email" type="email" value={aide.email} onChange={handleInputChange} autoComplete="email" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" required />
                                                     </div>
                                                 </div>
                                                 {/* Numéro de téléphone */}
                                                 <div className="sm:col-span-3">
                                                     <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Numéro de téléphone *</label>
                                                     <div className="mt-2">
-                                                        <input type="tel" placeholder="+216 25 222 555" maxLength="8" name="telephone" id="telephone" value={aide.telephone} onChange={handleInputChange} autoComplete="tel" className="dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                        <input type="tel" placeholder="+216 25 222 555" maxLength="8" name="telephone" id="telephone" value={aide.telephone} onChange={handleInputChange} autoComplete="tel" className="dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" required />
                                                     </div>
                                                 </div>
                                                 {/* Date de naissance */}
                                                 <div className="sm:col-span-3">
-                                                    <label htmlFor="dateNaissance" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Date de naissance *</label>
+                                                    <label htmlFor="dateNaissance" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Mot de Passe *</label>
                                                     <div className="mt-2">
                                                         <input
-                                                            id="date-of-birth"
-                                                            name="dateNaissance"
-                                                            type="date"
-                                                            value={aide.dateNaissance}
+                                                            id="password"
+                                                            name="password"
+                                                            type="password"
+                                                            value={aide.password}
                                                             onChange={handleInputChange}
+                                                            autoComplete="current-password"
                                                             className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                                             required
                                                         />
@@ -216,7 +217,7 @@ function AddAssistant() {
 
                                                 {/* Poste */}
                                                 <div className="sm:col-span-3">
-                                                    <label htmlFor="poste" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Département *</label>
+                                                    <label htmlFor="poste" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Poste de travaille *</label>
                                                     <div className="mt-2">
                                                         <input
                                                             id="role"
@@ -233,7 +234,7 @@ function AddAssistant() {
 
                                                 {/* Médecin lié */}
                                                 <div className="sm:col-span-3">
-                                                    <label htmlFor="linked-doctor" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Spécialité *</label>
+                                                    <label htmlFor="linked-doctor" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Médecin lié *</label>
                                                     <div className="mt-2">
                                                         <select
                                                             id="medecin"
@@ -287,16 +288,17 @@ function AddAssistant() {
                                                 <div className="sm:col-span-3 grid grid-cols-2 gap-x-6">
                                                     {/* Mot de passe */}
                                                     <div>
-                                                        <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Mot de passe *</label>
+                                                        <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Date de naissance *</label>
                                                         <div className="mt-2">
+
                                                             <input
-                                                                id="password"
-                                                                name="password"
-                                                                type="password"
-                                                                value={aide.password}
+                                                                id="date-of-birth"
+                                                                name="dateNaissance"
+                                                                type="date"
+                                                                value={aide.dateNaissance}
                                                                 onChange={handleInputChange}
-                                                                autoComplete="current-password"
                                                                 className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                                required
                                                             />
                                                         </div>
                                                     </div>
@@ -335,6 +337,7 @@ function AddAssistant() {
                                             </div>
                                         </div>
 
+
                                         {/* Upload Photo */}
                                         <div className="border-b border-gray-500/10 pb-12">
                                             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -348,6 +351,7 @@ function AddAssistant() {
                                                             accept="image/*"
                                                             onChange={handleImageChange} // Gérez le changement de l'image
                                                             className="sr-only"
+                                                            required
                                                         />
                                                         <label htmlFor="file" className="cursor-pointer">
                                                             <svg className="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -359,8 +363,18 @@ function AddAssistant() {
                                                         </label>
                                                     </div>
                                                 </div>
+                                                {/* Afficher un indicateur visuel si une image est sélectionnée */}
+                                                {aide.image && (
+                                                    <div className="col-span-full mt-4 flex justify-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        <span className="ml-2 text-green-500">Image sélectionnée</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
+
 
 
 
@@ -368,7 +382,7 @@ function AddAssistant() {
 
                                     {/* Form Actions */}
                                     <div className="mt-6 flex items-center justify-end gap-x-6">
-                                        <button type="button" className="text-sm font-semibold leading-6 dark:text-gray-50 text-gray-900">Annuler</button>
+                                        <button type="button" onClick={() => Navigation('/listeAssistant')} className="text-sm font-semibold leading-6 dark:text-gray-50 text-gray-900">Annuler</button>
                                         <button type="submit" className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Ajouter</button>
                                     </div>
                                 </form>

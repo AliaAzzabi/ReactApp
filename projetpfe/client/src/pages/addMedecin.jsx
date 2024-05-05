@@ -1,11 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { AuthContext } from '../context/AuthContext';
 import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
-import { addMedecin } from '../liaisonfrontback/operation'; 
-import { getAllspecialities, getAllDepartement } from '../liaisonfrontback/operation';
+
+import { getAllspecialities } from '../liaisonfrontback/operation';
+import { addmed , checkEmailExistence } from '../liaisonfrontback/operation';
 import {
     Card,
     CardHeader,
@@ -24,9 +25,9 @@ import {
 } from "@material-tailwind/react";
 
 function AddMedecin() {
+    const Navigation = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { user } = useContext(AuthContext);
-    const [departements, setDepartements] = useState([]);
     const [specialites, setSpecialites] = useState([]);
     useEffect(() => {
         getAllspecialities((res) => {
@@ -36,29 +37,14 @@ function AddMedecin() {
                 console.error("Erreur lors de la récupération des spécialités :", res.error);
             }
         });
-    }, []); 
-    useEffect(() => {
-        getAllDepartement((res) => {
-            if (res.data) {
-                setDepartements(res.data);
-            } else {
-                console.error("Erreur lors de la récupération des départements :", res.error);
-            }
-        });
     }, []);
 
-    const handleDepartementChange = (e) => {
-        const selectedDepartementId = e.target.value;
-        setMedecin({
-            ...medecin,
-            departement: selectedDepartementId, 
-        });
-    };
+
     const handleSpecialiteChange = (e) => {
         const selectedSpecialiteId = e.target.value;
         setMedecin({
             ...medecin,
-            specialite: selectedSpecialiteId, 
+            specialite: selectedSpecialiteId,
         });
     };
     const [medecin, setMedecin] = useState({
@@ -68,13 +54,11 @@ function AddMedecin() {
         email: '',
         password: '',
         sexe: '',
-       
         dateAdhesion: '',
         dateNaissance: '',
-        role:'médecin',
+        role: 'médecin',
         image: null,
         adresse: '',
-        departement: null,
         specialite: null,
     });
 
@@ -87,53 +71,51 @@ function AddMedecin() {
     };
 
     const handleImageChange = (e) => {
-        setMedecin({
-            ...medecin,
-            image: e.target.files[0],
-        });
+        if (e.target.files.length > 0) { 
+            setMedecin({
+                ...medecin,
+                image: e.target.files[0],
+            });
+        }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
         const formData = new FormData();
+
+        // Ajouter l'image au FormData
         formData.append('image', medecin.image);
 
-        Object.keys(medecin).forEach((key) => {
-            if (key !== 'image' && Array.isArray(medecin[key])) {
-                medecin[key].forEach((item) => {
-                    formData.append(key, item);
-                });
-            } else {
-                formData.append(key, medecin[key]);
-            }
-        });
+        // Ajouter d'autres champs au FormData en utilisant les valeurs des champs de formulaire directement
+        formData.append('cin', e.target.cin.value);
+        formData.append('nomPrenom', e.target.nomPrenom.value);
+        formData.append('telephone', e.target.telephone.value);
+        formData.append('email', e.target.email.value);
+        formData.append('password', e.target.password.value);
+        formData.append('sexe', e.target.sexe.value);
+        formData.append('dateAdhesion', e.target.dateAdhesion.value);
+        formData.append('dateNaissance', e.target.dateNaissance.value);
+        formData.append('role', 'médecin');
+        formData.append('adresse', e.target.adresse.value);
+        formData.append('specialite', e.target.specialite.value);
 
-        addMedecin(formData, (response) => {
+        addmed(formData, (response) => {
+            console.log(formData);
             if (response && !response.error) {
+              
                 alert('Le médecin a été ajouté avec succès');
-                setMedecin({
-                    cin: '',
-                    nomPrenom: '',
-                    telephone: '',
-                    email: '',
-                    password: '',
-                    sexe: '',
-                   
-                    dateAdhesion: '',
-                    dateNaissance: '',
-                    image: null,
-                    adresse: '',
-                    role:'medecin',
-                    
-                   
-                });
+                // Réinitialiser le formulaire après l'ajout réussi
+                e.target.reset();
+                // Maintenant, loggez le FormData
+                Navigation('/listeMedecin');
             } else {
                 console.error("Erreur lors de l'ajout du médecin :", response && response.error);
                 alert('Une erreur s\'est produite lors de l\'ajout du médecin');
             }
         });
     };
+
 
     if (!user) {
         return <Navigate to="/login" />;
@@ -160,13 +142,13 @@ function AddMedecin() {
                                                 <div className="sm:col-span-3">
                                                     <label htmlFor="cin" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">CIN *</label>
                                                     <div className="mt-2">
-                                                        <input type="text" name="cin" id="cin" value={medecin.cin} onChange={handleInputChange} autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                    <input type="text" placeholder="Saisir votre numéro de carte d'identité" name="cin" id="cin" value={medecin.cin} onChange={handleInputChange} autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                                                     </div>
                                                 </div>
                                                 <div className="sm:col-span-3">
                                                     <label htmlFor="nomPrenom" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Nom & Prénom *</label>
                                                     <div className="mt-2">
-                                                        <input type="text" name="nomPrenom" id="nomPrenom" value={medecin.nomPrenom} onChange={handleInputChange} autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                        <input type="text" placeholder='Saisie votre Nom & Prenom' name="nomPrenom" id="nomPrenom" value={medecin.nomPrenom} onChange={handleInputChange} autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                                                     </div>
                                                 </div>
                                                 <div className="sm:col-span-3">
@@ -178,7 +160,7 @@ function AddMedecin() {
                                                 <div className="sm:col-span-3">
                                                     <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Email *</label>
                                                     <div className="mt-2">
-                                                        <input id="email" name="email" type="email" value={medecin.email} onChange={handleInputChange} autoComplete="email" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                        <input id="email" placeholder='Saisir votre email' name="email" type="email" value={medecin.email} onChange={handleInputChange} autoComplete="email" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                                                     </div>
                                                 </div>
                                                 <div className="sm:col-span-3">
@@ -188,6 +170,7 @@ function AddMedecin() {
                                                             id="password"
                                                             name="password"
                                                             type="password"
+                                                            placeholder='Votre mot de passe ...'
                                                             value={medecin.password}
                                                             onChange={handleInputChange}
                                                             autoComplete="current-password"
@@ -195,6 +178,7 @@ function AddMedecin() {
                                                         />
                                                     </div>
                                                 </div>
+
                                                 <div className="sm:col-span-3">
                                                     <legend className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Sexe *</legend>
                                                     <div className="mt-4 flex gap-x-4">
@@ -226,20 +210,7 @@ function AddMedecin() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="sm:col-span-3">
-                                                    <label htmlFor="role" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Rôle *</label>
-                                                    <div className="mt-2">
-                                                        <input
-                                                            id="role"
-                                                            name="role"
-                                                            type="text"
-                                                            value={medecin.role}
-                                                            onChange={handleInputChange}
-                                                            className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                                            required
-                                                        />
-                                                    </div>
-                                                </div>
+
                                                 <div className="sm:col-span-3">
                                                     <label htmlFor="dateAdhesion" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Date d'adhésion *</label>
                                                     <div className="mt-2">
@@ -283,25 +254,7 @@ function AddMedecin() {
                                                         />
                                                     </div>
                                                 </div>
-                                                <div className="sm:col-span-3">
-                                                    <label htmlFor="departement" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Département *</label>
-                                                    <div className="mt-2">
-                                                        {/* Insérez votre liste d'options pour le département ici */}
-                                                        <select
-                                                            id="departement"
-                                                            name="departement"
-                                                            value={medecin.departement}
-                                                            onChange={handleDepartementChange}
-                                                            className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                                        >
-                                                             <option value="">Département ..</option>
-                                                            {departements.map((depart) => (
-                                                                <option key={depart._id} value={depart._id}>{depart.localisation}</option>
-                                                            ))}
-                                                           
-                                                        </select>
-                                                    </div>
-                                                </div>
+
                                                 <div className="sm:col-span-3">
                                                     <label htmlFor="specialite" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Spécialité *</label>
                                                     <div className="mt-2">
@@ -320,58 +273,50 @@ function AddMedecin() {
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div className="sm:col-span-3">
-                                                    <label htmlFor="image" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Image de profil</label>
-                                                    <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                                                        <div className="space-y-1 text-center">
-                                                            <svg
-                                                                className="mx-auto h-12 w-12 text-gray-400"
-                                                                stroke="currentColor"
-                                                                fill="none"
-                                                                viewBox="0 0 48 48"
-                                                                aria-hidden="true"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={2}
-                                                                    d="M8 14v20c0 2.2 1.8 4 4 4h20c2.2 0 4-1.8 4-4V14c0-2.2-1.8-4-4-4H12c-2.2 0-4 1.8-4 4zm26 6l-9 11-6-7-4 4V20h14l4-6h6v16zm-9-4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"
+
+                                                {/* Upload Photo */}
+                                                <div className="border-b border-gray-500/10 pb-12">
+                                                    <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                                                        <div className="col-span-full">
+                                                            <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Choisir une photo de profil</label>
+                                                            <div className="mt-2 flex justify-center rounded-lg dark:bg-gray-700 border border-dashed border-gray-500/25 px-6 py-10">
+                                                                <input
+                                                                    id="file" 
+                                                                    name="image"
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    onChange={handleImageChange}
+                                                                    className="sr-only"
+                                                                    required
                                                                 />
-                                                            </svg>
-                                                            <div className="flex text-sm text-gray-600 dark:text-gray-400">
-                                                                <label
-                                                                    htmlFor="file-upload"
-                                                                    className="relative cursor-pointer bg-white rounded-md font-medium dark:bg-gray-800 dark:text-gray-300 text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
-                                                                >
-                                                                    <span>Modifier</span>
-                                                                    <input
-                                                                        id="file-upload"
-                                                                        name="file-upload"
-                                                                        type="file"
-                                                                        className="sr-only"
-                                                                        onChange={handleImageChange}
-                                                                    />
+                                                                <label htmlFor="file" className="cursor-pointer">
+                                                                    <svg className="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                                        <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clipRule="evenodd" />
+                                                                    </svg>
+                                                                    <div className="mt-4 flex text-sm leading-6 text-gray-500">
+                                                                        <span className="font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">Choisissez un fichier</span>
+                                                                    </div>
                                                                 </label>
-                                                                <p className="pl-1">votre fichier</p>
                                                             </div>
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF jusqu'à 10Mo</p>
                                                         </div>
+                                                        {/* image ajouté */}
+                                                        {medecin.image && (
+                                                            <div className="col-span-full mt-4 flex justify-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                                <span className="ml-2 text-green-500">Image sélectionnée</span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="mt-8">
-                                        <div>
-                                            <div>
-                                                <button
-                                                    type="submit"
-                                                    className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                                >
-                                                    Ajouter le médecin
-                                                </button>
-                                            </div>
-                                        </div>
+
+                                    <div className="mt-6 flex items-center justify-end gap-x-6">
+                                        <button type="button" onClick={() => Navigation('/listeMedecin')} className="text-sm font-semibold leading-6 dark:text-gray-50 text-gray-900">Annuler</button>
+                                        <button type="submit" className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"  >Ajouter</button>
                                     </div>
                                 </form>
                             </Card>

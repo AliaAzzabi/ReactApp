@@ -3,6 +3,16 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: 'http://localhost:4000'
 })
+export const checkEmailExistence = (email, callback) => {
+  axios.post('/checkemail', { email })
+      .then((response) => {
+          callback(response.data);
+      })
+      .catch((error) => {
+          console.error('Error checking email existence:', error);
+          callback({ exists: false, error: 'Server error' });
+      });
+};
 export const getAllspecialities = (callback) => {
   api.get('/getAllspecialities')
     .then((res) => callback(res))
@@ -94,6 +104,13 @@ export const addaides = (aide, callback) => {
       callback(err);
     });
 }
+export const addmed = (formData, callback) => {
+
+  api.post('/addmed', formData)
+  
+    .then((res) => callback(res))
+    .catch((err) => callback(err));
+}
 
 export const updateAide = (id, updatedData, callback) => {
   api.put(`/updateAide/${id}`, updatedData)
@@ -122,9 +139,9 @@ export const getMedecinById = async (id) => {
     return { error: error.message };
 }
 }
-
-export const addMedecin = (aide, callback) => {
-  api.post('/addMedecin', aide)
+{/**
+export const addMedecin = (medecin, callback) => {
+  api.post('/addMedecin', medecin)
     .then((res) => {
       console.log('Received response:', res);
       callback(res);
@@ -134,6 +151,12 @@ export const addMedecin = (aide, callback) => {
       callback(err);
     });
 }
+ */}
+/*export const updateAide = (id, updatedData, callback) => {
+  api.put(`/updateAide/${id}`, updatedData)
+    .then((response) => callback(response.data))
+    .catch((err) => callback(err));
+}*/
 
 export const UpdateMedecin = (id, updatedData, callback) => {
   api.put(`/updateMedecin/${id}`, updatedData)
@@ -182,3 +205,4 @@ export const updatePatient = (id, updatedData, callback) => {
     .then((message) => callback(message))
     .catch((err) => callback(err));
 }
+

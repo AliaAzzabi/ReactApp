@@ -12,10 +12,7 @@ const MedecinSchema = mongoose.Schema({
     ref: "Image"
   },
 
-  departement: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Departement"
-  },
+
   specialite: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Specialtie"

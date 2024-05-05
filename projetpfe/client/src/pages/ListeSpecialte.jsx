@@ -5,6 +5,7 @@ import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { getAllspecialities, updateSpecialite, deleteSpecialite } from '../liaisonfrontback/operation';
 import {
     Card,
@@ -22,6 +23,10 @@ function ListeSpecialite() {
     const [specialites, setSpecialites] = useState([]);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [filteredSpecialites, setFilteredSpecialites] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    
+    
     const { user } = useContext(AuthContext);
     const [selectedSpecialite, setSelectedSpecialite] = useState(null);
 
@@ -29,11 +34,19 @@ function ListeSpecialite() {
         getAllspecialities((res) => {
             if (res.data) {
                 setSpecialites(res.data);
+                
             } else {
                 console.error("Erreur lors de la récupération des spécialités :", res.error);
             }
         });
-    }, [specialites]); 
+    }, [specialites]);
+    useEffect(() => {
+        const filtered = specialites.filter(specialite =>
+            specialite.nom.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredSpecialites(filtered);
+    }, [searchTerm, specialites]);
+
 
     const handleDeleteSpecialite = (id) => {
         const confirmDelete = window.confirm("Voulez-vous vraiment supprimer cette spécialité ?");
@@ -123,7 +136,7 @@ function ListeSpecialite() {
                                             <path strokeWidth="2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="table-search-users" className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Chercher" />
+                                    <input type="text" id="table-search-users" className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Chercher" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                                 </div>
                             </CardHeader>
                             <CardBody className="overflow-x-auto px-0 dark:bg-gray-800 text-gray-500">
@@ -137,7 +150,7 @@ function ListeSpecialite() {
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                                            {specialites.map((specialite) => (
+                                        {filteredSpecialites.map((specialite) => (
                                                 <tr key={specialite._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                                     <td className="px-6 py-4 whitespace-nowrap">{specialite.nom}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap">{specialite.description}</td>
@@ -167,10 +180,10 @@ function ListeSpecialite() {
                                 </Typography>
                                 <div className="flex gap-2 ">
                                     <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
-                                        Previous
+                                        <FaArrowLeft />
                                     </Button>
                                     <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
-                                        Next
+                                        <FaArrowRight /> 
                                     </Button>
                                 </div>
                             </CardFooter>
