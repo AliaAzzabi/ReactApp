@@ -5,7 +5,7 @@ import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import { Link } from 'react-router-dom';
-import { PencilIcon,CalendarIcon, TrashIcon } from '@heroicons/react/outline';
+import { PencilIcon, CalendarIcon, TrashIcon } from '@heroicons/react/outline';
 import { getPatient, deletePatient, updatePatient } from '../liaisonfrontback/operation';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -32,6 +32,7 @@ function ListePatient() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useContext(AuthContext);
   const [patients, setPatients] = useState([]);
+  const [allPatients, setAllPatients] = useState([]);
   const [formData, setFormData] = useState({
     cin: '',
     nomPrenom: '',
@@ -40,17 +41,20 @@ function ListePatient() {
     email: ''
   });
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const patientsPerPage = 5; // Nombre de patients par page
 
   useEffect(() => {
     const fetchPatients = async () => {
       try {
         const patientsData = await getPatient();
         setPatients(patientsData);
+        setAllPatients(patientsData); // Sauvegarder tous les patients initiaux
       } catch (error) {
         console.error('Error fetching users:', error);
       }
     };
-
+  
     fetchPatients();
   }, []);
 
@@ -112,12 +116,24 @@ function ListePatient() {
   };
 
   const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
+    const searchTerm = event.target.value.toLowerCase();
+    setSearchTerm(searchTerm);
+  
+    // Filtrer tous les patients initiaux en fonction du terme de recherche
+    const filteredPatients = allPatients.filter(patient =>
+      patient.nomPrenom.toLowerCase().includes(searchTerm)
+    );
+    setPatients(filteredPatients);
   };
 
   if (!user) {
     return <Navigate to="/login" />;
   }
+
+  const totalPages = Math.ceil(patients.length / patientsPerPage);
+  const indexOfLastPatient = currentPage * patientsPerPage;
+  const indexOfFirstPatient = indexOfLastPatient - patientsPerPage;
+  const currentPatients = patients.slice(indexOfFirstPatient, indexOfLastPatient);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -151,7 +167,7 @@ function ListePatient() {
                       <path strokeWidth="2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                     </svg>
                   </div>
-                  <input type="text" id="table-search-users" className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Chercher" onChange={handleSearch} />
+                  <input type="text"  placeholder="Chercher" onChange={handleSearch} id="table-search-users" className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  />
                 </div>
 
                 <div className="flex flex-col gap-2 sm:flex-row ">
@@ -207,21 +223,21 @@ function ListePatient() {
                           </Typography>
                         </th>
                         <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
-  <Typography
-    variant="small"
-    color="blue-gray"
-    className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
-  >
-    Date de création
-  </Typography>
-</th>
+                          <Typography
+                            variant="small"
+                            color="blue-gray"
+                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
+                          >
+                            Date de création
+                          </Typography>
+                        </th>
                         <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
 
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {patients
+                      {currentPatients
                         .filter(patient =>
                           patient.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
                         )
@@ -275,15 +291,15 @@ function ListePatient() {
                               </Typography>
                             </td>
 
-<td className='p-4 border-b border-blue-gray-50'>
-  <Typography
-    variant="small"
-    color="blue-gray"
-    className="font-normal"
-  >
-    {new Date(patient.createdAt).toLocaleDateString()}
-  </Typography>
-</td>
+                            <td className='p-4 border-b border-blue-gray-50'>
+                              <Typography
+                                variant="small"
+                                color="blue-gray"
+                                className="font-normal"
+                              >
+                                {new Date(patient.createdAt).toLocaleDateString()}
+                              </Typography>
+                            </td>
 
                             <td className='p-4 border-b border-blue-gray-50'>
                               <div className="flex items-center">
@@ -298,10 +314,10 @@ function ListePatient() {
                                   </IconButton>
                                 </Tooltip>
                                 <Tooltip content="Rendez-vous" className="text-white bg-green-400 rounded-md">
-      <IconButton variant="text" className='text-green-800'>
-        <CalendarIcon className="h-4 w-4" />
-      </IconButton>
-    </Tooltip>
+                                  <IconButton variant="text" className='text-green-800'>
+                                    <CalendarIcon className="h-4 w-4" />
+                                  </IconButton>
+                                </Tooltip>
                               </div>
                             </td>
                           </tr>
@@ -312,14 +328,26 @@ function ListePatient() {
               </CardBody>
               <CardFooter className="text-gray-500 flex items-center justify-between  border-blue-gray-50 p-4">
                 <Typography variant="small" color="blue-gray" className=" font-normal ">
-                  Page 1 of 10
+                  Page {currentPage} sur {totalPages}
                 </Typography>
                 <div className="flex gap-2 ">
-                  <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
-                    Previous
+                  <Button 
+                    variant="outlined" 
+                    size="sm" 
+                    className='text-gray-500 dark:bg-gray-800'
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    Précédent
                   </Button>
-                  <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800'>
-                    Next
+                  <Button 
+                    variant="outlined" 
+                    size="sm" 
+                    className='text-gray-500 dark:bg-gray-800'
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Suivant
                   </Button>
                 </div>
               </CardFooter>
@@ -328,108 +356,96 @@ function ListePatient() {
           {isModalOpen && (
             <div className="overflow-y-auto  fixed inset-0 z-0 overflow-y-auto flex pb-5 items-center justify-center">
               
-              <div className="overflow-y-auto dark:bg-gray-900 dark:text-gray-50 text-gray-800 absolute inset-0 bg-black opacity-50" onClick={closeModal}>
-               
-              </div>
-              <div className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 z-50 bg-white p-6 rounded-lg max-w">
-                <div className='  dark:bg-gray-800 dark:text-gray-50 text-gray-800 overflow-hidden'>
-                  <h1 className="mb-8  dark:bg-gray-800 dark:text-gray-50 leading-7 text-gray-800 ">Entrer les informations :</h1>
+              <div className="overflow-y-auto  fixed inset-0 z-50 flex items-center justify-center ">
+
+                <div className="relative bg-white w-[600px] h-[600px] rounded-xl shadow-lg sm:w-96 sm:h-[600px] mx-auto my-32 px-10 sm:px-16 dark:bg-gray-800">
+                  <div className="flex justify-between">
+                    <Typography variant="h6" color="gray">
+                      Modifier les informations du patient
+                    </Typography>
+                    <IconButton onClick={closeModal}>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2zM3 10a7 7 0 0 1 9-6.716V5a1 1 0 0 1 2 0v-.716A7 7 0 0 1 3 10zm9 6.716V15a1 1 0 0 1 2 0v1.716A7 7 0 0 1 13 10zM5 10a5 5 0 1 1 10 0A5 5 0 0 1 5 10z" clipRule="evenodd" />
+                      </svg>
+                    </IconButton>
+                  </div>
+                  <form onSubmit={handleSubmit}>
+                    <div className="space-y-6 mt-4">
+                      <div className="space-y-1">
+                        <label htmlFor="cin" className="text-gray-500 dark:text-gray-300">
+                          CIN
+                        </label>
+                        <input
+                          id="cin"
+                          type="text"
+                          name="cin"
+                          value={formData.cin}
+                          onChange={handleChange}
+                          className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label htmlFor="nomPrenom" className="text-gray-500 dark:text-gray-300">
+                          Nom & Prénom
+                        </label>
+                        <input
+                          id="nomPrenom"
+                          type="text"
+                          name="nomPrenom"
+                          value={formData.nomPrenom}
+                          onChange={handleChange}
+                          className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label htmlFor="telephone" className="text-gray-500 dark:text-gray-300">
+                          Téléphone
+                        </label>
+                        <input
+                          id="telephone"
+                          type="text"
+                          name="telephone"
+                          value={formData.telephone}
+                          onChange={handleChange}
+                          className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label htmlFor="email" className="text-gray-500 dark:text-gray-300">
+                          Email
+                        </label>
+                        <input
+                          id="email"
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label htmlFor="dateNaissance" className="text-gray-500 dark:text-gray-300">
+                          Date de naissance
+                        </label>
+                        <DatePicker
+                          id="dateNaissance"
+                          selected={formData.dateNaissance}
+                          onChange={handleDateChange}
+                          dateFormat="dd/MM/yyyy"
+                          className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <button
+                          type="submit"
+                          className="w-full bg-indigo-500 text-white py-2 px-6 rounded-md hover:bg-indigo-600 transition-colors"
+                        >
+                          Sauvegarder
+                        </button>
+                      </div>
+                    </div>
+                  </form>
                 </div>
-                <form onSubmit={handleSubmit}>
-                  <div className="flex mb-4">
-                    <div className="flex flex-col mr-4">
-                      <label htmlFor="nomPrenom" className="mb-1 text-sm font-medium text-blue-gray-900">
-                        Nom & Prénom
-                      </label>
-                      <input
-                        type="text"
-                        id="nomPrenom"
-                        name="nomPrenom"
-                        className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="Entrez le nom et prénom"
-                        value={formData.nomPrenom}
-                        onChange={handleChange}
-                        autoComplete="name"
-                      />
-                    </div>
-                    <div className="flex flex-col mr-4">
-                      <label htmlFor="cin" className="mb-1 text-sm font-medium text-blue-gray-900">
-                        CIN
-                      </label>
-                      <input
-                        type="number"
-                        id="cin"
-                        name="cin"
-                        className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="Entrez le CIN"
-                        value={formData.cin}
-                        onChange={handleChange}
-                        autoComplete="cin"
-                      />
-                    </div>
-
-                  </div>
-                  <div className="flex mb-4">
-                    <div className="flex flex-col mr-4">
-                      <label htmlFor="telephone" className="mb-1 text-sm font-medium text-blue-gray-900">
-                        Téléphone
-                      </label>
-                      <input
-                        type="tel"
-                        id="telephone"
-                        name="telephone"
-                        className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="Entrez le numéro de téléphone"
-                        value={formData.telephone}
-                        onChange={handleChange}
-                        autoComplete="tel"
-                      />
-
-                    </div>
-                    <div className="flex flex-col mr-4">
-                      <label htmlFor="dateNaissance" className="mb-1 text-sm font-medium text-blue-gray-900">
-                        Date de naissance
-                      </label>
-                      <DatePicker
-                        selected={formData.dateNaissance}
-                        onChange={handleDateChange}
-                        showYearDropdown
-                        scrollableYearDropdown
-                        yearDropdownItemNumber={15}
-                        dateFormatCalendar="MMMM"
-                        dateFormat="dd/MM/yyyy"
-                        className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-
-                  </div>
-                  <div className="flex mb-4">
-                    <div className="flex flex-col mr-4">
-                      <label htmlFor="dateNaissance" className="mb-1 text-sm font-medium text-blue-gray-900">
-                        Date de naissance
-                      </label>
-                      <input
-                        type="tel"
-                        id="telephone"
-                        name="telephone"
-                        className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="Entrez le numéro de téléphone"
-                        value={formData.email}
-                        onChange={handleChange}
-                        autoComplete="tel"
-                      />
-
-                    </div>
-                  </div>
-                  <div className="flex justify-end mt-4">
-                    <Button onClick={closeModal} size="sm" className=' text-gray-700 bg-gray-200 '>
-                      Annuler
-                    </Button>
-                    <Button type="submit" size="sm" color="indigo" className="ml-2">
-                      Modifier
-                    </Button>
-                  </div>
-                </form>
               </div>
             </div>
           )}

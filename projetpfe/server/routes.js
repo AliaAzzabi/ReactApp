@@ -10,9 +10,10 @@ const { getAide, addaides, updateAide, deleteAide, getAideById ,checkAideEmailEx
 const {getMedecins,  updateMedecin, deleteMedecin, getMedecinById, addmed} = require ('./medecin/controllermedecin');
 const { getAdmin, addAdmin, updateAdmin, deleteAdmin, getAdminById } = require ('./admin/controlleradmin');
 const  { getPatient, addPatient, updatePatient, deletePatient, gePatientById } = require('./patient/controllerpatient');
-const {creerRendezVous, getAllRendezVous, getRendezVousById, updateRendezVous, deleteRendezVous}= require("./rdv/rdvController")
+const {createRendezVous, getAllRendezVous, getRendezVousById, updateRendezVous, deleteRendezVous}= require("./rdv/rdvController")
+const { addpatientSalle,supprimerPatientSalle}= require("./salleAttente/salleAttenteController")
+
 const requireAuth = require('./middleware/requireAuth');
-const rdvController = require('./rdv/rdvController');
 const router = express.Router();
 
 router.use(cors());
@@ -58,12 +59,21 @@ router.delete("/deletePatient/:id", deletePatient);
 
 
 // Créer un rendez-vous (nécessite une authentification)
-router.post('/creerRDV', requireAuth, creerRendezVous);
-router.get('/AllRDV', getAllRendezVous);
-router.get('/getRDVById/:id', getRendezVousById);
-router.put('/modifierRDV/:id', updateRendezVous);
-router.delete('/supprimerRDV/:id', deleteRendezVous);
 
 
 router.post('/checkAideEmailExistence', checkAideEmailExistence);
+
+
+router.post('/creerrendezvous', requireAuth, createRendezVous);
+router.get('/getAllRendezVous',requireAuth, getAllRendezVous);
+router.get('/getRendezVousById/:id', getRendezVousById);
+router.put('/updateRendezVous/:id', updateRendezVous);
+router.delete('/deleteRendezVous/:id', deleteRendezVous);
+  
+
+
+// Ajouter un patient à la liste d'attente
+router.post('/attente', requireAuth, addpatientSalle);
+router.delete('/supprimePatient', supprimerPatientSalle);
+
 module.exports = { router };

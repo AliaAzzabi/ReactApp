@@ -29,7 +29,8 @@ import Calendar from './pages/Calendar';
  import Login from './pages/login';
  import ListeDepartement from './pages/ListeDepartement';
  import AddDepartement from './pages/AddDepartemnt';
- 
+ import AddRendezVousForm from './pages/addRendezVous';
+
 
 import DashboardCard13 from './partials/dashboard/DashboardCard13';
 function App() {
@@ -65,6 +66,7 @@ function App() {
         <Route exact path="/addDepartement" element={<AddDepartement />} />
         <Route exact path="/listeDepartement" element={<ListeDepartement />} />
         <Route exact path="/dashi" element={<DashboardCard13 />} />
+        <Route exact path="/addrdv" element={<AddRendezVousForm/>} />
 
       </Routes>
     </>

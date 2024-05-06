@@ -207,3 +207,81 @@ export const updatePatient = (id, updatedData, callback) => {
     .catch((err) => callback(err));
 }
 
+export const getAllRendezVous = async (userToken) => {
+  try {
+    const response = await fetch('http://localhost:4000/getAllRendezVous', {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error("Erreur lors de la récupération des rendez-vous");
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des rendez-vous :', error);
+    throw error;
+  }
+};
+
+
+
+// operation.js
+export const creerRendezVous = async (userToken, date, patientNom) => {
+  try {
+    // Récupérez l'heure à partir de la date
+    const time = date.getHours() + ":" + date.getMinutes();
+    
+    const response = await fetch('http://localhost:4000/creerrendezvous', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+      // Ajoutez l'heure à l'objet JSON
+      body: JSON.stringify({ date, patientNom, time }),
+    });
+    if (response.ok) {
+      return true;
+    } else {
+      throw new Error("Erreur lors de l'ajout du rendez-vous");
+    }
+  } catch (error) {
+    console.error('Erreur lors de la soumission du formulaire :', error);
+    throw error;
+  }
+};
+
+
+
+export const updateRendezVous = async (token, rendezVousId, date, time, patientNom) => {
+  const response = await fetch(`http://localhost:4000/updateRendezVous/${rendezVousId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ date, time, patientNom })
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Erreur lors de la mise à jour du rendez-vous');
+  }
+  return data;
+};
+
+export const deleteRendezVous = async (token, rendezVousId) => {
+  try {
+    const response = await axios.delete(`http://localhost:4000/deleteRendezVous/${rendezVousId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -59,7 +59,7 @@ function Profile() {
                             {/* Profile Section */}
                             <div className=" dark:bg-gray-800 text-gray-500 sm:col-span-1 bg-white shadow-xl rounded-lg py-3 h-96 mr-8">
                                 <div className="photo-wrapper p-2">
-                                    <img className="w-32 h-32 rounded-full mx-auto" src="https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-5.jpg" alt="John Doe" />
+                                    <img className="w-32 h-32 rounded-full mx-auto" src="https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-4.jpg"  alt="John Doe" />
                                 </div>
                                 <div className="p-2">
                                     <h3 className="text-center text-xl dark:text-gray-50 text-gray-800 font-medium leading-8">John Doe</h3>
