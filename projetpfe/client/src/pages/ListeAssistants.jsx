@@ -48,7 +48,7 @@ function ListeAssistant() {
     );
     setFilteredAssitants(filtered);
   }, [searchTerm, aides]);
-  
+
   useEffect(() => {
     getMedecins((res) => {
       if (res.data) {
@@ -89,9 +89,12 @@ function ListeAssistant() {
 
   const openModal = (aide) => {
     setSelectedAide(aide);
-    setSelectedMedecinId(aide.medecinlie);
+    setSelectedMedecinId(aide.medecin ? aide.medecin._id : null);
+    console.log("Médecin lié à l'aide sélectionnée :", aide.medecin);
+
     setIsModalOpen(true);
   };
+  
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -111,7 +114,7 @@ function ListeAssistant() {
         telephone: formData.get('telephone'),
         email: formData.get('email'),
         education: formData.get('education'),
-        medecin: selectedMedecin?._id,
+        medecin: selectedMedecin,
         role: formData.get('role'),
         password: formData.get('password'),
         image: formData.get('image'),
@@ -129,7 +132,7 @@ function ListeAssistant() {
     }
   };
   const AidePerPage = 5;
-   
+
 
   const indexOfLastAide = currentPage * assistantsPerPage;
   const indexOfFirstAide = (currentPage - 1) * assistantsPerPage;
@@ -261,11 +264,8 @@ function ListeAssistant() {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
                       {currentAssistants.map((aide) => (
-                        <tr key={aide._id}>
-
-
-
-                          <td >
+                        <tr key={aide._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <td className='p-4 border-b border-blue-gray-50'>
                             <div className="flex items-center gap-3">
                               <Avatar src={`http://localhost:4000/${aide.image.filepath}`} size="sm" />
                               <div className="flex flex-col">
@@ -487,9 +487,10 @@ function ListeAssistant() {
                         id="medecinlie"
                         name="medecin"
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 mb-1 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
-                        value={selectedAide ? selectedAide.medecinlie : ''}
+                        value={selectedMedecinId}
                         onChange={(e) => {
                           const selectedMedecinId = e.target.value;
+                          setSelectedMedecinId(selectedMedecinId);
                           setSelectedAide({
                             ...selectedAide,
                             medecinlie: selectedMedecinId
@@ -508,6 +509,8 @@ function ListeAssistant() {
                           </option>
                         ))}
                       </select>
+
+
                     </div>
                     <div className="flex flex-col mr-4">
                       <label htmlFor="role" className="mb-1 text-sm font-medium text-blue-gray-900">

@@ -4,10 +4,23 @@ const multer = require('multer');
 const User = require("../models/userModel");
 const Image = require("../image/imagemodel");
 const Medecin = require('../medecin/medecinshema');
-
-
 const expressHandler = require("express-async-handler");
 
+const GetAidesByMedecinId = async (req, res) => {
+    try {
+      const { medecinId } = req.params;
+      console.log(medecinId);
+      const aides = await Aide.find({ medecin: medecinId })
+          .populate('user')
+          .populate('image')
+          .populate('medecin');
+  
+      res.json(aides);
+      console.log(aides);
+    } catch (error) {
+      res.status(500).json({ error: `Erreur lors de la recherche des aides pour ce médecin : ${error.message}` });
+    }
+  };
 const getAide = async (req, res) => {
     try {
 
@@ -211,4 +224,6 @@ const checkAideEmailExistence = async (email) => {
         throw new Error("Erreur lors de la vérification de l'existence de l'email de l'aide");
     }
 };
-module.exports = { getAide, addaides, updateAide, deleteAide, getAideById, checkAideEmailExistence }; 
+
+
+module.exports = { getAide, addaides, updateAide, deleteAide, getAideById, checkAideEmailExistence ,GetAidesByMedecinId}; 

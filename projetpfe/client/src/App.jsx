@@ -30,6 +30,8 @@ import Calendar from './pages/Calendar';
  import ListeDepartement from './pages/ListeDepartement';
  import AddDepartement from './pages/AddDepartemnt';
  import AddRendezVousForm from './pages/addRendezVous';
+ import ListeAideParMed from './pages/ListeAideParMed';
+ import AddAssistantMed from './pages/AddAssistantMed';
 
 
 import DashboardCard13 from './partials/dashboard/DashboardCard13';
@@ -67,6 +69,9 @@ function App() {
         <Route exact path="/listeDepartement" element={<ListeDepartement />} />
         <Route exact path="/dashi" element={<DashboardCard13 />} />
         <Route exact path="/addrdv" element={<AddRendezVousForm/>} />
+        
+        <Route exact path="/listeAideParMed" element={<ListeAideParMed/>} />
+        <Route exact path="/addAssistantMed/:medecinId" element={<AddAssistantMed/>} />
 
       </Routes>
     </>

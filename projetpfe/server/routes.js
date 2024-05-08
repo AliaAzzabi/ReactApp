@@ -6,7 +6,7 @@ const User = require('./models/userModel');
 const { upload } = require("./image/upload");
 const {createDepartement, getAllDepartements, updateDepartement, deleteDepartement,getDepartementById} = require ('./departement/controllerdepartement');
 const { getSpecialty, addSpecialty, updateSpecialty, deleteSpecialty, getSpecialtyById } = require('./specialité/controllerspecialité');
-const { getAide, addaides, updateAide, deleteAide, getAideById ,checkAideEmailExistence} = require('./aide/controlleraide');
+const { getAide, addaides, updateAide, deleteAide, getAideById ,checkAideEmailExistence, GetAidesByMedecinId} = require('./aide/controlleraide');
 const {getMedecins,  updateMedecin, deleteMedecin, getMedecinById, addmed} = require ('./medecin/controllermedecin');
 const { getAdmin, addAdmin, updateAdmin, deleteAdmin, getAdminById } = require ('./admin/controlleradmin');
 const  { getPatient, addPatient, updatePatient, deletePatient, gePatientById } = require('./patient/controllerpatient');
@@ -36,6 +36,7 @@ router.post("/addaides",upload.single("image"), addaides);
 router.put("/updateAide/:id",upload.single("image"), updateAide);
 router.get("/getAideById/:id", getAideById);
 router.delete("/deleteAide/:id", deleteAide);
+router.get("/getAidesByMedecinId/:medecinId", GetAidesByMedecinId);
 
 router.post("/addmed",upload.single("image"), addmed);
 router.get("/getMedecins", getMedecins);

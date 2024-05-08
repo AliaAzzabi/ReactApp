@@ -285,3 +285,12 @@ export const deleteRendezVous = async (token, rendezVousId) => {
     throw error;
   }
 };
+
+export const getAidesByMedecinId = async (medecinId) => {
+  try {
+    const response = await api.get(`/getAidesByMedecinId/${medecinId}`);
+    return response.data;
+  } catch (error) {
+    return { error: error.message };
+  }
+}

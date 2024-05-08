@@ -134,7 +134,9 @@ const updateMedecin = async (req, res) => {
             adresse: adresse,
         };
 
-        const specialiteId = await Specialite.findOne({ nom: specialite }).select('_id');
+       // const specialiteId = await Specialite.findOne({ nom: specialite }).select('_id');
+        let specialiteId = await Specialite.findOne({ _id: specialite }).select('_id');
+
 
         if (!specialiteId) {
             return res.status(400).json({ error: "Le département ou la spécialité spécifiée n'existe pas" });

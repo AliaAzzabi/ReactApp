@@ -4,171 +4,143 @@ import { AuthContext } from '../context/AuthContext';
 import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
-import DashboardAvatars from '../partials/dashboard/DashboardAvatars';
-import FilterButton from '../components/DropdownFilter';
-import Datepicker from '../components/Datepicker';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
-import { getMedecins, deleteMedecin } from '../liaisonfrontback/operation';
-import { getAllspecialities, getAllDepartement } from '../liaisonfrontback/operation';
-import { UpdateMedecin } from '../liaisonfrontback/operation';
+import { deleteAide, updateAide, getMedecins, getAllAide } from '../liaisonfrontback/operation';
 import {
     Card,
     CardHeader,
-    Input,
     Typography,
     Button,
     CardBody,
-    Chip,
     CardFooter,
-    Tabs,
-    TabsHeader,
-    Tab,
     Avatar,
     IconButton,
     Tooltip,
 } from "@material-tailwind/react";
 
-function ListeMedecin() {
-    const [users, setUsers] = useState([]);
+function ListeAideParMed() {
+
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { user } = useContext(AuthContext);
-    const [filteredMedecins, setFilteredMedecin] = useState([]);
-    const [medecins, setmedecins] = useState([]);
-    const [selectedMedecin, setSelectedMedecin] = useState(null);
-    const [Specialite, setSpecialite] = useState([]);
-    const [departement, setdepartement] = useState([]);
-    const [selectedSpecialite, setSelectedSpecialite] = useState('');
+    const [aides, setAides] = useState([]);
+    const [selectedAide, setSelectedAide] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [medecinId, setMedecinId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [filteredAssitants, setFilteredAssitants] = useState([]);
 
-
-
-    const [selectedSpecialiteId, setSelectedSpecialiteId] = useState(null);
-
+    const assistantsPerPage = 6;
 
     useEffect(() => {
-        getAllspecialities((res) => {
-            if (res.data) {
-                setSpecialite(res.data);
+        const filtered = aides.filter(aide =>
+            aide.user.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredAssitants(filtered);
+    }, [searchTerm, aides]);
 
+    useEffect(() => {
+        if (!user) {
+            return;
+        }
+        getMedecins((medecinsResponse) => {
+            const userId = user ? user.user_id : '';
+            console.log('id user :', userId);
+
+            console.log('Médecins récupérés :', medecinsResponse.data);
+
+            const medecin = medecinsResponse.data.find((medecin) => medecin.user._id === userId);
+            if (medecin) {
+                const medecinId = medecin._id;
+                console.log("L'identifiant du médecin est :", medecinId);
+                setMedecinId(medecinId);
             } else {
-                console.error("Error fetching spécialité:", res.error);
+                console.log("Aucun médecin trouvé pour cet utilisateur.");
+            }
+        });
+    }, [user]);
+
+    useEffect(() => {
+        getAllAide((res) => {
+            if (res.data) {
+                setAides(res.data);
+            } else {
+                console.error("Erreur lors de la récupération des aides :", res.error);
             }
         });
     }, []);
 
-
-    useEffect(() => {
-        getMedecins((res) => {
-            if (res.data) {
-                setmedecins(res.data);
-            } else {
-                console.error("Erreur lors de la récupération des médecin :", res.error);
-            }
-        });
-    }, [medecins]);
-
-    // filtrage recherche bel nom
-    useEffect(() => {
-        const filtered = medecins.filter((medecin) =>
-
-            medecin.user.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredMedecin(filtered);
-    }, [searchTerm, medecins]);
-
-    const handleDeleteMedecins = (id) => {
-        const confirmDelete = window.confirm("Voulez-vous vraiment supprimer cet médecin ?");
+    const handleDeleteAide = (id) => {
+        const confirmDelete = window.confirm("Voulez-vous vraiment supprimer cet assistant ?");
         if (confirmDelete) {
-            deleteMedecin(id, (res) => {
+            deleteAide(id, (res) => {
                 if (res.data) {
-                    setmedecins(medecins.filter(medecin => medecin._id !== id));
-                    console.log("Médecin supprimé avec succès");
+                    setAides(aides.filter(aide => aide._id !== id));
+                    console.log("Aide supprimé avec succès");
                 } else {
-                    console.error("Erreur lors de la suppression de Medecin :", res.error);
+                    console.error("Erreur lors de la suppression de l'assistant :", res.error);
                 }
             });
         }
     };
 
-
-    if (!user) {
-        return <Navigate to="/login" />;
-    }
-
-    const openModal = (medecin) => {
-        console.log(medecin);
-        setSelectedMedecin(medecin);
-        setSelectedSpecialiteId(medecin.specialite ? medecin.specialite._id : ""); 
+    const openModal = (aide) => {
+        setSelectedAide(aide);
         setIsModalOpen(true);
-
     };
-
 
     const closeModal = () => {
         setIsModalOpen(false);
-        setSelectedMedecin(null);
-        setSelectedSpecialiteId(null);
-
+        setSelectedAide(null);
     };
 
-    const handleUpdateMedecin = (e) => {
+    const handleUpdateAide = (e) => {
         e.preventDefault();
-        if (selectedMedecin) {
-            const formData = new FormData(e.target);
-            const updatedMedecin = {
-                cin: formData.get('cin'),
-                nomPrenom: formData.get('nomPrenom'),
-                adresse: formData.get('adresse'),
-                telephone: formData.get('telephone'),
-                email: formData.get('email'),
-                role: formData.get('role'),
-                password: formData.get('password'),
-                //   image: formData.get('image'),
-                specialite: selectedSpecialiteId,
-            };
-            console.log('updatedMedecin:', updatedMedecin);
-            UpdateMedecin(selectedMedecin._id, updatedMedecin, (res) => {
-                if (res.data) {
-                    const updatedMedecins = medecins.map((medecin) => (medecin._id === res.data._id ? res.data : medecin));
-                    setmedecins(updatedMedecins);
-                    closeModal();
-                    console.log("Médecin modifié avec succès");
-                } else {
-                    if (res.error) {
-                        console.error("Erreur lors de la modification du médecin :", res.error);
-                    } else {
-                        console.error("Erreur inattendue lors de la modification du médecin.");
-                    }
-                }
-            });
+        if (selectedAide) {
+          const formData = new FormData(e.target);
+          const updatedAide = {
+            cin: formData.get('cin'),
+            nomPrenom: formData.get('nomPrenom'),
+            adresse: formData.get('adresse'),
+            telephone: formData.get('telephone'),
+            email: formData.get('email'),
+            education: formData.get('education'),
+            role: formData.get('role'),
+            password: formData.get('password'),
+            image: formData.get('image'),
+            medecin: medecinId,
+          };
+          updateAide(selectedAide._id, updatedAide, (res) => {
+            if (res.data) {
+              const updatedAides = aides.map((aide) => (aide._id === res.data._id ? res.data : aide));
+              setAides(updatedAides); // Update the aides state variable with the new array of aides
+              closeModal();
+              console.log("Assistant modifié avec succès");
+            } else {
+              console.error("Erreur lors de la modification de l'assistant :", res.error);
+            }
+          });
         }
-    };
-
-    // code mta3 deux boutton de précédent w suivant
-    const [currentPage, setCurrentPage] = useState(1);
+      };
 
 
+    const indexOfLastAide = currentPage * assistantsPerPage;
+    const indexOfFirstAide = (currentPage - 1) * assistantsPerPage;
+    const currentAssistants = filteredAssitants.slice(indexOfFirstAide, indexOfLastAide);
 
-    const medecinsPerPage = 5;
-
-
-    const indexOfLastMedecin = currentPage * medecinsPerPage;
-    const indexOfFirstMedecin = indexOfLastMedecin - medecinsPerPage;
-    const currentMedecins = filteredMedecins.slice(indexOfFirstMedecin, indexOfLastMedecin);
-
-    // précédent
     const handlePrevPage = () => {
         setCurrentPage((prevPage) => prevPage - 1);
     };
 
-    // suivant
     const handleNextPage = () => {
         setCurrentPage((prevPage) => prevPage + 1);
     };
 
+    if (!user) {
+        return <Navigate to="/login" />;
+    }
 
     return (
         <div className="flex h-screen overflow-hidden">
@@ -189,16 +161,16 @@ function ListeMedecin() {
                                 <div className=" mb-8 ml-8 flex items-center mr-8 justify-between gap-8">
                                     <div>
                                         <Typography variant="h5" color="blue-gray">
-                                            Liste des Médecins
+                                            Liste des Assistants
                                         </Typography>
 
                                     </div>
                                     <div className="flex flex-col gap-2 sm:flex-row mt-2">
-                                        <Link to="/addMedecin" className="btn bg-indigo-500 hover:bg-indigo-600 text-white flex items-center">
+                                        <Link to={`/addAssistantMed/${medecinId}`} className="btn bg-indigo-500 hover:bg-indigo-600 text-white flex items-center">
                                             <svg className="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
                                                 <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
                                             </svg>
-                                            <span className="hidden xs:block ml-2">Ajouter un médecin</span>
+                                            <span className="hidden xs:block ml-2">Ajouter un assistant</span>
                                         </Link>
                                     </div>
                                 </div>
@@ -208,17 +180,21 @@ function ListeMedecin() {
                                             <path strokeWidth="2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="table-search-users" className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Chercher" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                                    <input
+                                        type="text"
+                                        id="table-search-users"
+                                        className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        placeholder="Chercher"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
                                 </div>
-
                             </CardHeader>
                             <CardBody className="overflow-x-auto px-0 dark:bg-gray-800 text-gray-500">
                                 <div className="overflow-y-auto max-h-[800px]">
-
-                                    {/* Table */}
                                     <table className="mt-4 w-full min-w-max table-auto text-left">
                                         <thead>
-                                            <tr>
+                                            <tr className="bg-gray-50 dark:bg-gray-700">
                                                 <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                                                     <Typography
                                                         variant="small"
@@ -236,12 +212,10 @@ function ListeMedecin() {
                                                         color="blue-gray"
                                                         className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
                                                     >
-                                                        Spécialité
+                                                        Poste
 
                                                     </Typography>
-                                                </th>
-
-                                                <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                                                </th>                                    <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
@@ -262,98 +236,98 @@ function ListeMedecin() {
                                                     </Typography>
                                                 </th>
 
-
                                                 <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
                                                         className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
                                                     >
-
-
+                                                        Actions
                                                     </Typography>
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            {currentMedecins.map((medecin) => (
-                                                <tr key={medecin._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-
-
-
-                                                    <td className='p-4 border-b border-blue-gray-50'>
-                                                        <div className="flex items-center gap-3">
-                                                            <Avatar src={`http://localhost:4000/${medecin.image.filepath}`} size="sm" />
-                                                            <div className="flex flex-col">
-                                                                <Typography
-                                                                    variant="small"
-                                                                    color="blue-gray"
-                                                                    className="font-normal"
-                                                                    name="nomPrenom"
-                                                                >
-                                                                    {medecin.user.nomPrenom}
-                                                                </Typography>
-                                                                <Typography
-                                                                    variant="small"
-                                                                    color="blue-gray"
-                                                                    className="font-normal opacity-70 dark:text-white"
-                                                                    name="dateAdhesion"
-                                                                >
-                                                                    Ajouté le : {new Date(medecin.user.dateAdhesion).toLocaleDateString()}
-                                                                </Typography>
+                                        <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                                            {currentAssistants
+                                                .filter((aide) => aide.medecin._id === medecinId)
+                                                .map((aide) => (
+                                                    <tr key={aide._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                                        <td className='p-4 border-b border-blue-gray-50'>
+                                                            <div className="flex items-center gap-3">
+                                                                <Avatar src={`http://localhost:4000/${aide.image.filepath}`} size="sm" />
+                                                                <div className="flex flex-col">
+                                                                    <Typography
+                                                                        variant="small"
+                                                                        color="blue-gray"
+                                                                        className="font-normal"
+                                                                        name="nomPrenom"
+                                                                    >
+                                                                        {aide.user.nomPrenom}
+                                                                    </Typography>
+                                                                    <Typography
+                                                                        variant="small"
+                                                                        color="blue-gray"
+                                                                        className="font-normal opacity-70 dark:text-white"
+                                                                        name="dateAdhesion"
+                                                                    >
+                                                                        Ajouté le : {new Date(aide.user.dateAdhesion).toLocaleDateString()}
+                                                                    </Typography>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-
-                                                    <td className="p-4 border-b border-blue-gray-50">
-                                                        <Typography variant="small" color="blue-gray" className="font-normal">
-                                                            {medecin.specialite.nom}                                                         </Typography>
-                                                    </td>
-
-
-                                                    <td className='p-4 border-b border-blue-gray-50'>
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >  {medecin.user.telephone}
-
-                                                        </Typography>
-                                                    </td>
-
-                                                    <td className='p-4 border-b border-blue-gray-50'><Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-normal"
-                                                    >
-                                                        {medecin.user.email}
-                                                    </Typography></td>
-
-                                                    <td className='p-4 border-b border-blue-gray-50'>
-                                                        <div className="flex items-center">
-                                                            <Tooltip content="Modifier" className="text-white bg-indigo-500 rounded-md">
-                                                                <IconButton variant="text" className='text-indigo-700' onClick={() => openModal(medecin)}>
-                                                                    <PencilIcon className="h-4 w-4" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip content="Supprimer" className="text-white bg-red-400 rounded-md">
-                                                                <IconButton variant="text" className='text-red-800' onClick={() => handleDeleteMedecins(medecin._id)}>
-                                                                    <TrashIcon className="h-4 w-4" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </div>
-                                                    </td>
-
-                                                </tr>
-                                            ))}
+                                                        </td>
+                                                        <td className='p-4 border-b border-blue-gray-50'>
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal opacity-70 dark:text-white"
+                                                                name="role"
+                                                            >
+                                                                {aide.user.role}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className='p-4 border-b border-blue-gray-50'>
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                {aide.user.telephone}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className='p-4 border-b border-blue-gray-50'>
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                {aide.user.email}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className='p-4 border-b border-blue-gray-50'>
+                                                            <div className="flex items-center">
+                                                                <Tooltip content="Modifier" className="text-white bg-indigo-500 rounded-md">
+                                                                    <IconButton variant="text" className='text-indigo-800' onClick={() => openModal(aide)}>
+                                                                        <PencilIcon className="h-4 w-4" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                                <Tooltip content="Supprimer" className="text-white bg-red-400 rounded-md">
+                                                                    <IconButton variant="text" className='text-red-800' onClick={() => handleDeleteAide(aide._id)}>
+                                                                        <TrashIcon className="h-4 w-4" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
                                         </tbody>
-                                    </table>
 
+
+                                    </table>
                                 </div>
                             </CardBody>
                             <CardFooter className="text-gray-500 flex items-center justify-between  border-blue-gray-50 p-4">
                                 <Typography variant="small" color="blue-gray" className=" font-normal ">
-                                    Page {currentPage} of {Math.ceil(filteredMedecins.length / medecinsPerPage)}
+                                    Page {currentPage} of {Math.ceil(filteredAssitants.length / assistantsPerPage)}
                                 </Typography>
                                 <div className="flex justify-between mt-4">
                                     <Button
@@ -370,7 +344,7 @@ function ListeMedecin() {
                                         size="sm"
                                         className='text-gray-500 dark:bg-gray-800'
                                         onClick={handleNextPage}
-                                        disabled={indexOfLastMedecin >= filteredMedecins.length}
+                                        disabled={indexOfLastAide >= filteredAssitants.length}
                                     >
                                         <FaArrowRight />
                                     </Button>
@@ -378,7 +352,6 @@ function ListeMedecin() {
                             </CardFooter>
                         </Card>
                     </div>
-                    {/*** */}
                     {isModalOpen && (
                         <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center">
                             <div className="dark:bg-gray-900 dark:text-gray-50 text-gray-800 absolute inset-0 bg-black opacity-50"></div>
@@ -386,7 +359,7 @@ function ListeMedecin() {
                                 <div className='  dark:bg-gray-800 dark:text-gray-50 text-gray-800 overflow-hidden'>
                                     <h1 className="mb-8  dark:bg-gray-800 dark:text-gray-50 leading-7 text-gray-800 ">Entrer les informations :</h1>
                                 </div>
-                                <form onSubmit={handleUpdateMedecin}>
+                                <form onSubmit={handleUpdateAide}>
                                     <div className="flex mb-4">
                                         <div className="flex flex-col mr-4">
                                             <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
@@ -398,7 +371,7 @@ function ListeMedecin() {
                                                 name="cin"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                                                 placeholder="Entrez le nom et prénom"
-                                                defaultValue={selectedMedecin.user.cin}
+                                                defaultValue={selectedAide.user.cin}
                                             />
                                         </div>
                                         <div className="flex flex-col mr-4">
@@ -412,7 +385,7 @@ function ListeMedecin() {
                                                 name="nomPrenom"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                                                 placeholder="Entrez votre nouveau nom é prénom"
-                                                defaultValue={selectedMedecin.user.nomPrenom}
+                                                defaultValue={selectedAide.user.nomPrenom}
 
                                             />
                                         </div>
@@ -427,7 +400,7 @@ function ListeMedecin() {
                                                 name="adresse"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                                                 placeholder="Entrez votre nouveau Adresse"
-                                                defaultValue={selectedMedecin.user.adresse}
+                                                defaultValue={selectedAide.user.adresse}
 
                                             />
                                         </div>
@@ -446,7 +419,7 @@ function ListeMedecin() {
                                                 name="telephone"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                                                 placeholder="Entrez le numéro de téléphone"
-                                                defaultValue={selectedMedecin.user.telephone}
+                                                defaultValue={selectedAide.user.telephone}
 
                                             />
                                         </div>
@@ -460,71 +433,60 @@ function ListeMedecin() {
                                                 name="email"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
                                                 placeholder="Entrez Votre nouveau email"
-                                                defaultValue={selectedMedecin.user.email}
+                                                defaultValue={selectedAide.user.email}
 
                                             />
-                                        </div>
-                                        <div className="flex flex-col mr-4 ">
-                                            <label htmlFor="role" className="mb-1 text-sm font-medium text-blue-gray-900">
-                                                Password
-                                            </label>
-                                            <input
-                                                type="password"
-                                                id="password"
-                                                name="password"
-                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
-
-                                                defaultValue={selectedMedecin.user.password}
-                                            />
-                                        </div>
-
-
-                                    </div>
-
-
-                                    <div className="flex mb-4">
-                                        <div className="flex flex-col mr-4">
-                                            <label htmlFor="medecinlie" className="mb-1 text-sm font-medium text-blue-gray-900">
-                                                Spécialité
-                                            </label>
-                                            <select
-                                                id="specialite"
-                                                name="specialite"
-                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 mb-1 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
-                                                onChange={(e) => setSelectedSpecialiteId(e.target.value)}
-                                                value={selectedSpecialiteId}                                            >
-                                                <option value="" disabled>
-                                                    Sélectionnez
-                                                </option>
-                                                {Specialite.map((sep) => (
-                                                    <option
-                                                        key={sep._id}
-                                                        value={sep._id} // Utiliser l'ID de la spécialité
-                                                    >
-                                                        {sep.nom}
-                                                    </option>
-                                                ))}
-                                            </select>
-
-
                                         </div>
 
                                         <div className="flex flex-col mr-4">
                                             <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
 
-                                                Role
+                                                education
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="education"
+                                                name="education"
+                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
+                                                placeholder="Entrez une description a votre éducation"
+                                                defaultValue={selectedAide.education}
+
+                                            />
+                                        </div>
+                                    </div>
+
+
+                                    <div className="flex flex-col mb-4 sm:flex-row sm:justify-between">
+                                        <div className="flex flex-col w-full sm:w-[50%] mr-4">
+                                            <label htmlFor="role" className="mb-1 text-sm font-medium text-blue-gray-900">
+                                                Poste
                                             </label>
                                             <input
                                                 type="text"
                                                 id="role"
                                                 name="role"
-                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
-                                                placeholder="Entrez votre nouveau Role"
-                                                defaultValue={selectedMedecin.user.role}
-
+                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
+                                                placeholder="Entrez le nouveau rôle"
+                                                defaultValue={selectedAide.user.role}
+                                            />
+                                        </div>
+                                        <div className="flex flex-col w-full sm:w-[50%] mr-4">
+                                            <label htmlFor="role" className="mb-1 text-sm font-medium text-blue-gray-900">
+                                                Password
+                                            </label>
+                                            <input
+                                                type="password"
+                                                id="role"
+                                                name="password"
+                                                className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
+                                                placeholder="Entrez le nouveau password"
+                                                defaultValue={selectedAide.user.password}
                                             />
                                         </div>
                                     </div>
+
+
+
 
 
                                     <div className="flex justify-end mt-4">
@@ -547,4 +509,4 @@ function ListeMedecin() {
     );
 }
 
-export default ListeMedecin;
+export default ListeAideParMed;
