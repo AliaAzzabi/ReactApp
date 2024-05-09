@@ -27,7 +27,7 @@ function Dashboard() {
   const { user } = useContext(AuthContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  if (!user) {
+  if (!user || (user.role !== "admin")) {
     return <Navigate to="/login" />;
   }
 

@@ -138,9 +138,10 @@ function ListeAideParMed() {
         setCurrentPage((prevPage) => prevPage + 1);
     };
 
-    if (!user) {
+    if (!user || (user.role !== "médecin")) {
+        // Rediriger l'utilisateur vers la page de connexion ou afficher un message d'erreur
         return <Navigate to="/login" />;
-    }
+      }
 
     return (
         <div className="flex h-screen overflow-hidden">

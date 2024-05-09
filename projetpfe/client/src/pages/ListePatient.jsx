@@ -42,21 +42,26 @@ function ListePatient() {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const patientsPerPage = 5; // Nombre de patients par page
+  const patientsPerPage = 5; 
 
   useEffect(() => {
     const fetchPatients = async () => {
       try {
         const patientsData = await getPatient();
         setPatients(patientsData);
-        setAllPatients(patientsData); // Sauvegarder tous les patients initiaux
+        setAllPatients(patientsData); 
       } catch (error) {
         console.error('Error fetching users:', error);
       }
     };
-  
+
     fetchPatients();
   }, []);
+
+
+  if (!user || (user.role !== "médecin" && user.role !== "aide")) {
+    return <Navigate to="/login" />;
+  }
 
   const handleDeletePatient = (id) => {
     const confirmDelete = window.confirm("Voulez-vous vraiment supprimer ce patient ?");
@@ -118,17 +123,14 @@ function ListePatient() {
   const handleSearch = (event) => {
     const searchTerm = event.target.value.toLowerCase();
     setSearchTerm(searchTerm);
-  
-    // Filtrer tous les patients initiaux en fonction du terme de recherche
+
     const filteredPatients = allPatients.filter(patient =>
       patient.nomPrenom.toLowerCase().includes(searchTerm)
     );
     setPatients(filteredPatients);
   };
 
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
+  
 
   const totalPages = Math.ceil(patients.length / patientsPerPage);
   const indexOfLastPatient = currentPage * patientsPerPage;
@@ -137,17 +139,13 @@ function ListePatient() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      {/* Content area */}
       <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-        {/* Site header */}
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
         <main>
           <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
-            {/* Dashboard actions */}
             <WelcomeBanner />
             <Card className="h-full w-full dark:bg-gray-800">
               <CardHeader floated={false} shadow={false} className=" dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-none">
@@ -161,16 +159,16 @@ function ListePatient() {
                 <div className="  flex items-center mr-8 justify-between gap-8">
 
 
-                <div className="relative">
-                  <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-                    <svg className="w-4 h-4 ml-8 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                      <path strokeWidth="2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                    </svg>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
+                      <svg className="w-4 h-4 ml-8 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path strokeWidth="2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                      </svg>
+                    </div>
+                    <input type="text" placeholder="Chercher" onChange={handleSearch} id="table-search-users" className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                   </div>
-                  <input type="text"  placeholder="Chercher" onChange={handleSearch} id="table-search-users" className="block p-2 ps-10 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 ml-8 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  />
-                </div>
 
-                <div className="flex flex-col gap-2 sm:flex-row ">
+                  <div className="flex flex-col gap-2 sm:flex-row ">
                     <Link to="/addPatient" className="btn bg-indigo-500 hover:bg-indigo-600 text-white flex items-center">
                       <svg className="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
                         <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
@@ -182,7 +180,6 @@ function ListePatient() {
               </CardHeader>
               <CardBody className="overflow-x-auto px-0 dark:bg-gray-800 text-gray-500">
                 <div className="overflow-y-auto max-h-[800px]">
-                  {/* Table */}
                   <table className="mt-4 w-full min-w-max table-auto text-left">
                     <thead>
                       <tr>
@@ -313,11 +310,14 @@ function ListePatient() {
                                     <TrashIcon className="h-4 w-4" />
                                   </IconButton>
                                 </Tooltip>
-                                <Tooltip content="Rendez-vous" className="text-white bg-green-400 rounded-md">
-                                  <IconButton variant="text" className='text-green-800'>
-                                    <CalendarIcon className="h-4 w-4" />
-                                  </IconButton>
-                                </Tooltip>
+                                <Link to={{ pathname: "/addrdv", state: { patientName: patient.nomPrenom } }}>
+  <Tooltip content="Rendez-vous" className="text-white bg-green-400 rounded-md">
+    <IconButton variant="text" className='text-green-800'>
+      <CalendarIcon className="h-4 w-4" />
+    </IconButton>
+  </Tooltip>
+</Link>
+
                               </div>
                             </td>
                           </tr>
@@ -331,18 +331,18 @@ function ListePatient() {
                   Page {currentPage} sur {totalPages}
                 </Typography>
                 <div className="flex gap-2 ">
-                  <Button 
-                    variant="outlined" 
-                    size="sm" 
+                  <Button
+                    variant="outlined"
+                    size="sm"
                     className='text-gray-500 dark:bg-gray-800'
                     onClick={() => setCurrentPage(currentPage - 1)}
                     disabled={currentPage === 1}
                   >
                     Précédent
                   </Button>
-                  <Button 
-                    variant="outlined" 
-                    size="sm" 
+                  <Button
+                    variant="outlined"
+                    size="sm"
                     className='text-gray-500 dark:bg-gray-800'
                     onClick={() => setCurrentPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
@@ -354,100 +354,112 @@ function ListePatient() {
             </Card>
           </div>
           {isModalOpen && (
-            <div className="overflow-y-auto  fixed inset-0 z-0 overflow-y-auto flex pb-5 items-center justify-center">
-              
-              <div className="overflow-y-auto  fixed inset-0 z-50 flex items-center justify-center ">
 
-                <div className="relative bg-white w-[600px] h-[600px] rounded-xl shadow-lg sm:w-96 sm:h-[600px] mx-auto my-32 px-10 sm:px-16 dark:bg-gray-800">
-                  <div className="flex justify-between">
-                    <Typography variant="h6" color="gray">
-                      Modifier les informations du patient
-                    </Typography>
-                    <IconButton onClick={closeModal}>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2zM3 10a7 7 0 0 1 9-6.716V5a1 1 0 0 1 2 0v-.716A7 7 0 0 1 3 10zm9 6.716V15a1 1 0 0 1 2 0v1.716A7 7 0 0 1 13 10zM5 10a5 5 0 1 1 10 0A5 5 0 0 1 5 10z" clipRule="evenodd" />
-                      </svg>
-                    </IconButton>
-                  </div>
-                  <form onSubmit={handleSubmit}>
-                    <div className="space-y-6 mt-4">
-                      <div className="space-y-1">
-                        <label htmlFor="cin" className="text-gray-500 dark:text-gray-300">
-                          CIN
-                        </label>
-                        <input
-                          id="cin"
-                          type="text"
-                          name="cin"
-                          value={formData.cin}
-                          onChange={handleChange}
-                          className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label htmlFor="nomPrenom" className="text-gray-500 dark:text-gray-300">
-                          Nom & Prénom
-                        </label>
-                        <input
-                          id="nomPrenom"
-                          type="text"
-                          name="nomPrenom"
-                          value={formData.nomPrenom}
-                          onChange={handleChange}
-                          className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label htmlFor="telephone" className="text-gray-500 dark:text-gray-300">
-                          Téléphone
-                        </label>
-                        <input
-                          id="telephone"
-                          type="text"
-                          name="telephone"
-                          value={formData.telephone}
-                          onChange={handleChange}
-                          className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label htmlFor="email" className="text-gray-500 dark:text-gray-300">
-                          Email
-                        </label>
-                        <input
-                          id="email"
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label htmlFor="dateNaissance" className="text-gray-500 dark:text-gray-300">
-                          Date de naissance
-                        </label>
-                        <DatePicker
-                          id="dateNaissance"
-                          selected={formData.dateNaissance}
-                          onChange={handleDateChange}
-                          dateFormat="dd/MM/yyyy"
-                          className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <button
-                          type="submit"
-                          className="w-full bg-indigo-500 text-white py-2 px-6 rounded-md hover:bg-indigo-600 transition-colors"
-                        >
-                          Sauvegarder
-                        </button>
-                      </div>
-                    </div>
-                  </form>
+            <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center">
+              <div onClick={closeModal} className="dark:bg-gray-900 overflow-y-auto dark:text-gray-50 text-gray-800 absolute inset-0 bg-black opacity-50"></div>
+              <div className="dark:bg-gray-800 overflow-y-autodark:text-gray-50 text-gray-800 z-50 bg-white p-6 rounded-lg max-w">
+                <div className="flex justify-end">
+                  <button onClick={closeModal} className="text-gray-500 hover:text-gray-600">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
                 </div>
+                <div className='  dark:bg-gray-800 overflow-y-auto dark:text-gray-50 text-gray-800 overflow-hidden'>
+
+                  <h1 className="mb-8  dark:bg-gray-800 overflow-y-autodark:text-gray-50 leading-7 text-gray-800 ">Entrer les informations :</h1>
+                </div>
+                <form onSubmit={handleSubmit}>
+                  <div className="space-y-6 mt-4">
+                    <div className="space-y-1">
+                      <label htmlFor="cin" className="text-gray-500 dark:text-gray-300">
+                        CIN
+                      </label>
+                      <input
+                        id="cin"
+                        type="text"
+                        name="cin"
+                        value={formData.cin}
+                        onChange={handleChange}
+                        className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="nomPrenom" className="text-gray-500 dark:text-gray-300">
+                        Nom & Prénom
+                      </label>
+                      <input
+                        id="nomPrenom"
+                        type="text"
+                        name="nomPrenom"
+                        value={formData.nomPrenom}
+                        onChange={handleChange}
+                        className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="telephone" className="text-gray-500 dark:text-gray-300">
+                        Téléphone
+                      </label>
+                      <input
+                        id="telephone"
+                        type="text"
+                        name="telephone"
+                        value={formData.telephone}
+                        onChange={handleChange}
+                        className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="email" className="text-gray-500 dark:text-gray-300">
+                        Email
+                      </label>
+                      <input
+                        id="email"
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="dateNaissance" className="text-gray-500 dark:text-gray-300">
+                        Date de naissance
+                      </label> <br></br>
+                      <DatePicker
+                        id="dateNaissance"
+                        selected={formData.dateNaissance}
+                        onChange={handleDateChange}
+                        dateFormat="dd/MM/yyyy"
+                        className="w-full bg-gray-100 dark:bg-gray-700 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                      />
+                    </div>
+                    <div className="space-y-2">
+
+                      <button
+                        type="submit"
+                        className="w-full bg-indigo-500 text-white py-2 px-6 rounded-md hover:bg-indigo-600 transition-colors"
+                      >
+                        Sauvegarder
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </div>
             </div>
+
           )}
         </main>
       </div>

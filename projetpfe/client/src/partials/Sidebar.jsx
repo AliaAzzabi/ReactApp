@@ -25,7 +25,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
   const storedSidebarExpanded = localStorage.getItem('sidebar-expanded');
   const [sidebarExpanded, setSidebarExpanded] = useState(storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true');
 
-  // close on click outside
+  
   useEffect(() => {
     const clickHandler = ({ target }) => {
       if (!sidebar.current || !trigger.current) return;
@@ -36,7 +36,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
     return () => document.removeEventListener('click', clickHandler);
   });
 
-  // close if the esc key is pressed
+ 
   useEffect(() => {
     const keyHandler = ({ keyCode }) => {
       if (!sidebarOpen || keyCode !== 27) return;
@@ -567,15 +567,15 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
             </h3>
             <ul className="mt-3">
               {/**rendezvous */}
-              <li className={`px-3 py-2 mt-4 mb-4 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('calendar') && 'bg-slate-900'}`}>
+              <li className={`px-3 py-2 mt-4 mb-4 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('addrdv') && 'bg-slate-900'}`}>
                 <NavLink
                   end
-                  to="/calendar"
-                  className={`block text-slate-200 truncate transition duration-150 ${pathname.includes('calendar') ? 'hover:text-slate-200' : 'hover:text-white'
+                  to="/addrdv"
+                  className={`block text-slate-200 truncate transition duration-150 ${pathname.includes('addrdv') ? 'hover:text-slate-200' : 'hover:text-white'
                     }`}
                 >
                   <div className="flex items-center">
-                    <FontAwesomeIcon icon={faCalendarAlt} className={`shrink-0 h-6 w-6 ${pathname.includes('calendar') ? 'text-indigo-500' : 'text-slate-600'}`} />
+                    <FontAwesomeIcon icon={faCalendarAlt} className={`shrink-0 h-6 w-6 ${pathname.includes('addrdv') ? 'text-indigo-500' : 'text-slate-600'}`} />
                     <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
                       Rendez-vous
                     </span>
@@ -596,6 +596,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                   </div>
                 </NavLink>
               </li>
+              
               {/**salle d'attente */}
               <li className={`px-3 py-2 mt-4 mb-4 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('salleDattente') && 'bg-slate-900'}`}>
                 <NavLink
@@ -608,6 +609,21 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                     <FontAwesomeIcon icon={faChair} className={`shrink-0 h-6 w-6 ${pathname.includes('salleDattente') ? 'text-indigo-500' : 'text-slate-600'}`} />
                     <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
                       Salle d'attente
+                    </span>
+                  </div>
+                </NavLink>
+              </li>
+              <li className={`px-3 py-2 mt-4 mb-4 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('listeAideParMed') && 'bg-slate-900'}`}>
+                <NavLink
+                  end
+                  to="/listeAideParMed"
+                  className={`block text-slate-200 truncate transition duration-150 ${pathname.includes('listeAideParMed') ? 'hover:text-slate-200' : 'hover:text-white'
+                    }`} 
+                >
+                  <div className="flex items-center">
+                    <FontAwesomeIcon icon={faUsers} className={`shrink-0 h-6 w-6 ${pathname.includes('listeAideParMed') ? 'text-indigo-500' : 'text-slate-600'}`} />
+                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
+                    Liste des Assitants
                     </span>
                   </div>
                 </NavLink>
@@ -628,21 +644,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                   </div>
                 </NavLink>
               </li>
-               <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('listeAideParMed') && 'bg-slate-900'}`}>
-                <NavLink
-                  end
-                  to="/listeAideParMed"
-                  className={`block text-slate-200 truncate transition duration-150 ${pathname.includes('listeAideParMed') ? 'hover:text-slate-200' : 'hover:text-white'
-                    }`} 
-                >
-                  <div className="flex items-center">
-                    <FontAwesomeIcon icon={faUsers} className={`shrink-0 h-6 w-6 ${pathname.includes('listeAideParMed') ? 'text-indigo-500' : 'text-slate-600'}`} />
-                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
-                    Liste des Assitants
-                    </span>
-                  </div>
-                </NavLink>
-              </li>
+              
 
             </ul>
           </div>

@@ -83,7 +83,8 @@ function ListeAssistant() {
     }
   };
 
-  if (!user) {
+  if (!user || (user.role !== "admin")) {
+    // Rediriger l'utilisateur vers la page de connexion ou afficher un message d'erreur
     return <Navigate to="/login" />;
   }
 

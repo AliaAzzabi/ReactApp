@@ -94,9 +94,9 @@ function ListeMedecin() {
     };
 
 
-    if (!user) {
+    if (!user || (user.role !== "admin")) {
         return <Navigate to="/login" />;
-    }
+      }
 
     const openModal = (medecin) => {
         console.log(medecin);

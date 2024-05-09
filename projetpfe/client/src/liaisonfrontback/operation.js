@@ -186,11 +186,11 @@ export const addPatient = (patient, callback) => {
   api.post('/addPatient', patient)
       .then((res) => {
           console.log('Received response:', res);
-          callback(res.data); // Appeler le callback avec la réponse
+          callback(res.data); 
       })
       .catch((err) => {
           console.error('Error:', err.response.data);
-          callback(err.response.data); // Appeler le callback avec l'erreur
+          callback(err.response.data); 
       });
 };
 
@@ -228,10 +228,10 @@ export const getAllRendezVous = async (userToken) => {
 
 
 
-// operation.js
+
 export const creerRendezVous = async (userToken, date, patientNom) => {
   try {
-    // Récupérez l'heure à partir de la date
+    
     const time = date.getHours() + ":" + date.getMinutes();
     
     const response = await fetch('http://localhost:4000/creerrendezvous', {
@@ -240,7 +240,6 @@ export const creerRendezVous = async (userToken, date, patientNom) => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
-      // Ajoutez l'heure à l'objet JSON
       body: JSON.stringify({ date, patientNom, time }),
     });
     if (response.ok) {
@@ -256,7 +255,9 @@ export const creerRendezVous = async (userToken, date, patientNom) => {
 
 
 
-export const updateRendezVous = async (token, rendezVousId, date, time, patientNom) => {
+export const updateRendezVous = async (token, rendezVousId, updatedEventData) => {
+  const { date, time, patientNom } = updatedEventData;
+  
   const response = await fetch(`http://localhost:4000/updateRendezVous/${rendezVousId}`, {
     method: 'PUT',
     headers: {
@@ -265,12 +266,17 @@ export const updateRendezVous = async (token, rendezVousId, date, time, patientN
     },
     body: JSON.stringify({ date, time, patientNom })
   });
+
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.message || 'Erreur lors de la mise à jour du rendez-vous');
   }
   return data;
 };
+
+
+
+
 
 export const deleteRendezVous = async (token, rendezVousId) => {
   try {
@@ -294,3 +300,14 @@ export const getAidesByMedecinId = async (medecinId) => {
     return { error: error.message };
   }
 }
+
+
+export const getAllRendezVousAjourdhui = async () => {
+  try {
+    const response = await api.get('/getrdvAujourdhui');
+    return response.data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des rendez-vous d\'aujourd\'hui :', error);
+    throw new Error('Erreur lors de la récupération des rendez-vous d\'aujourd\'hui');
+  }
+};

@@ -35,9 +35,9 @@ function AddSpecialte() {
     const { user } = useContext(AuthContext);
     const Navigation = useNavigate();
 
-    if (!user) {
+    if (!user || (user.role !== "admin")) {
         return <Navigate to="/login" />;
-    }
+      }
     const [specialite, setspecialite] = useState({
         nom: '',
         description: ''

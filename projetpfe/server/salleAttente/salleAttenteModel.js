@@ -5,7 +5,7 @@ const listeAttenteSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  // Ajoutez d'autres champs nécessaires ici
+  
 }, { timestamps: true });
 
 const ListeAttente = mongoose.model('ListeAttente', listeAttenteSchema);

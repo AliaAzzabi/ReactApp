@@ -9,7 +9,7 @@ const patientSchema = new mongoose.Schema({
     sexe: String,
     dateNaissance: Date,
     notifier: String
-}, { timestamps: true }); // Placer timestamps: true comme option à la fin du schéma
+}, { timestamps: true }); 
 
 patientSchema.post('findOneAndDelete', async function(Patient) {
     try {

@@ -175,7 +175,6 @@ const updateAide = async (req, res) => {
             return res.status(404).json({ error: 'Aide non trouvée' });
         }
 
-        // Vérifier si updatedAide.user est null avant d'accéder à ses propriétés
         if (!updatedAide.user) {
             return res.status(404).json({ error: 'Utilisateur associé non trouvé' });
         }

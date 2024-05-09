@@ -20,9 +20,9 @@ function DashboardAide() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useContext(AuthContext);
 
-  if (!user) {
-      return <Navigate to="/login" />;
-    }
+  if (!user || ( user.role !== "aide")) {
+    return <Navigate to="/login" />;
+  }
     
   return (
     <div className="flex h-screen overflow-hidden">

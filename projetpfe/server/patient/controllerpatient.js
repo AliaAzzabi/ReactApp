@@ -15,7 +15,6 @@ const expressHandler = require("express-async-handler");
     }
   });
   
-  // getAll
    const getPatient = expressHandler(async (req, res) => {
     try {
       const patients = await Patient.find();
@@ -30,22 +29,14 @@ const expressHandler = require("express-async-handler");
   const addPatient = expressHandler(async (req, res) => {
     try {
       const { cin, nomPrenom, sexe, telephone, email, dateNaissance,notifier } = req.body;
-  
-      // Vérifier si le patient existe déjà dans la base de données par le numéro de CIN
       const existingPatientByCIN = await Patient.findOne({ cin });
-  
       if (existingPatientByCIN) {
         return res.status(400).json({ error: "Un patient avec ce numéro de CIN existe déjà." });
       }
-  
-      // Vérifier si le patient existe déjà dans la base de données par le nom et prénom
       const existingPatientByName = await Patient.findOne({ nomPrenom });
-  
       if (existingPatientByName) {
         return res.status(400).json({ error: "Un patient avec ce nom et prénom existe déjà." });
       }
-  
-      // Créer un nouveau patient sans faire référence à un utilisateur existant
       const newPatient = new Patient({
         cin: cin,
         nomPrenom: nomPrenom,
@@ -56,7 +47,6 @@ const expressHandler = require("express-async-handler");
         notifier:notifier
       });
   
-      // Sauvegarder le nouveau patient dans la base de données
       const savedPatient = await newPatient.save();
   
       res.status(201).json(savedPatient);

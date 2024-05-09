@@ -108,9 +108,9 @@ function AddAssistantMed() {
 
 
 
-    if (!user) {
+    if (!user || (user.role !== "médecin")) {
         return <Navigate to="/login" />;
-    }
+      }
 
     return (
         <div className="flex h-screen overflow-hidden">

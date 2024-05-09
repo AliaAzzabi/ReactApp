@@ -119,10 +119,9 @@ function AddMedecin() {
         }
       };
 
-
-    if (!user) {
+      if (!user || (user.role !== "admin")) {
         return <Navigate to="/login" />;
-    }
+      }
 
     return (
         <div className="flex h-screen overflow-hidden">
