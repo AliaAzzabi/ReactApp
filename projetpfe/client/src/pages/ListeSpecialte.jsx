@@ -7,6 +7,7 @@ import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { getAllspecialities, updateSpecialite, deleteSpecialite } from '../liaisonfrontback/operation';
+import SuccessAlert from './SuccessAlert';
 import {
     Card,
     CardHeader,
@@ -27,7 +28,7 @@ function ListeSpecialite() {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
-    
+
     const { user } = useContext(AuthContext);
     const [selectedSpecialite, setSelectedSpecialite] = useState(null);
 
@@ -35,12 +36,13 @@ function ListeSpecialite() {
         getAllspecialities((res) => {
             if (res.data) {
                 setSpecialites(res.data);
-                
+
             } else {
                 console.error("Erreur lors de la récupération des spécialités :", res.error);
             }
         });
     }, [specialites]);
+
     useEffect(() => {
         const filtered = specialites.filter(specialite =>
             specialite.nom.toLowerCase().includes(searchTerm.toLowerCase())
@@ -58,14 +60,19 @@ function ListeSpecialite() {
 
     const prevPage = () => setCurrentPage(currentPage - 1);
 
-    const handleDeleteSpecialite = (id) => {
+    const DeleteSpecialite = (id) => {
         const confirmDelete = window.confirm("Voulez-vous vraiment supprimer cette spécialité ?");
         if (confirmDelete) {
             deleteSpecialite(id, (res) => {
                 if (res.data) {
                     setSpecialites(specialites.filter(specialite => specialite._id !== id));
                     console.log("Spécialité supprimée avec succès");
-                } else {
+                }else if (res.error) {
+                    console.error("Erreur lors de la suppression de la spécialité :", res.error);
+                
+                    alert("Cette spécialité est utilisée par au moins un médecin. Veuillez supprimer la référence dans la table des médecins avant de la supprimer.");
+                }
+                 else {
                     console.error("Erreur lors de la suppression de la spécialité :", res.error);
                 }
             });
@@ -82,7 +89,23 @@ function ListeSpecialite() {
         setSelectedSpecialite(null);
     };
 
-    const handleUpdateSpecialite = (e) => {
+    const toggleSpecialiteStatus = (id) => {
+        const specialiteToUpdate = specialites.find(specialite => specialite._id === id);
+        if (specialiteToUpdate) {
+            const updatedSpecialite = { ...specialiteToUpdate, isSelected: !specialiteToUpdate.isSelected };
+            updateSpecialite(id, updatedSpecialite, (res) => {
+                if (res.data) {
+                    const updatedSpecialites = specialites.map(specialite => (specialite._id === res.data._id ? res.data : specialite));
+                    setSpecialites(updatedSpecialites);
+                    console.log("Statut de spécialité mis à jour avec succès");
+                } else {
+                    console.error("Erreur lors de la mise à jour du statut de la spécialité :", res.error);
+                }
+            });
+        }
+    };
+
+    const UpdateSpecialite = (e) => {
         e.preventDefault();
         if (selectedSpecialite) {
             const formData = new FormData(e.target);
@@ -103,9 +126,10 @@ function ListeSpecialite() {
         }
     };
 
-    if (!user || (user.role !== "admin")) {
+
+    if (!user) {
         return <Navigate to="/login" />;
-      }
+    }
 
     return (
         <div className="flex h-screen overflow-hidden">
@@ -156,14 +180,31 @@ function ListeSpecialite() {
                                             <tr className="bg-gray-50 dark:bg-gray-700">
                                                 <th className="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nom de la spécialité</th>
                                                 <th className="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
+                                                <th className="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                    <p class="block font-sans text-sm antialiased font-normal leading-none text-blue-gray-900 opacity-70">
+                                                        Status
+                                                    </p>
+                                                </th>
                                                 <th className="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"></th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                                        {currentItems.map((specialite) => (
+                                            {currentItems.map((specialite) => (
                                                 <tr key={specialite._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                                     <td className="px-6 py-4 whitespace-nowrap">{specialite.nom}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap">{specialite.description}</td>
+                                                    <td className="p-4 border-b border-blue-gray-50 text-center">
+                                                        <label className="inline-flex items-center me-5 cursor-pointer">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={specialite.isSelected}
+                                                                onChange={() => toggleSpecialiteStatus(specialite._id)}
+                                                                className="sr-only peer"
+                                                            />
+                                                            <div className="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600" />
+                                                        </label>
+                                                    </td>
+
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex items-center space-x-4">
                                                             <Tooltip content="Modifier" className="text-indigo-500 dark:text-indigo-400">
@@ -172,7 +213,7 @@ function ListeSpecialite() {
                                                                 </IconButton>
                                                             </Tooltip>
                                                             <Tooltip content="Supprimer" className="text-red-500 dark:text-red-400">
-                                                                <IconButton variant="text" className='text-red-700' onClick={() => handleDeleteSpecialite(specialite._id)}>
+                                                                <IconButton variant="text" className='text-red-700' onClick={() => DeleteSpecialite(specialite._id)}>
                                                                     <TrashIcon className="h-4 w-4" />
                                                                 </IconButton>
                                                             </Tooltip>
@@ -193,7 +234,7 @@ function ListeSpecialite() {
                                         <FaArrowLeft />
                                     </Button>
                                     <Button variant="outlined" size="sm" className='text-gray-500 dark:bg-gray-800' onClick={nextPage} disabled={currentPage === Math.ceil(filteredSpecialites.length / itemsPerPage)}>
-                                        <FaArrowRight /> 
+                                        <FaArrowRight />
                                     </Button>
                                 </div>
                             </CardFooter>
@@ -207,7 +248,7 @@ function ListeSpecialite() {
                                 <div className='  dark:bg-gray-800 dark:text-gray-50 text-gray-800 overflow-hidden'>
                                     <h1 className="mb-8  dark:bg-gray-800 dark:text-gray-50 leading-7 text-gray-800 ">Entrer les informations :</h1>
                                 </div>
-                                <form class="max-w-sm mx-auto" onSubmit={handleUpdateSpecialite}>
+                                <form class="max-w-sm mx-auto" onSubmit={UpdateSpecialite}>
                                     <div class="relative z-0 w-full mb-10 group">
                                         <input type="text" name="nom" defaultValue={selectedSpecialite?.nom} class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
                                         <label for="nom" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Nom</label>

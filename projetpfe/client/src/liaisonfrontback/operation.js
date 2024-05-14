@@ -43,9 +43,18 @@ export const updateSpecialite = (id, updatedData, callback) => {
 
 export const deleteSpecialite = (id, callback) => {
   api.delete(`/deleteSpecialite/${id}`)
-    .then((res) => callback(res))
-    .catch((err) => callback(err));
+    .then((res) => {
+      if (res.data) {
+        callback(res.data); 
+      } else {
+        callback({ error: res.error }); 
+      }
+    })
+    .catch((err) => {
+      callback({ error: err.message }); 
+    });
 }
+
 
 export const getDepartementById = async (id) => {
     try {
@@ -309,5 +318,15 @@ export const getAllRendezVousAjourdhui = async () => {
   } catch (error) {
     console.error('Erreur lors de la récupération des rendez-vous d\'aujourd\'hui :', error);
     throw new Error('Erreur lors de la récupération des rendez-vous d\'aujourd\'hui');
+  }
+};
+
+export const sendEmail = async (formData) => {
+  try {
+    const response = await api.post('/sendEmail', formData);
+    return response.data;
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de l\'e-mail:', error);
+    throw error;
   }
 };

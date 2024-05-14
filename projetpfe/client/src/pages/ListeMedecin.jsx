@@ -47,19 +47,18 @@ function ListeMedecin() {
 
     const [selectedSpecialiteId, setSelectedSpecialiteId] = useState(null);
 
-
+    
     useEffect(() => {
         getAllspecialities((res) => {
             if (res.data) {
-                setSpecialite(res.data);
-
+                const filteredSpecialites = res.data.filter(specialite => specialite.isSelected);
+                setSpecialite(filteredSpecialites);
             } else {
-                console.error("Error fetching spécialité:", res.error);
+                console.error("Erreur lors de la récupération des spécialités :", res.error);
             }
         });
     }, []);
-
-
+    
     useEffect(() => {
         getMedecins((res) => {
             if (res.data) {
@@ -125,15 +124,13 @@ function ListeMedecin() {
                 telephone: formData.get('telephone'),
                 email: formData.get('email'),
                 role: formData.get('role'),
-                password: formData.get('password'),
-                //   image: formData.get('image'),
+                password: formData.get('password') !== '' ? formData.get('password') : undefined,
                 specialite: selectedSpecialiteId,
             };
-            console.log('updatedMedecin:', updatedMedecin);
             UpdateMedecin(selectedMedecin._id, updatedMedecin, (res) => {
                 if (res.data) {
                     const updatedMedecins = medecins.map((medecin) => (medecin._id === res.data._id ? res.data : medecin));
-                    setmedecins(updatedMedecins);
+                    setMedecins(updatedMedecins);
                     closeModal();
                     console.log("Médecin modifié avec succès");
                 } else {
@@ -146,6 +143,7 @@ function ListeMedecin() {
             });
         }
     };
+
 
     // code mta3 deux boutton de précédent w suivant
     const [currentPage, setCurrentPage] = useState(1);
@@ -473,8 +471,8 @@ function ListeMedecin() {
                                                 id="password"
                                                 name="password"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
-
-                                                defaultValue={selectedMedecin.user.password}
+                                                placeholder="Entrez le nouveau password"
+                                                //defaultValue={selectedMedecin.user.password}
                                             />
                                         </div>
 
@@ -492,20 +490,20 @@ function ListeMedecin() {
                                                 name="specialite"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 mb-1 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
                                                 onChange={(e) => setSelectedSpecialiteId(e.target.value)}
-                                                value={selectedSpecialiteId}                                            >
+                                                value={selectedSpecialiteId}
+                                            >
                                                 <option value="" disabled>
                                                     Sélectionnez
                                                 </option>
                                                 {Specialite.map((sep) => (
                                                     <option
                                                         key={sep._id}
-                                                        value={sep._id} // Utiliser l'ID de la spécialité
+                                                        value={sep._id}
                                                     >
                                                         {sep.nom}
                                                     </option>
                                                 ))}
                                             </select>
-
 
                                         </div>
 

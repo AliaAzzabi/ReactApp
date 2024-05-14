@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { getAllRendezVous, deleteRendezVous, updateRendezVous, creerRendezVous } from '../liaisonfrontback/operation';
+import { getAllRendezVous, deleteRendezVous, updateRendezVous, creerRendezVous, sendEmail } from '../liaisonfrontback/operation';
 import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
@@ -76,9 +76,19 @@ function AddRendezVousForm() {
       };
 
       await updateRendezVous(user.token, selectedEvent.id, updatedEventData);
+
+       // Vérifier si selectedEvent et selectedEvent.patient ne sont pas indéfinis avant d'accéder à la propriété 'email'
+    if (selectedEvent && selectedEvent.patient && selectedEvent.patient.email) {
+      const subject = 'Modification de votre rendez-vous';
+      const message = `Votre rendez-vous a été rapporté pour ${selectedDate}.`;
+      await sendEmail(selectedEvent.patient.email, subject, message);
+    } else {
+      console.error("Impossible d'envoyer l'e-mail de notification car les informations du patient sont manquantes.");
+    }
+
       alert('Rendez-vous mis à jour avec succès !');
       setShowModal(false);
-      fetchRendezVousData(); // Rafraîchir les rendez-vous après la mise à jour
+      fetchRendezVousData(); 
     } catch (error) {
       alert("Erreur lors de la mise à jour du rendez-vous : " + error.message);
     }
@@ -87,6 +97,11 @@ function AddRendezVousForm() {
   const handleCancelAppointment = async () => {
     try {
       await deleteRendezVous(user.token, selectedEvent.id);
+
+      const subject = 'Annulation de votre rendez-vous';
+        const message = 'Votre rendez-vous a été annulé.';
+        await sendEmail(selectedEvent.patient.email, subject, message);
+
       alert('Rendez-vous annulé avec succès !');
       fetchRendezVousData();
       setShowModal(false); // Rafraîchir les rendez-vous après la suppression

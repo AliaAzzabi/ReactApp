@@ -133,11 +133,9 @@ const addaides = expressHandler(async (req, res) => {
 
 
 const updateAide = async (req, res) => {
-   
     const { cin, sexe, nomPrenom, telephone, email, password, dateAdhesion, role, medecin, education, dateNaissance, adresse } = req.body;
     try {
         console.log(req._id);
-        const hashedPassword = await bcrypt.hash(password, 10);
         let updateData = {
             nomPrenom,
             telephone,
@@ -146,11 +144,15 @@ const updateAide = async (req, res) => {
             role,
             cin,
             sexe,
-            password: hashedPassword,
             education,
             dateNaissance,
             adresse,
         };
+
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updateData.password = hashedPassword;
+        }
 
         const medecintId = await Medecin.findById(medecin).select('_id');
 
@@ -178,20 +180,9 @@ const updateAide = async (req, res) => {
         if (!updatedAide.user) {
             return res.status(404).json({ error: 'Utilisateur associé non trouvé' });
         }
+        const updatedUser = await User.findByIdAndUpdate(updatedAide.user, updateData);
 
-        const updatedUser = await User.findByIdAndUpdate(updatedAide.user, {
-            nomPrenom,
-            telephone,
-            email,
-            hashedPassword,
-            sexe,
-            cin,
-            dateAdhesion,
-            education,
-            dateNaissance,
-            adresse,
-            role,
-        });
+       
 
         if (updatedUser) {
             res.status(200).json({ message: 'Aide et utilisateur mis à jour avec succès', data: { aide: updatedAide, user: updatedUser } });
@@ -202,6 +193,7 @@ const updateAide = async (req, res) => {
         res.status(500).json({ error: `Erreur lors de la mise à jour de l'aide : ${err.message}` });
     }
 };
+
 
 
 

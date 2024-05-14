@@ -11,7 +11,8 @@ const {getMedecins,  updateMedecin, deleteMedecin, getMedecinById, addmed} = req
 const { getAdmin, addAdmin, updateAdmin, deleteAdmin, getAdminById } = require ('./admin/controlleradmin');
 const  { getPatient, addPatient, updatePatient, deletePatient, gePatientById } = require('./patient/controllerpatient');
 const {createRendezVous,getAllRendezVousAjourdhui, getAllRendezVous, getRendezVousById, updateRendezVous, deleteRendezVous}= require("./rdv/rdvController")
-const { enregistrerPatientSalleAttente}= require("./salleAttente/salleAttenteController")
+const { enregistrerPatientSalleAttente}= require("./salleAttente/salleAttenteController");
+const {sendEmail} = require ('./mail/controllerEmail');
 
 const requireAuth = require('./middleware/requireAuth');
 const router = express.Router();
@@ -58,6 +59,7 @@ router.put("/updatePatient/:id", updatePatient);
 router.get("/gePatientById/:id", gePatientById);
 router.delete("/deletePatient/:id", deletePatient);
 
+router.post("/sendEmail", sendEmail);
 
 
 

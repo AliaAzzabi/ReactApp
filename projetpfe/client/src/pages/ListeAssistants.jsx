@@ -69,7 +69,7 @@ function ListeAssistant() {
     });
   }, [aides]);
 
-  const handleDeleteAide = (id) => {
+  const DeleteAide = (id) => {
     const confirmDelete = window.confirm("Voulez-vous vraiment supprimer cet assistant ?");
     if (confirmDelete) {
       deleteAide(id, (res) => {
@@ -103,35 +103,39 @@ function ListeAssistant() {
     setSelectedMedecinId(null);
   };
 
-  const handleUpdateAide = (e) => {
+  const UpdateAide = (e) => {
     e.preventDefault();
     if (selectedAide) {
-      const formData = new FormData(e.target);
-      const selectedMedecin = medecins.find(medecin => medecin._id === formData.get('medecin'));
-      const updatedAide = {
-        cin: formData.get('cin'),
-        nomPrenom: formData.get('nomPrenom'),
-        adresse: formData.get('adresse'),
-        telephone: formData.get('telephone'),
-        email: formData.get('email'),
-        education: formData.get('education'),
-        medecin: selectedMedecin,
-        role: formData.get('role'),
-        password: formData.get('password'),
-        image: formData.get('image'),
-      };
-      updateAide(selectedAide._id, updatedAide, (res) => {
-        if (res.data) {
-          const updatedAides = aides.map((aide) => (aide._id === res.data._id ? res.data : aide));
-          setAides(updatedAides);
-          closeModal();
-          console.log("Assistant modifié avec succès");
-        } else {
-          console.error("Erreur lors de la modification de l'assistant :", res.error);
-        }
-      });
+        const formData = new FormData(e.target);
+        const selectedMedecin = medecins.find(medecin => medecin._id === formData.get('medecin'));
+        
+        let updatedAide = {
+            cin: formData.get('cin'),
+            nomPrenom: formData.get('nomPrenom'),
+            adresse: formData.get('adresse'),
+            telephone: formData.get('telephone'),
+            email: formData.get('email'),
+            education: formData.get('education'),
+            medecin: selectedMedecin,
+            role: formData.get('role'),
+            password: formData.get('password') !== '' ? formData.get('password') : undefined,
+            image: formData.get('image'),
+        };
+       
+
+        updateAide(selectedAide._id, updatedAide, (res) => {
+            if (res.data) {
+                const updatedAides = aides.map((aide) => (aide._id === res.data._id ? res.data : aide));
+                setAides(updatedAides);
+                closeModal();
+                console.log("Assistant modifié avec succès");
+            } else {
+                console.error("Erreur lors de la modification de l'assistant :", res.error);
+            }
+        });
     }
-  };
+};
+
   const AidePerPage = 5;
 
 
@@ -220,7 +224,8 @@ function ListeAssistant() {
                             Poste
 
                           </Typography>
-                        </th>                                    <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                        </th>                                 
+                           <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                           <Typography
                             variant="small"
                             color="blue-gray"
@@ -333,7 +338,7 @@ function ListeAssistant() {
                                 </IconButton>
                               </Tooltip>
                               <Tooltip content="Supprimer" className="text-white bg-red-400 rounded-md">
-                                <IconButton variant="text" className='text-red-800' onClick={() => handleDeleteAide(aide._id)}>
+                                <IconButton variant="text" className='text-red-800' onClick={() => DeleteAide(aide._id)}>
                                   <TrashIcon className="h-4 w-4" />
                                 </IconButton>
                               </Tooltip>
@@ -382,7 +387,7 @@ function ListeAssistant() {
                 <div className='  dark:bg-gray-800 dark:text-gray-50 text-gray-800 overflow-hidden'>
                   <h1 className="mb-8  dark:bg-gray-800 dark:text-gray-50 leading-7 text-gray-800 ">Entrer les informations :</h1>
                 </div>
-                <form onSubmit={handleUpdateAide}>
+                <form onSubmit={UpdateAide}>
                   <div className="flex mb-4">
                     <div className="flex flex-col mr-4">
                       <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">
@@ -536,7 +541,7 @@ function ListeAssistant() {
                         name="password"
                         className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
                         placeholder="Entrez le nouveau password"
-                        defaultValue={selectedAide.user.password}
+                       // defaultValue={selectedAide.user.password}
                       />
                     </div>
                   </div>

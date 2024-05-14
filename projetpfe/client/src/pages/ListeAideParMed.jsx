@@ -32,7 +32,7 @@ function ListeAideParMed() {
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredAssitants, setFilteredAssitants] = useState([]);
 
-    const assistantsPerPage = 6;
+
 
     useEffect(() => {
         const filtered = aides.filter(aide =>
@@ -72,7 +72,7 @@ function ListeAideParMed() {
         });
     }, []);
 
-    const handleDeleteAide = (id) => {
+    const DeleteAide = (id) => {
         const confirmDelete = window.confirm("Voulez-vous vraiment supprimer cet assistant ?");
         if (confirmDelete) {
             deleteAide(id, (res) => {
@@ -96,34 +96,36 @@ function ListeAideParMed() {
         setSelectedAide(null);
     };
 
-    const handleUpdateAide = (e) => {
+    const UpdateAide = (e) => {
         e.preventDefault();
         if (selectedAide) {
-          const formData = new FormData(e.target);
-          const updatedAide = {
-            cin: formData.get('cin'),
-            nomPrenom: formData.get('nomPrenom'),
-            adresse: formData.get('adresse'),
-            telephone: formData.get('telephone'),
-            email: formData.get('email'),
-            education: formData.get('education'),
-            role: formData.get('role'),
-            password: formData.get('password'),
-            image: formData.get('image'),
-            medecin: medecinId,
-          };
-          updateAide(selectedAide._id, updatedAide, (res) => {
-            if (res.data) {
-              const updatedAides = aides.map((aide) => (aide._id === res.data._id ? res.data : aide));
-              setAides(updatedAides); // Update the aides state variable with the new array of aides
-              closeModal();
-              console.log("Assistant modifié avec succès");
-            } else {
-              console.error("Erreur lors de la modification de l'assistant :", res.error);
-            }
-          });
+            const formData = new FormData(e.target);
+            const updatedAide = {
+                cin: formData.get('cin'),
+                nomPrenom: formData.get('nomPrenom'),
+                adresse: formData.get('adresse'),
+                telephone: formData.get('telephone'),
+                email: formData.get('email'),
+                education: formData.get('education'),
+                role: formData.get('role'),
+                password: formData.get('password'),
+                image: formData.get('image'),
+                medecin: medecinId,
+            };
+            updateAide(selectedAide._id, updatedAide, (res) => {
+                if (res.data) {
+                    const updatedAides = aides.map((aide) => (aide._id === res.data._id ? res.data : aide));
+                    setAides(updatedAides); // Update the aides state variable with the new array of aides
+                    closeModal();
+                    console.log("Assistant modifié avec succès");
+                } else {
+                    console.error("Erreur lors de la modification de l'assistant :", res.error);
+                }
+            });
         }
-      };
+    };
+
+    const assistantsPerPage = 5;
 
 
     const indexOfLastAide = currentPage * assistantsPerPage;
@@ -138,10 +140,11 @@ function ListeAideParMed() {
         setCurrentPage((prevPage) => prevPage + 1);
     };
 
+
     if (!user || (user.role !== "médecin")) {
         // Rediriger l'utilisateur vers la page de connexion ou afficher un message d'erreur
         return <Navigate to="/login" />;
-      }
+    }
 
     return (
         <div className="flex h-screen overflow-hidden">
@@ -216,7 +219,8 @@ function ListeAideParMed() {
                                                         Poste
 
                                                     </Typography>
-                                                </th>                                    <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                                                </th>
+                                                <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
@@ -312,7 +316,7 @@ function ListeAideParMed() {
                                                                     </IconButton>
                                                                 </Tooltip>
                                                                 <Tooltip content="Supprimer" className="text-white bg-red-400 rounded-md">
-                                                                    <IconButton variant="text" className='text-red-800' onClick={() => handleDeleteAide(aide._id)}>
+                                                                    <IconButton variant="text" className='text-red-800' onClick={() => DeleteAide(aide._id)}>
                                                                         <TrashIcon className="h-4 w-4" />
                                                                     </IconButton>
                                                                 </Tooltip>
@@ -327,7 +331,7 @@ function ListeAideParMed() {
                                 </div>
                             </CardBody>
                             <CardFooter className="text-gray-500 flex items-center justify-between  border-blue-gray-50 p-4">
-                                <Typography variant="small" color="blue-gray" className=" font-normal ">
+                                <Typography variant="small" color="blue-gray" className="font-normal">
                                     Page {currentPage} of {Math.ceil(filteredAssitants.length / assistantsPerPage)}
                                 </Typography>
                                 <div className="flex justify-between mt-4">
@@ -351,6 +355,8 @@ function ListeAideParMed() {
                                     </Button>
                                 </div>
                             </CardFooter>
+
+
                         </Card>
                     </div>
                     {isModalOpen && (
@@ -360,7 +366,7 @@ function ListeAideParMed() {
                                 <div className='  dark:bg-gray-800 dark:text-gray-50 text-gray-800 overflow-hidden'>
                                     <h1 className="mb-8  dark:bg-gray-800 dark:text-gray-50 leading-7 text-gray-800 ">Entrer les informations :</h1>
                                 </div>
-                                <form onSubmit={handleUpdateAide}>
+                                <form onSubmit={UpdateAide}>
                                     <div className="flex mb-4">
                                         <div className="flex flex-col mr-4">
                                             <label htmlFor="name" className="mb-1 text-sm font-medium text-blue-gray-900">

@@ -129,10 +129,15 @@ const updateMedecin = async (req, res) => {
             role,
             cin,
             sexe,
-            password: hashedPassword,
             dateNaissance: dateNaissance,
             adresse: adresse,
         };
+
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updateData.password = hashedPassword;
+        }
+
 
        // const specialiteId = await Specialite.findOne({ nom: specialite }).select('_id');
         let specialiteId = await Specialite.findOne({ _id: specialite }).select('_id');

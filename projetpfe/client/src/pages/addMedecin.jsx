@@ -6,7 +6,7 @@ import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 
 import { getAllspecialities } from '../liaisonfrontback/operation';
-import { addmed  } from '../liaisonfrontback/operation';
+import { addmed } from '../liaisonfrontback/operation';
 import {
     Card,
     CardHeader,
@@ -38,7 +38,12 @@ function AddMedecin() {
             }
         });
     }, []);
+    const [selectedSpecialites, setSelectedSpecialites] = useState([]);
 
+    useEffect(() => {
+        const selected = specialites.filter(specialite => specialite.isSelected);
+        setSelectedSpecialites(selected);
+    }, [specialites]);
 
     const handleSpecialiteChange = (e) => {
         const selectedSpecialiteId = e.target.value;
@@ -71,7 +76,7 @@ function AddMedecin() {
     };
 
     const handleImageChange = (e) => {
-        if (e.target.files.length > 0) { 
+        if (e.target.files.length > 0) {
             setMedecin({
                 ...medecin,
                 image: e.target.files[0],
@@ -82,46 +87,46 @@ function AddMedecin() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-          const formData = new FormData();
-      
-          // Ajouter l'image au FormData
-          formData.append('image', medecin.image);
-      
-          // Ajouter d'autres champs au FormData en utilisant les valeurs des champs de formulaire directement
-          formData.append('cin', e.target.cin.value);
-          formData.append('nomPrenom', e.target.nomPrenom.value);
-          formData.append('telephone', e.target.telephone.value);
-          formData.append('email', e.target.email.value);
-          formData.append('password', e.target.password.value);
-          formData.append('sexe', e.target.sexe.value);
-          formData.append('dateAdhesion', e.target.dateAdhesion.value);
-          formData.append('dateNaissance', e.target.dateNaissance.value);
-          formData.append('role', 'médecin');
-          formData.append('adresse', e.target.adresse.value);
-          formData.append('specialite', e.target.specialite.value);
-      
-          const callback = (response) => {
-            if (response && response.status >= 200 && response.status < 300) {
-              alert('Médecin ajouté avec succès')
-              Navigation('/listeMedecin');
-            } else {
-              setError('email existe déja.');
-              alert('Cet email est déjà utilisé.');
-            }
-          };
-      
-          const response = await addmed(formData, callback);
-    
-      
-        } catch (error) {
-          console.error("Erreur lors de l'ajout du médecin :", error);
-          alert('Une erreur s\'est produite lors de l\'ajout du médecin');
-        }
-      };
+            const formData = new FormData();
 
-      if (!user || (user.role !== "admin")) {
+            // Ajouter l'image au FormData
+            formData.append('image', medecin.image);
+
+            // Ajouter d'autres champs au FormData en utilisant les valeurs des champs de formulaire directement
+            formData.append('cin', e.target.cin.value);
+            formData.append('nomPrenom', e.target.nomPrenom.value);
+            formData.append('telephone', e.target.telephone.value);
+            formData.append('email', e.target.email.value);
+            formData.append('password', e.target.password.value);
+            formData.append('sexe', e.target.sexe.value);
+            formData.append('dateAdhesion', e.target.dateAdhesion.value);
+            formData.append('dateNaissance', e.target.dateNaissance.value);
+            formData.append('role', 'médecin');
+            formData.append('adresse', e.target.adresse.value);
+            formData.append('specialite', e.target.specialite.value);
+
+            const callback = (response) => {
+                if (response && response.status >= 200 && response.status < 300) {
+                    alert('Médecin ajouté avec succès')
+                    Navigation('/listeMedecin');
+                } else {
+                    setError('email existe déja.');
+                    alert('Cet email est déjà utilisé.');
+                }
+            };
+
+            const response = await addmed(formData, callback);
+
+
+        } catch (error) {
+            console.error("Erreur lors de l'ajout du médecin :", error);
+            alert('Une erreur s\'est produite lors de l\'ajout du médecin');
+        }
+    };
+
+    if (!user || (user.role !== "admin")) {
         return <Navigate to="/login" />;
-      }
+    }
 
     return (
         <div className="flex h-screen overflow-hidden">
@@ -144,7 +149,7 @@ function AddMedecin() {
                                                 <div className="sm:col-span-3">
                                                     <label htmlFor="cin" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">CIN *</label>
                                                     <div className="mt-2">
-                                                    <input type="text" placeholder="Saisir votre numéro de carte d'identité" name="cin" id="cin" value={medecin.cin} onChange={handleInputChange} autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                        <input type="text" placeholder="Saisir votre numéro de carte d'identité" name="cin" id="cin" value={medecin.cin} onChange={handleInputChange} autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                                                     </div>
                                                 </div>
                                                 <div className="sm:col-span-3">
@@ -260,7 +265,7 @@ function AddMedecin() {
                                                 <div className="sm:col-span-3">
                                                     <label htmlFor="specialite" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Spécialité *</label>
                                                     <div className="mt-2">
-                                                        {/* Insérez votre liste d'options pour la spécialité ici */}
+                                                        {/* liste spécialité  */}
                                                         <select
                                                             id="specialite"
                                                             name="specialite"
@@ -269,7 +274,7 @@ function AddMedecin() {
                                                             className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                                         >
                                                             <option value="">Spécialité ...</option>
-                                                            {specialites.map((specialite) => (
+                                                            {selectedSpecialites.map((specialite) => (
                                                                 <option key={specialite._id} value={specialite._id}>{specialite.nom}</option>
                                                             ))}
                                                         </select>
@@ -283,7 +288,7 @@ function AddMedecin() {
                                                             <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Choisir une photo de profil</label>
                                                             <div className="mt-2 flex justify-center rounded-lg dark:bg-gray-700 border border-dashed border-gray-500/25 px-6 py-10">
                                                                 <input
-                                                                    id="file" 
+                                                                    id="file"
                                                                     name="image"
                                                                     type="file"
                                                                     accept="image/*"
