@@ -47,7 +47,7 @@ function ListeMedecin() {
 
     const [selectedSpecialiteId, setSelectedSpecialiteId] = useState(null);
 
-    
+
     useEffect(() => {
         getAllspecialities((res) => {
             if (res.data) {
@@ -58,7 +58,7 @@ function ListeMedecin() {
             }
         });
     }, []);
-    
+
     useEffect(() => {
         getMedecins((res) => {
             if (res.data) {
@@ -95,12 +95,12 @@ function ListeMedecin() {
 
     if (!user || (user.role !== "admin")) {
         return <Navigate to="/login" />;
-      }
+    }
 
     const openModal = (medecin) => {
         console.log(medecin);
         setSelectedMedecin(medecin);
-        setSelectedSpecialiteId(medecin.specialite ? medecin.specialite._id : ""); 
+        setSelectedSpecialiteId(medecin.specialite ? medecin.specialite._id : "");
         setIsModalOpen(true);
 
     };
@@ -125,8 +125,12 @@ function ListeMedecin() {
                 email: formData.get('email'),
                 role: formData.get('role'),
                 password: formData.get('password') !== '' ? formData.get('password') : undefined,
+
                 specialite: selectedSpecialiteId,
             };
+
+
+
             UpdateMedecin(selectedMedecin._id, updatedMedecin, (res) => {
                 if (res.data) {
                     const updatedMedecins = medecins.map((medecin) => (medecin._id === res.data._id ? res.data : medecin));
@@ -143,6 +147,7 @@ function ListeMedecin() {
             });
         }
     };
+
 
 
     // code mta3 deux boutton de précédent w suivant
@@ -395,7 +400,7 @@ function ListeMedecin() {
                                                 id="cin"
                                                 name="cin"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300  focus:outline-none focus:border-blue-500"
-                                                placeholder="Entrez le nom et prénom"
+
                                                 defaultValue={selectedMedecin.user.cin}
                                             />
                                         </div>
@@ -462,20 +467,19 @@ function ListeMedecin() {
 
                                             />
                                         </div>
-                                        <div className="flex flex-col mr-4 ">
+                                        <div className="flex flex-col mr-4">
                                             <label htmlFor="role" className="mb-1 text-sm font-medium text-blue-gray-900">
                                                 Password
                                             </label>
                                             <input
                                                 type="password"
-                                                id="password"
+                                                id="role"
                                                 name="password"
                                                 className="dark:bg-gray-800 dark:text-gray-50 text-gray-800 px-3 py-2 border border-blue-gray-300 focus:outline-none focus:border-blue-500"
                                                 placeholder="Entrez le nouveau password"
-                                                //defaultValue={selectedMedecin.user.password}
+                                            // defaultValue={selectedAide.user.password}
                                             />
                                         </div>
-
 
                                     </div>
 

@@ -12,7 +12,7 @@ const getMedecins = async (req, res) => {
         const medecins = await Medecin.find({})
             .populate({
                 path: 'user',
-                select: 'nomPrenom telephone email dateAdhesion dateNaissance adresse sexe password role'
+                select: 'nomPrenom telephone email dateAdhesion dateNaissance adresse sexe password role cin'
             })
 
             .populate('specialite')
@@ -120,7 +120,6 @@ const updateMedecin = async (req, res) => {
     console.log(req._id);
     const { cin, sexe, nomPrenom, specialite, telephone, email, password, dateAdhesion, role, dateNaissance, adresse } = req.body;
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
         let updateData = {
             nomPrenom,
             telephone,
@@ -129,54 +128,40 @@ const updateMedecin = async (req, res) => {
             role,
             cin,
             sexe,
-            dateNaissance: dateNaissance,
-            adresse: adresse,
+            dateNaissance,
+            adresse,
         };
 
         if (password) {
             const hashedPassword = await bcrypt.hash(password, 10);
             updateData.password = hashedPassword;
         }
-
-
-       // const specialiteId = await Specialite.findOne({ nom: specialite }).select('_id');
+        // Assume specialite is the ID
         let specialiteId = await Specialite.findOne({ _id: specialite }).select('_id');
-
 
         if (!specialiteId) {
             return res.status(400).json({ error: "Le département ou la spécialité spécifiée n'existe pas" });
         }
 
-
         updateData.specialite = specialiteId;
-        {/** 
-       
-        if (req.file) {
-            const newImage = new Image({
-                filename: req.file.filename,
-                filepath: req.file.path,
-            });
-            const savedImage = await newImage.save();
-            updateData.image = savedImage._id;
-        }
-*/}
+
         const updatedMedecin = await Medecin.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
         const updatedUser = await User.findByIdAndUpdate(updatedMedecin.user, {
             nomPrenom,
             telephone,
             email,
-            hashedPassword,
             sexe,
             cin,
             dateAdhesion,
             dateNaissance,
             adresse,
             role,
+            ...(password && { password: updateData.password }) // Only update password if provided
         });
 
         if (updatedMedecin && updatedUser) {
-            res.status(200).json({ message: 'Médecin et utilisateur mis à jour avec succès', data: { medecin: updateData, user: updatedUser } });
+            res.status(200).json({ message: 'Médecin et utilisateur mis à jour avec succès', data: { medecin: updatedMedecin, user: updatedUser } });
         } else {
             res.status(404).json({ error: 'Médecin ou utilisateur non trouvé' });
         }
@@ -184,6 +169,7 @@ const updateMedecin = async (req, res) => {
         res.status(500).json({ error: `Erreur lors de la mise à jour du médecin : ${err.message}` });
     }
 };
+
 
 
 
