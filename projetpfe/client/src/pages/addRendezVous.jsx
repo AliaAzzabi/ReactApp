@@ -5,12 +5,14 @@ import { AuthContext } from '../context/AuthContext';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { getAllRendezVous, deleteRendezVous, updateRendezVous, creerRendezVous, sendEmail } from '../liaisonfrontback/operation';
+import { getAllRendezVous, addPatient, getPatient, deleteRendezVous, updateRendezVous, creerRendezVous } from '../liaisonfrontback/operation';
 import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import { useLocation } from 'react-router-dom';
 import { Navigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AddRendezVousForm() {
   const { user } = useContext(AuthContext);
@@ -24,9 +26,43 @@ function AddRendezVousForm() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const location = useLocation();
 
+  const [patients, setPatients] = useState([]);
+  const [allPatients, setAllPatients] = useState([]);
+  const [dateNaissance, setDateNaissance] = useState(new Date());
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const [showForm1, setShowForm1] = useState(false);
+  const [showForm2, setShowForm2] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [selectedOption, setSelectedOption] = useState('');
+  const toggleForm1 = () => {
+    setShowForm1(!showForm1);
+    setShowForm2(false);
+  };
+
+  const toggleForm2 = () => {
+    setShowForm2(!showForm2);
+    setShowForm1(false);
+  };
+
+  const handleFirstNameChange = (e) => {
+    setFirstName(e.target.value);
+  };
+
+  const handleLastNameChange = (e) => {
+    setLastName(e.target.value);
+  };
+
+  const handleSelectChange = (e) => {
+    setSelectedOption(e.target.value);
+  };
+
+
   if (!user || (user.role !== "médecin" && user.role !== "aide")) {
     return <Navigate to="/login" />;
-  }  
+  }
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
@@ -76,37 +112,23 @@ function AddRendezVousForm() {
       };
 
       await updateRendezVous(user.token, selectedEvent.id, updatedEventData);
-
-       // Vérifier si selectedEvent et selectedEvent.patient ne sont pas indéfinis avant d'accéder à la propriété 'email'
-    if (selectedEvent && selectedEvent.patient && selectedEvent.patient.email) {
-      const subject = 'Modification de votre rendez-vous';
-      const message = `Votre rendez-vous a été rapporté pour ${selectedDate}.`;
-      await sendEmail(selectedEvent.patient.email, subject, message);
-    } else {
-      console.error("Impossible d'envoyer l'e-mail de notification car les informations du patient sont manquantes.");
-    }
-
-      alert('Rendez-vous mis à jour avec succès !');
+      toast.success('Rendez-vous mis à jour avec succès !');
       setShowModal(false);
-      fetchRendezVousData(); 
+      fetchRendezVousData(); // Rafraîchir les rendez-vous après la mise à jour
     } catch (error) {
-      alert("Erreur lors de la mise à jour du rendez-vous : " + error.message);
+      toast.error("Erreur lors de la mise à jour du rendez-vous : " + error.message);
     }
   };
 
   const handleCancelAppointment = async () => {
     try {
       await deleteRendezVous(user.token, selectedEvent.id);
-
-      const subject = 'Annulation de votre rendez-vous';
-        const message = 'Votre rendez-vous a été annulé.';
-        await sendEmail(selectedEvent.patient.email, subject, message);
-
-      alert('Rendez-vous annulé avec succès !');
-      fetchRendezVousData();
+      toast.success('Rendez-vous annulé avec succès !');
+     fetchRendezVousData();
       setShowModal(false); // Rafraîchir les rendez-vous après la suppression
+      
     } catch (error) {
-      alert("Erreur lors de l'annulation du rendez-vous");
+      toast.error("Erreur lors de l'annulation du rendez-vous");
     }
   };
 
@@ -116,171 +138,346 @@ function AddRendezVousForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!patientNom || !selectedDate ) {
+      toast.error('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
     try {
       await creerRendezVous(user.token, selectedDate, patientNom);
-      alert('Rendez-vous ajouté avec succès !');
+      toast.success('Rendez-vous ajouté avec succès !');
       setSelectedDate(new Date());
       setPatientNom('');
-      setEvents([...events, { start: selectedDate, end: selectedDate, title: 'Rendez-vous' }]);
+      setEvents([...events, { start: selectedDate, end: selectedDate, title: patientNom }]);
       setShowFormModal(false);
     } catch (error) {
-      alert("Erreur lors de l'ajout du rendez-vous");
+      toast.error("Erreur lors de l'ajout du rendez-vous");
+    }
+  };
+
+  const fetchPatients = async () => {
+    try {
+      const patientsData = await getPatient();
+      setPatients(patientsData);
+      setAllPatients(patientsData);
+    } catch (error) {
+      console.error('Error fetching users:', error);
     }
   };
 
   useEffect(() => {
     fetchRendezVousData();
+    fetchPatients();
   }, [user.token]);
 
+  const handleSubmitAjout = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const newPatient = Object.fromEntries(formData);
+    newPatient.dateNaissance = dateNaissance;
+  
+   
+    if (!newPatient.nomPrenom || !newPatient.cin || !newPatient.telephone || !newPatient.dateNaissance || !newPatient.sexe) {
+      toast.error('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+  
+    try {
+      addPatient(newPatient, (response) => {
+        if (response.error) {
+          toast.error(response.error);
+          setSuccessMessage('');
+        } else {
+          setPatients([...patients, response]); 
+          toast.success('patient ajouté avec succès !');
+          setErrorMessage('');
+          
+          setPatientNom(response.nomPrenom);
+          setShowForm1(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error('Une erreur s\'est produite lors de l\'ajout du patient.');
+      setSuccessMessage('');
+    }
+  };
+     
+  
   return (
     <div className="flex h-screen overflow-hidden">
-    <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-    <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-      <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-      <main>
-        <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
-          <WelcomeBanner />
-          <div className="dark:bg-gray-50 shadow-md p-8 pb-8 h-screen rounded-lg py-3 bg-gray-50 dark:bg-gray-800 text-gray-500 overflow-y-auto">
-            <div className="flex flex-col gap-2 sm:flex-row  ">
-              <button onClick={openFormModal} className="btn bg-indigo-500 m-8 hover:bg-indigo-600 text-white flex items-center">
-                <svg className="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
-                  <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
-                </svg>
-                <span className="hidden xs:block ml-2">Ajouter un Rendez-Vous</span>
-              </button>
+      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <main>
+          <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+            <WelcomeBanner />
+            <div className="dark:bg-gray-50 shadow-md p-8 pb-8 h-screen rounded-lg py-3 bg-gray-50 dark:bg-gray-800 text-gray-500 overflow-y-auto">
+              <div className="flex flex-col gap-2 sm:flex-row  ">
+                <button onClick={openFormModal} className="btn bg-indigo-500 m-8 hover:bg-indigo-600 text-white flex items-center">
+                  <svg className="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
+                    <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
+                  </svg>
+                  <span className="hidden xs:block ml-2">Ajouter un Rendez-Vous</span>
+                </button>
+              </div>
+              {showFormModal && (
+                <div className=" overflow-y-auto h-full w-full p-8 fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                  <div className="overflow-y-auto  dark:bg-gray-900 h-full w-full  overflow-x-hidden relative bg-white rounded-lg max-w-xl ">
+                    <button onClick={closeFormModal} className="absolute top-0 right-0 m-4 text-gray-600 hover:text-gray-800">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                    <div className="p-6 ">
+                      <button className="btn bg-indigo-500  hover:bg-indigo-600 text-white flex items-center" onClick={toggleForm1}>
+                        <svg className="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
+                          <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
+                        </svg>
+                        <span className="hidden xs:block ml-2">Nouveau patient</span></button>
+                      {showForm1 && (
+                        <div className="dark:bg-gray-800 mt-4 p-4 border border-gray-300 rounded">
+                          <h2 className="text-lg font-bold mb-2 dark:text-gray-300">Ajouter un patient</h2>
+                          <form onSubmit={handleSubmitAjout}>
+                            <div className=" grid grid-cols-1 gap-x-6 sm:grid-cols-6">
+                              <div className="sm:col-span-3">
+                                <label htmlFor="nomPrenom" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-300">Nom & Prénom *</label>
+                                <div className="mt-2">
+                                  <input type="text" name="nomPrenom" id="nomPrenom" autoComplete="nomPrenom" className="dark:bg-gray-800 mb-2 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                </div>
+                              </div>
+                              <div className="sm:col-span-3">
+                                <label htmlFor="cin" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-300">CIN *</label>
+                                <div className="mt-2">
+                                  <input type="text" name="cin" id="cin" autoComplete="cin" className="mb-2 dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                </div>
+                              </div>
+                            </div>
+                            <div className=" grid grid-cols-1 gap-x-6  sm:grid-cols-6">
+
+                              <div className="sm:col-span-3">
+                                <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-300">Email</label>
+                                <div className="mt-2">
+                                  <input id="email" name="email" type="email" autoComplete="email" className="mb-2 dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                </div>
+                              </div>
+                              <div className=" sm:col-span-3">
+                                <label htmlFor="telephone" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-300">Numéro de téléphone *</label>
+                                <div className="mt-2">
+                                  <input type="tel" placeholder=" +216 25 222 555" maxLength="8" name="telephone" id="telephone" autoComplete="telephone" className="mb-2 dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="sm:col-span-3">
+                              <label htmlFor="dateNaissance" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-300">Date de naissance *</label>
+                              <div className="mt-2">
+                                <DatePicker
+                                                            selected={dateNaissance}
+                                                            onChange={date => setDateNaissance(date)}
+
+                                  dateFormat="dd/MM/yyyy"
+                                  showYearDropdown
+                                  scrollableYearDropdown
+                                  yearDropdownItemNumber={60}
+                                  className="mb-2 dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                />
+                              </div>
+                            </div>
+                            <div className="sm:col-span-3 border-b border-gray-900/10 pb-5 dark:border-gray-500">
+                              <legend className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-300">Sexe *</legend>
+                              <div className="mt-4 flex gap-x-4">
+                                <div className="flex items-center">
+                                  <input
+                                    type="radio"
+                                    id="homme"
+                                    name="sexe"
+                                    value="homme"
+                                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-600"
+                                  />
+                                  <label htmlFor="homme" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Homme</label>
+                                </div>
+                                <div className="flex items-center">
+                                  <input
+                                    type="radio"
+                                    id="femme"
+                                    name="sexe"
+                                    value="femme"
+                                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-600"
+                                  />
+                                  <label htmlFor="femme" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Femme</label>
+                                </div>
+                              </div>
+                            </div>
+                            <div className=" mt-2 border-b border-gray-900/10 pb-5 dark:border-gray-500">
+                                            <fieldset>
+                                                <legend className="text-sm font-semibold leading-6 text-gray-700 dark:text-gray-50 ">Notifications</legend>
+
+                                                <div className="mt-6 space-y-6 ">
+                                                    <div className="relative flex gap-x-3 ">
+                                                        <input id="email" name="notifier" type="radio" value="email" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                                                        <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Par Email</label>
+                                                    </div>
+                                                    <div className="relative flex gap-x-3">
+                                                        <input id="sms" name="notifier" type="radio" value="sms" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                                                        <label htmlFor="sms" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Par SMS</label>
+                                                    </div>
+                                                    <div className="relative flex gap-x-3">
+                                                        <input id="appel" name="notifier" type="radio" value="appel" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600 " />
+                                                        <label htmlFor="appel" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Appel téléphonique</label>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+      
+                            <div className="mt-6 flex items-center justify-end gap-x-6">
+
+                              <button   type="submit" className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" >Ajouter</button>
+                              
+                                       
+                            </div>
+                            
+                          
+
+                          </form>
+                         
+                        </div>
+                        
+                      )}
+
+                      <div className=" dark:bg-gray-800  mt-4 p-4 border border-gray-300 rounded">
+                        <h2 className="text-lg font-bold mb-2 dark:text-gray-300 ">Ajouter un rendez-vous</h2>
+                        <form onSubmit={handleSubmit}>
+                          <div className="mb-4">
+                            <label className="  block text-sm font-medium leading-6 text-gray-500 dark:text-gray-300" htmlFor="patientNom">
+                              Nom du patient
+                            </label>
+                            <select
+                              id="patientNom"
+                              name="patientNom"
+                              value={patientNom}
+                              onChange={handleChange}
+                              className=" dark:text-gray-300 w-full bg-gray-100 rounded-md border-transparent dark:bg-gray-700 focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                            >
+                              <option value="">Sélectionnez un patient</option>
+                              {patients.map((patient) => (
+                                <option key={patient._id} value={patient.nomPrenom}>
+                                  {patient.nomPrenom}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="mb-4">
+                            <label className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-300" htmlFor="nouvelleDate">
+                              Nouvelle date du rendez-vous
+                            </label>
+                            <DatePicker
+                              selected={selectedDate}
+                              onChange={handleDateChange}
+                              showTimeSelect
+                              timeFormat="HH:mm"
+                              timeIntervals={15}
+                              timeCaption="Heure"
+                              dateFormat="yyyy-MM-dd HH:mm"
+                              className=" dark:text-gray-300 dark:bg-gray-700 w-full bg-gray-100 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                            />
+                          </div>
+                          <div className="mt-6 flex items-center justify-end gap-x-6">
+                            <button className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" type="submit">
+                              Ajouter
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              )}
+
+              <Calendar
+                localizer={localizer}
+                events={events}
+                startAccessor="start"
+                endAccessor="end"
+                defaultDate={new Date()}
+                onSelectSlot={(slotInfo) => handleDateChange(slotInfo.start)}
+                onSelectEvent={(event) => handleEventClick(event)}
+                selectable
+                formats={{
+                  eventTimeRangeFormat: ({ start }) => moment(start).format('HH:mm'),
+                }}
+                messages={{
+                  next: "Suivant",
+                  previous: "Précédent",
+                  today: "Aujourd'hui",
+                  month: "Mois",
+                  week: "Semaine",
+                  day: "Jour",
+                }}
+                min={new Date().setHours(7, 0)}
+                max={new Date().setHours(17, 0)} className='dark:bg-gray-50 pt-6 rounded-lg pb-6 p-9'
+              />
+
+              {showModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                  <div className="relative bg-white rounded-lg max-w-md w-full">
+                    <button onClick={closeModal} className="absolute top-0 right-0 m-4 text-gray-600 hover:text-gray-800">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                    <div className="p-6">
+                      <h2 className="text-xl font-bold mb-2">Modifier le Rendez-vous</h2>
+                      <form onSubmit={handleUpdate} >
+                        <div className="mb-4">
+                          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="patientNom">
+                            Nom du patient
+                          </label>
+                          <input
+                            id="patientNom"
+                            type="text"
+                            name="patientNom"
+                            value={patientNom}
+                            onChange={handleChange}
+                            className="w-full bg-gray-100 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                          />
+                        </div>
+                        <div className="mb-4">
+                          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="nouvelleDate">
+                            Nouvelle date du rendez-vous
+                          </label>
+                          <DatePicker
+                            selected={selectedDate}
+                            onChange={handleDateChange}
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            timeIntervals={15}
+                            timeCaption="Heure"
+                            dateFormat="yyyy-MM-dd HH:mm"
+                            className="w-full bg-gray-100 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                            Modifier
+                          </button>
+                          <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onClick={handleCancelAppointment}>
+                            Annuler rendez-vous
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-            {showFormModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                <div className="relative bg-white rounded-lg max-w-md w-full">
-                  <button onClick={closeFormModal} className="absolute top-0 right-0 m-4 text-gray-600 hover:text-gray-800">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </button>
-                  <div className="p-6">
-                    <h2 className="text-xl font-bold mb-2">Rendez-vous</h2>
-                    <form onSubmit={handleSubmit}>
-                      <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="patientNom">
-                          Nom du patient
-                        </label>
-                        <input
-                          id="patientNom"
-                          type="text"
-                          name="patientNom"
-                          value={patientNom}
-                          onChange={handleChange}
-                          className="w-full bg-gray-100 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="nouvelleDate">
-                          Nouvelle date du rendez-vous
-                        </label>
-                        <DatePicker
-                          selected={selectedDate}
-                          onChange={handleDateChange}
-                          showTimeSelect
-                          timeFormat="HH:mm"
-                          timeIntervals={15}
-                          timeCaption="Heure"
-                          dateFormat="yyyy-MM-dd HH:mm"
-                          className="w-full bg-gray-100 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                          Ajouter
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <Calendar
-              localizer={localizer}
-              events={events}
-              startAccessor="start"
-              endAccessor="end"
-              defaultDate={new Date()}
-              onSelectSlot={(slotInfo) => handleDateChange(slotInfo.start)}
-              onSelectEvent={(event) => handleEventClick(event)}
-              selectable
-              formats={{
-                eventTimeRangeFormat: ({ start }) => moment(start).format('HH:mm'),
-              }}
-              messages={{
-                next: "Suivant",
-                previous: "Précédent",
-                today: "Aujourd'hui",
-                month: "Mois",
-                week: "Semaine",
-                day: "Jour",
-              }}
-              min={new Date().setHours(7, 0)}
-              max={new Date().setHours(17, 0)} className='dark:bg-gray-50 pt-6 rounded-lg pb-6 p-9'
-            />
-
-            {showModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                <div className="relative bg-white rounded-lg max-w-md w-full">
-                  <button onClick={closeModal} className="absolute top-0 right-0 m-4 text-gray-600 hover:text-gray-800">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </button>
-                  <div className="p-6">
-                    <h2 className="text-xl font-bold mb-2">Modifier le Rendez-vous</h2>
-                    <form onSubmit={handleUpdate} >
-                      <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="patientNom">
-                          Nom du patient
-                        </label>
-                        <input
-                          id="patientNom"
-                          type="text"
-                          name="patientNom"
-                          value={patientNom}
-                          onChange={handleChange}
-                          className="w-full bg-gray-100 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="nouvelleDate">
-                          Nouvelle date du rendez-vous
-                        </label>
-                        <DatePicker
-                          selected={selectedDate}
-                          onChange={handleDateChange}
-                          showTimeSelect
-                          timeFormat="HH:mm"
-                          timeIntervals={15}
-                          timeCaption="Heure"
-                          dateFormat="yyyy-MM-dd HH:mm"
-                          className="w-full bg-gray-100 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                          Modifier
-                        </button>
-                        <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onClick={handleCancelAppointment}>
-                          Annuler rendez-vous
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
+      <ToastContainer />
     </div>
-  </div>
-);
+  );
 }
 
 export default AddRendezVousForm;

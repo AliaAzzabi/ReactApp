@@ -180,6 +180,7 @@ function ListePatient() {
               </CardHeader>
               <CardBody className="overflow-x-auto px-0 dark:bg-gray-800 text-gray-500">
                 <div className="overflow-y-auto max-h-[800px]">
+                  
                   <table className="mt-4 w-full min-w-max table-auto text-left">
                     <thead>
                       <tr>
@@ -225,7 +226,7 @@ function ListePatient() {
                             color="blue-gray"
                             className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
                           >
-                            Date de création
+                            Email
                           </Typography>
                         </th>
                         <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
@@ -264,7 +265,7 @@ function ListePatient() {
                                     color="blue-gray"
                                     className="font-normal opacity-70 dark:text-white"
                                   >
-                                    {patient.email}
+                                    Ajouté le : {new Date(patient.createdAt).toLocaleDateString()}
                                   </Typography>
                                 </div>
                               </div>
@@ -294,7 +295,7 @@ function ListePatient() {
                                 color="blue-gray"
                                 className="font-normal"
                               >
-                                {new Date(patient.createdAt).toLocaleDateString()}
+                                {patient.email}
                               </Typography>
                             </td>
 

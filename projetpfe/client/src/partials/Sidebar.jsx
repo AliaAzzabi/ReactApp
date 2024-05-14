@@ -491,7 +491,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                   </div>
                 </NavLink>
               </li>
-              {/**salle d'attente */}
+              {/**salle d'attente 
               <li className={`px-3 py-2 mt-4 mb-4 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('salleDattente') && 'bg-slate-900'}`}>
                 <NavLink
                   end
@@ -506,7 +506,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                     </span>
                   </div>
                 </NavLink>
-              </li>
+              </li>*/}
               {/**Historique */}
               <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('historique') && 'bg-slate-900'}`}>
                 <NavLink
@@ -597,7 +597,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                 </NavLink>
               </li>
               
-              {/**salle d'attente */}
+              {/**salle d'attente 
               <li className={`px-3 py-2 mt-4 mb-4 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('salleDattente') && 'bg-slate-900'}`}>
                 <NavLink
                   end
@@ -612,7 +612,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                     </span>
                   </div>
                 </NavLink>
-              </li>
+              </li>*/}
               <li className={`px-3 py-2 mt-4 mb-4 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('listeAideParMed') && 'bg-slate-900'}`}>
                 <NavLink
                   end
