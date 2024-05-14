@@ -35,7 +35,11 @@ function Profile() {
     if (!user) {
         return <Navigate to="/login" />;
       }
+      const userEmail = user ? user.email : '';
+      const nomPrenom = user ? user.nomPrenom : '';
+      const adresse = user ? user.adresse : '';
 
+      const telephone = user ? user.telephone : '';
     return (
         <div className="flex h-screen overflow-hidden">
             {/* Sidebar */}
@@ -62,7 +66,7 @@ function Profile() {
                                     <img className="w-32 h-32 rounded-full mx-auto" src="https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-4.jpg"  alt="John Doe" />
                                 </div>
                                 <div className="p-2">
-                                    <h3 className="text-center text-xl dark:text-gray-50 text-gray-800 font-medium leading-8">John Doe</h3>
+                                    <h3 className="text-center text-xl dark:text-gray-50 text-gray-800 font-medium leading-8">{nomPrenom}</h3>
                                     <div className="text-center text-gray-400 text-xs font-semibold">
                                         <p>Radiologue</p>
                                     </div>
@@ -71,15 +75,15 @@ function Profile() {
                                         <tbody>
                                             <tr>
                                                 <td className="px-2 py-2 text-gray-500 font-semibold">Address</td>
-                                                <td className="px-2 py-2">Chatakpur-3, Dhangadhi Kailali</td>
+                                                <td className="px-2 py-2">{user.adresse}</td>
                                             </tr>
                                             <tr>
                                                 <td className="px-2 py-2 text-gray-500 font-semibold">Téléphone</td>
-                                                <td className="px-2 py-2">+977 9955221114</td>
+                                                <td className="px-2 py-2">{user.telephone}</td>
                                             </tr>
                                             <tr>
                                                 <td className="px-2 py-2 text-gray-500 font-semibold">Email</td>
-                                                <td className="px-2 py-2">john@example.com</td>
+                                                <td className="px-2 py-2">{userEmail}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -100,23 +104,18 @@ function Profile() {
 
                                                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                                                     <div className="sm:col-span-3">
-                                                        <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Prénom</label>
+                                                        <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Nom & Prénom</label>
                                                         <div className="mt-2">
-                                                            <input type="text" name="first-name" id="first-name" autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                            <input type="text" name="first-name" value={user.nomPrenom} id="first-name" autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                                                         </div>
                                                     </div>
 
-                                                    <div className="sm:col-span-3">
-                                                        <label htmlFor="last-name" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Nom</label>
-                                                        <div className="mt-2">
-                                                            <input type="text" name="last-name" id="last-name" autoComplete="family-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-                                                        </div>
-                                                    </div>
+                                                    
 
                                                     <div className="sm:col-span-3">
                                                         <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Email</label>
                                                         <div className="mt-2">
-                                                            <input id="email" name="email" type="email" autoComplete="email" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                            <input id="email" value={userEmail} name="email" type="email" autoComplete="email" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                                                         </div>
                                                     </div>
                                                     <div className="sm:col-span-3">
@@ -125,11 +124,12 @@ function Profile() {
                                                             <Datepicker
                                                                 id="date-of-birth"
                                                                 name="date-of-birth"
-                                                               
+                                                                value={user.dateNaissance}
+                                                                className=" dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                                             />                                                        </div>
                                                     </div>
 
-                                                    <div className="sm:col-span-2">
+                                                    <div className="sm:col-span-3">
                                                         <label htmlFor="specialty" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Spécialités</label>
                                                         <div className="mt-2">
                                                             <select id="specialty" name="specialty" autoComplete="specialty" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
@@ -141,25 +141,16 @@ function Profile() {
                                                             </select>
                                                         </div>
                                                     </div>
-                                                    <div className=" sm:col-span-2">
-                                                        <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Numéro de téléphone</label>
-                                                        <div className="mt-2">
-                                                            <input type="tel" placeholder=" +216 25 222 555" maxLength="8" name="phone" id="phone" autoComplete="tel" className=" dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-                                                        </div>
-                                                    </div>
+                                                  
 
-                                                    <div className="sm:col-span-2 ">
-                                                        <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">City</label>
-                                                        <div className="mt-2">
-                                                            <input type="text" name="city" id="city" autoComplete="address-level2" className="dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-                                                        </div>
-                                                    </div>
+                                                    
 
                                                     <div className="sm:col-span-3">
                                                 <label htmlFor="new-password" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Nouveau mot de passe</label>
                                                 <div className="mt-2">
                                                     <input type="password"  id="new-password" name="new-password" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                                                 </div>
+                                               
                                             </div>
 
                                             {/* Confirm Password */}
@@ -169,7 +160,12 @@ function Profile() {
                                                     <input type="password" id="confirm-password" name="confirm-password" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                                                 </div>
                                             </div>
-
+                                            <div className=" sm:col-span-3">
+                                                        <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Numéro de téléphone</label>
+                                                        <div className="mt-2">
+                                                            <input type="tel" placeholder=" +216 25 222 555"  value ={user.telephone} maxLength="8" name="phone" id="phone" autoComplete="tel" className=" dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 

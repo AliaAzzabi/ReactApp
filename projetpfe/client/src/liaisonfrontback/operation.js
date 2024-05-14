@@ -330,3 +330,32 @@ export const sendEmail = async (formData) => {
     throw error;
   }
 };
+
+
+//historique
+export const getAllHistoriques = async (id) => {
+  try {
+    const response = await api.get(`/getallHistorique`);
+    return response.data;
+  } catch (error) {
+    return { error: error.message };
+  }
+}
+
+export const createHistorique = (patient, callback) => {
+  api.post('/creerhistorique', patient)
+      .then((res) => {
+          console.log('Received response:', res);
+          callback(res.data); 
+      })
+      .catch((err) => {
+          console.error('Error:', err.response.data);
+          callback(err.response.data); 
+      });
+};
+
+export const deleteHistorique = (id, callback) => {
+  api.delete(`/deleteHistorique/${id}`)
+    .then((res) => callback(res))
+    .catch((err) => callback(err));
+}

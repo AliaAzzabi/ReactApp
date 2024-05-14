@@ -32,7 +32,7 @@ import Calendar from './pages/Calendar';
  import AddRendezVousForm from './pages/addRendezVous';
  import ListeAideParMed from './pages/ListeAideParMed';
  import AddAssistantMed from './pages/AddAssistantMed';
-
+ import Historique from './pages/historique';
 
 import DashboardCard13 from './partials/dashboard/DashboardCard13';
 function App() {
@@ -72,6 +72,7 @@ function App() {
         
         <Route exact path="/listeAideParMed" element={<ListeAideParMed/>} />
         <Route exact path="/addAssistantMed/:medecinId" element={<AddAssistantMed/>} />
+        <Route exact path="/historique" element={<Historique/>} />
 
       </Routes>
     </>

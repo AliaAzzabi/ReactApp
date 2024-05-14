@@ -11,7 +11,8 @@ const {getMedecins,  updateMedecin, deleteMedecin, getMedecinById, addmed} = req
 const { getAdmin, addAdmin, updateAdmin, deleteAdmin, getAdminById } = require ('./admin/controlleradmin');
 const  { getPatient, addPatient, updatePatient, deletePatient, gePatientById } = require('./patient/controllerpatient');
 const {createRendezVous,getAllRendezVousAjourdhui, getAllRendezVous, getRendezVousById, updateRendezVous, deleteRendezVous}= require("./rdv/rdvController")
-const { enregistrerPatientSalleAttente}= require("./salleAttente/salleAttenteController");
+const { enregistrerPatientSalleAttente}= require("./salleAttente/salleAttenteController")
+const {createHistorique, getAllHistoriques, deleteHistorique}=require("./historique/historiqueController")
 const {sendEmail} = require ('./mail/controllerEmail');
 
 const requireAuth = require('./middleware/requireAuth');
@@ -75,7 +76,9 @@ router.delete('/deleteRendezVous/:id', deleteRendezVous);
   
 
 
-router.post('/attente', enregistrerPatientSalleAttente);
-router.get('/getrdvAujourdhui', getAllRendezVousAjourdhui);
+router.get('/getallHistorique', getAllHistoriques);
+router.delete('/deleteHistorique/:id', deleteHistorique);
+    
+router.post('/creerhistorique', createHistorique);
 
 module.exports = { router };
