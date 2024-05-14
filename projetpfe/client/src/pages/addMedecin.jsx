@@ -4,7 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { getAllspecialities } from '../liaisonfrontback/operation';
 import { addmed } from '../liaisonfrontback/operation';
 import {
@@ -107,13 +108,15 @@ function AddMedecin() {
 
             const callback = (response) => {
                 if (response && response.status >= 200 && response.status < 300) {
-                    alert('Médecin ajouté avec succès')
                     Navigation('/listeMedecin');
+                    localStorage.setItem('successMessage', 'Médecin ajouté avec succès'); // Stocker le message de succès dans l'état local
                 } else {
-                    setError('email existe déja.');
-                    alert('Cet email est déjà utilisé.');
+                    setError('email existe déjà.');
+                    toast.error('Cet email est déjà utilisé.');
                 }
             };
+            
+            
 
             const response = await addmed(formData, callback);
 
@@ -331,6 +334,7 @@ function AddMedecin() {
                     </div>
                 </main>
             </div>
+            <ToastContainer />
         </div>
     );
 }

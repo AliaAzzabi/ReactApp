@@ -17,7 +17,7 @@ const MedecinSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Specialtie"
   },
-
+  isSelected: Boolean,
 });
 MedecinSchema.post('findOneAndDelete', async function(doc) {
   try {

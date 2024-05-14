@@ -35,7 +35,13 @@ function ListeAideParMed() {
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredAssitants, setFilteredAssitants] = useState([]);
 
-
+    useEffect(() => {
+        const successMessage = localStorage.getItem('successMessage');
+        if (successMessage) {
+            toast.success(successMessage); 
+            localStorage.removeItem('successMessage'); 
+        }
+    }, []);
 
     useEffect(() => {
         const filtered = aides.filter(aide =>

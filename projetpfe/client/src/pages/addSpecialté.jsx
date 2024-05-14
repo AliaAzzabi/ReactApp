@@ -57,7 +57,7 @@ function AddSpecialte() {
     
        addspecialite({ ...specialite, id: Date.now() }, (response) => {
             if (response && !response.error) {
-                alert('La specialite a été ajouté avec succès');
+                localStorage.setItem('successMessage', 'La specialite a été ajouté avec succès');
                 setspecialite({
                     nom: '',
                     description: '',

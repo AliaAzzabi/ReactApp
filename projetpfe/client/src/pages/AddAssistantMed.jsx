@@ -92,7 +92,7 @@ function AddAssistantMed() {
     
             const callback = (response) => {
                 if (response && response.status >= 200 && response.status < 300) {
-                    alert('Assistant ajouté avec succès')
+                    localStorage.setItem('successMessage', 'Assistant ajouté avec succès')
                     Navigation('/listeAideParMed');
                 } else {
                     setError('email existe déja.');

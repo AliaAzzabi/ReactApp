@@ -83,6 +83,7 @@ const addmed = expressHandler(async (req, res) => {
             user: savedUser._id,
             specialite: specialiteid._id,
             image: savedImage._id,
+             isSelected: req.body.isSelected || true
         });
 
         const savedMed = await newMed.save();
@@ -130,7 +131,9 @@ const updateMedecin = async (req, res) => {
             sexe,
             dateNaissance,
             adresse,
+            isSelected: req.body.isSelected !== undefined ? req.body.isSelected : true
         };
+        
 
         // Vérifier si le mot de passe est défini
         if (password) {

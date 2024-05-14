@@ -44,7 +44,9 @@ function AddAssistant() {
     useEffect(() => {
         getMedecins((res) => {
             if (res.data) {
-                setMedecins(res.data);
+                const filteredMedecins = res.data.filter(medecin => medecin.isSelected);
+                setMedecins(filteredMedecins);
+                //setMedecins(res.data);
             } else {
                 console.error("Error fetching doctors:", res.error);
             }
@@ -85,7 +87,7 @@ function AddAssistant() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         try {
             const formData = new FormData();
             formData.append('image', aide.image);
@@ -101,17 +103,17 @@ function AddAssistant() {
             formData.append('adresse', aide.adresse);
             formData.append('medecin', aide.medecin);
             formData.append('education', aide.education);
-    
+
             const callback = (response) => {
                 if (response && response.status >= 200 && response.status < 300) {
-                    alert('Assistant ajouté avec succès')
+                    localStorage.setItem('successMessage', 'Assistant ajouté avec succès')
                     Navigation('/listeAssistant');
                 } else {
                     setError('email existe déja.');
                     alert('Cet email est déjà utilisé.');
                 }
             };
-    
+
             const response = await addaides(formData, callback);
         } catch (error) {
             setError(error.message);
@@ -121,7 +123,7 @@ function AddAssistant() {
 
     if (!user || (user.role !== "admin")) {
         return <Navigate to="/login" />;
-      }
+    }
 
     return (
         <div className="flex h-screen overflow-hidden">
@@ -244,6 +246,7 @@ function AddAssistant() {
                                                                 <option key={medecin._id} value={medecin._id}>{medecin.user.nomPrenom}</option>
                                                             ))}
                                                         </select>
+
 
                                                     </div>
                                                 </div>
@@ -378,8 +381,8 @@ function AddAssistant() {
 
                                     {/* Form Actions */}
                                     <div className="mt-6 flex items-center justify-end gap-x-6">
-                                       
-                                    <button type="button" onClick={() => Navigation('/listeAssistant')} className="text-gray-500 dark:bg-gray-800">Annuler</button>
+
+                                        <button type="button" onClick={() => Navigation('/listeAssistant')} className="text-gray-500 dark:bg-gray-800">Annuler</button>
                                         <button type="submit" className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Ajouter</button>
                                     </div>
                                 </form>

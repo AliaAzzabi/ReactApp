@@ -46,6 +46,14 @@ function ListeAssistant() {
   const [currentPage, setCurrentPage] = useState(1);
   const assistantsPerPage = 5;
   useEffect(() => {
+    const successMessage = localStorage.getItem('successMessage');
+    if (successMessage) {
+        toast.success(successMessage); 
+        localStorage.removeItem('successMessage'); 
+    }
+}, []);
+
+  useEffect(() => {
     const filtered = aides.filter(aide =>
       aide.user.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -54,13 +62,15 @@ function ListeAssistant() {
 
   useEffect(() => {
     getMedecins((res) => {
-      if (res.data) {
-        setMedecins(res.data);
-      } else {
-        toast.error("Error fetching doctors:", res.error);
-      }
+        if (res.data) {
+            const filteredMedecins = res.data.filter(medecin => medecin.isSelected);
+            setMedecins(filteredMedecins);
+            //setMedecins(res.data);
+        } else {
+            console.error("Error fetching doctors:", res.error);
+        }
     });
-  }, []);
+}, []);
 
   useEffect(() => {
     getAllAide((res) => {

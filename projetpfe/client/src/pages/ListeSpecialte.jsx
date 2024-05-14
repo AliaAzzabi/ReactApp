@@ -33,7 +33,13 @@ function ListeSpecialite() {
 
     const { user } = useContext(AuthContext);
     const [selectedSpecialite, setSelectedSpecialite] = useState(null);
-
+    useEffect(() => {
+        const successMessage = localStorage.getItem('successMessage');
+        if (successMessage) {
+            toast.success(successMessage); 
+            localStorage.removeItem('successMessage'); 
+        }
+    }, []);
     
 
     useEffect(() => {

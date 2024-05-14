@@ -15,6 +15,7 @@ import { getAllspecialities, getAllDepartement } from '../liaisonfrontback/opera
 import { UpdateMedecin } from '../liaisonfrontback/operation';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useLocation } from 'react-router-dom';
 import {
     Card,
     CardHeader,
@@ -48,7 +49,13 @@ function ListeMedecin() {
 
 
     const [selectedSpecialiteId, setSelectedSpecialiteId] = useState(null);
-
+    useEffect(() => {
+        const successMessage = localStorage.getItem('successMessage');
+        if (successMessage) {
+            toast.success(successMessage); 
+            localStorage.removeItem('successMessage'); 
+        }
+    }, []);
 
     useEffect(() => {
         getAllspecialities((res) => {
@@ -148,8 +155,22 @@ function ListeMedecin() {
             });
         }
     };
-    
 
+    const toggleMedecinStatus = (id) => {
+        const medecinToUpdate = medecins.find(medecin => medecin._id === id);
+        if (medecinToUpdate) {
+            const updatedMedecin= { ...medecinToUpdate, isSelected: !medecinToUpdate.isSelected };
+            UpdateMedecin(id, updatedMedecin, (res) => {
+                if (res.data) {
+                    const updatedMedecin = medecins.map(medecin => (medecin._id === res.data._id ? res.data : medecin));
+                    setmedecins(updatedMedecin);
+                    toast.success("Statut de médecin mis à jour avec succès");
+                } else {
+                    toast.error("Erreur lors de la mise à jour du statut de la médecin :", res.error);
+                }
+            });
+        }
+    };
 
     // code mta3 deux boutton de précédent w suivant
     const [currentPage, setCurrentPage] = useState(1);
@@ -265,7 +286,16 @@ function ListeMedecin() {
                                                         Email
                                                     </Typography>
                                                 </th>
+                                                <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
+                                                    <Typography
+                                                        variant="small"
+                                                        color="blue-gray"
+                                                        className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
+                                                    >
+                                                        Status
 
+                                                    </Typography>
+                                                </th>
 
                                                 <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                                                     <Typography
@@ -332,6 +362,17 @@ function ListeMedecin() {
                                                     >
                                                         {medecin.user.email}
                                                     </Typography></td>
+                                                    <td className="p-4 border-b border-blue-gray-50 text-center">
+                                                        <label className="inline-flex items-center me-5 cursor-pointer">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={medecin.isSelected}
+                                                                onChange={() => toggleMedecinStatus(medecin._id)}
+                                                                className="sr-only peer"
+                                                            />
+                                                            <div className="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600" />
+                                                        </label>
+                                                    </td>
 
                                                     <td className='p-4 border-b border-blue-gray-50'>
                                                         <div className="flex items-center">
