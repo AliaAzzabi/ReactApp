@@ -13,6 +13,8 @@ import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { getMedecins, deleteMedecin } from '../liaisonfrontback/operation';
 import { getAllspecialities, getAllDepartement } from '../liaisonfrontback/operation';
 import { UpdateMedecin } from '../liaisonfrontback/operation';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
     Card,
     CardHeader,
@@ -54,7 +56,7 @@ function ListeMedecin() {
                 const filteredSpecialites = res.data.filter(specialite => specialite.isSelected);
                 setSpecialite(filteredSpecialites);
             } else {
-                console.error("Erreur lors de la récupération des spécialités :", res.error);
+                toast.error("Erreur lors de la récupération des spécialités :", res.error);
             }
         });
     }, []);
@@ -64,7 +66,7 @@ function ListeMedecin() {
             if (res.data) {
                 setmedecins(res.data);
             } else {
-                console.error("Erreur lors de la récupération des médecin :", res.error);
+                toast.error("Erreur lors de la récupération des médecin :", res.error);
             }
         });
     }, [medecins]);
@@ -84,9 +86,9 @@ function ListeMedecin() {
             deleteMedecin(id, (res) => {
                 if (res.data) {
                     setmedecins(medecins.filter(medecin => medecin._id !== id));
-                    console.log("Médecin supprimé avec succès");
+                    toast.success("Médecin supprimé avec succès");
                 } else {
-                    console.error("Erreur lors de la suppression de Medecin :", res.error);
+                    toast.error("Erreur lors de la suppression de Medecin :", res.error);
                 }
             });
         }
@@ -124,30 +126,29 @@ function ListeMedecin() {
                 telephone: formData.get('telephone'),
                 email: formData.get('email'),
                 role: formData.get('role'),
+                // Vérifie si le champ password est vide ou non
                 password: formData.get('password') !== '' ? formData.get('password') : undefined,
-
+                //   image: formData.get('image'),
                 specialite: selectedSpecialiteId,
             };
-
-
-
+            console.log('updatedMedecin:', updatedMedecin);
             UpdateMedecin(selectedMedecin._id, updatedMedecin, (res) => {
                 if (res.data) {
                     const updatedMedecins = medecins.map((medecin) => (medecin._id === res.data._id ? res.data : medecin));
-                    setMedecins(updatedMedecins);
+                    setmedecins(updatedMedecins);
                     closeModal();
-                    console.log("Médecin modifié avec succès");
+                    toast.success("Médecin modifié avec succès");
                 } else {
                     if (res.error) {
-                        console.error("Erreur lors de la modification du médecin :", res.error);
+                        toast.error("Erreur lors de la modification du médecin :", res.error);
                     } else {
-                        console.error("Erreur inattendue lors de la modification du médecin.");
+                        toast.error("Erreur inattendue lors de la modification du médecin.");
                     }
                 }
             });
         }
     };
-
+    
 
 
     // code mta3 deux boutton de précédent w suivant
@@ -545,6 +546,7 @@ function ListeMedecin() {
                     )}
                 </main>
             </div>
+            <ToastContainer />
         </div>
     );
 }

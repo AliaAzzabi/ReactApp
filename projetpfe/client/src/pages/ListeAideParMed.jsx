@@ -8,6 +8,9 @@ import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { deleteAide, updateAide, getMedecins, getAllAide } from '../liaisonfrontback/operation';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import {
     Card,
     CardHeader,
@@ -78,9 +81,9 @@ function ListeAideParMed() {
             deleteAide(id, (res) => {
                 if (res.data) {
                     setAides(aides.filter(aide => aide._id !== id));
-                    console.log("Aide supprimé avec succès");
+                    toast.success("Aide supprimé avec succès");
                 } else {
-                    console.error("Erreur lors de la suppression de l'assistant :", res.error);
+                    toast.error("Erreur lors de la suppression de l'assistant :", res.error);
                 }
             });
         }
@@ -117,9 +120,9 @@ function ListeAideParMed() {
                     const updatedAides = aides.map((aide) => (aide._id === res.data._id ? res.data : aide));
                     setAides(updatedAides); // Update the aides state variable with the new array of aides
                     closeModal();
-                    console.log("Assistant modifié avec succès");
+                    toast.success("Assistant modifié avec succès");
                 } else {
-                    console.error("Erreur lors de la modification de l'assistant :", res.error);
+                    toast.error("Erreur lors de la modification de l'assistant :", res.error);
                 }
             });
         }
@@ -512,6 +515,8 @@ function ListeAideParMed() {
                     )}
                 </main>
             </div>
+            <ToastContainer />
+
         </div>
     );
 }

@@ -7,7 +7,9 @@ import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { getAllspecialities, updateSpecialite, deleteSpecialite } from '../liaisonfrontback/operation';
-import SuccessAlert from './SuccessAlert';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import {
     Card,
     CardHeader,
@@ -31,6 +33,8 @@ function ListeSpecialite() {
 
     const { user } = useContext(AuthContext);
     const [selectedSpecialite, setSelectedSpecialite] = useState(null);
+
+    
 
     useEffect(() => {
         getAllspecialities((res) => {
@@ -66,14 +70,12 @@ function ListeSpecialite() {
             deleteSpecialite(id, (res) => {
                 if (res.data) {
                     setSpecialites(specialites.filter(specialite => specialite._id !== id));
-                    console.log("Spécialité supprimée avec succès");
+                    toast.success("Spécialité supprimée avec succès");
                 }else if (res.error) {
-                    console.error("Erreur lors de la suppression de la spécialité :", res.error);
-                
-                    alert("Cette spécialité est utilisée par au moins un médecin. Veuillez supprimer la référence dans la table des médecins avant de la supprimer.");
+                    toast.error("Cette spécialité est utilisée par au moins un médecin. Veuillez supprimer la référence dans la table des médecins avant de la supprimer.");
                 }
                  else {
-                    console.error("Erreur lors de la suppression de la spécialité :", res.error);
+                    toast.error("Erreur lors de la suppression de la spécialité :", res.error);
                 }
             });
         }
@@ -97,9 +99,9 @@ function ListeSpecialite() {
                 if (res.data) {
                     const updatedSpecialites = specialites.map(specialite => (specialite._id === res.data._id ? res.data : specialite));
                     setSpecialites(updatedSpecialites);
-                    console.log("Statut de spécialité mis à jour avec succès");
+                    toast.success("Statut de spécialité mis à jour avec succès");
                 } else {
-                    console.error("Erreur lors de la mise à jour du statut de la spécialité :", res.error);
+                    toast.error("Erreur lors de la mise à jour du statut de la spécialité :", res.error);
                 }
             });
         }
@@ -118,9 +120,9 @@ function ListeSpecialite() {
                     const updatedSpecialites = specialites.map(specialite => (specialite._id === res.data._id ? res.data : specialite));
                     setSpecialites(updatedSpecialites);
                     closeModal();
-                    console.log("Spécialité modifiée avec succès");
+                    toast.success("Spécialité modifiée avec succès");
                 } else {
-                    console.error("Erreur lors de la modification de la spécialité :", res.error);
+                    toast.error("Erreur lors de la modification de la spécialité :", res.error);
                 }
             });
         }
@@ -271,6 +273,7 @@ function ListeSpecialite() {
                     )}
                 </main>
             </div>
+            <ToastContainer />
         </div>
     );
 }

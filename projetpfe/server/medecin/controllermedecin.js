@@ -44,7 +44,7 @@ const getMedecinById = async (req, res) => {
     }
 };
 const addmed = expressHandler(async (req, res) => {
-    console.log(req.body);
+   // console.log(req.body);
     try {
         const { cin, sexe, nomPrenom, telephone, role, email, password, dateAdhesion, specialite, dateNaissance, adresse } = req.body;
 
@@ -116,8 +116,8 @@ console.log(savedMed);
 
 
 const updateMedecin = async (req, res) => {
-    console.log(req.body);
-    console.log(req._id);
+   // console.log(req.body);
+  //  console.log(req._id);
     const { cin, sexe, nomPrenom, specialite, telephone, email, password, dateAdhesion, role, dateNaissance, adresse } = req.body;
     try {
         let updateData = {
@@ -132,11 +132,13 @@ const updateMedecin = async (req, res) => {
             adresse,
         };
 
+        // Vérifier si le mot de passe est défini
         if (password) {
+            // Hasher le mot de passe seulement s'il est défini
             const hashedPassword = await bcrypt.hash(password, 10);
             updateData.password = hashedPassword;
         }
-        // Assume specialite is the ID
+
         let specialiteId = await Specialite.findOne({ _id: specialite }).select('_id');
 
         if (!specialiteId) {
@@ -147,21 +149,10 @@ const updateMedecin = async (req, res) => {
 
         const updatedMedecin = await Medecin.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
-        const updatedUser = await User.findByIdAndUpdate(updatedMedecin.user, {
-            nomPrenom,
-            telephone,
-            email,
-            sexe,
-            cin,
-            dateAdhesion,
-            dateNaissance,
-            adresse,
-            role,
-            ...(password && { password: updateData.password }) // Only update password if provided
-        });
+        const updatedUser = await User.findByIdAndUpdate(updatedMedecin.user, updateData);
 
         if (updatedMedecin && updatedUser) {
-            res.status(200).json({ message: 'Médecin et utilisateur mis à jour avec succès', data: { medecin: updatedMedecin, user: updatedUser } });
+            res.status(200).json({ message: 'Médecin et utilisateur mis à jour avec succès', data: { medecin: updateData, user: updatedUser } });
         } else {
             res.status(404).json({ error: 'Médecin ou utilisateur non trouvé' });
         }
@@ -169,6 +160,7 @@ const updateMedecin = async (req, res) => {
         res.status(500).json({ error: `Erreur lors de la mise à jour du médecin : ${err.message}` });
     }
 };
+
 
 
 

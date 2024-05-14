@@ -12,6 +12,9 @@ import { Link } from 'react-router-dom';
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { getAllAide, deleteAide, updateAide } from '../liaisonfrontback/operation';
 import { getMedecins } from '../liaisonfrontback/operation';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import {
   Card,
   CardHeader,
@@ -54,7 +57,7 @@ function ListeAssistant() {
       if (res.data) {
         setMedecins(res.data);
       } else {
-        console.error("Error fetching doctors:", res.error);
+        toast.error("Error fetching doctors:", res.error);
       }
     });
   }, []);
@@ -64,7 +67,7 @@ function ListeAssistant() {
       if (res.data) {
         setAides(res.data);
       } else {
-        console.error("Erreur lors de la récupération des aides :", res.error);
+        toast.error("Erreur lors de la récupération des aides :", res.error);
       }
     });
   }, [aides]);
@@ -75,13 +78,14 @@ function ListeAssistant() {
       deleteAide(id, (res) => {
         if (res.data) {
           setAides(aides.filter(aide => aide._id !== id));
-          console.log("Aide supprimé avec succès");
+          toast.success("Aide supprimé avec succès");
         } else {
-          console.error("Erreur lors de la suppression de l'assistant :", res.error);
+          toast.error("Erreur lors de la suppression de l'assistant :", res.error);
         }
       });
     }
   };
+  
 
   if (!user || (user.role !== "admin")) {
     // Rediriger l'utilisateur vers la page de connexion ou afficher un message d'erreur
@@ -128,9 +132,9 @@ function ListeAssistant() {
                 const updatedAides = aides.map((aide) => (aide._id === res.data._id ? res.data : aide));
                 setAides(updatedAides);
                 closeModal();
-                console.log("Assistant modifié avec succès");
+                toast.success("Assistant modifié avec succès");
             } else {
-                console.error("Erreur lors de la modification de l'assistant :", res.error);
+                toast.error("Erreur lors de la modification de l'assistant :", res.error);
             }
         });
     }
@@ -564,6 +568,7 @@ function ListeAssistant() {
           )}
         </main>
       </div>
+      <ToastContainer />
     </div>
   );
 }
