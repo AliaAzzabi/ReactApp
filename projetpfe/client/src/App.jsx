@@ -13,7 +13,7 @@ import './charts/ChartjsConfig';
 import Dashboard from './pages/Dashboard';
 import DashboardMedecin from './pages/medecin/DashboardMedecin';
 import DashboardAide from './pages/aide/DashboardAid';
-
+import ArchiveRDV from './pages/archiveRDVpattient';
 import Medecin from './pages/medecin/medecin';
 import ListePatient from './pages/ListePatient';
 import Salle from './pages/salle';
@@ -73,6 +73,7 @@ function App() {
         <Route exact path="/listeAideParMed" element={<ListeAideParMed/>} />
         <Route exact path="/addAssistantMed/:medecinId" element={<AddAssistantMed/>} />
         <Route exact path="/historique" element={<Historique/>} />
+        <Route exact path="/patients/:patientId/rendezvous" element={<ArchiveRDV/>} />
 
       </Routes>
     </>

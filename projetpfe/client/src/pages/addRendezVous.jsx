@@ -77,8 +77,8 @@ function AddRendezVousForm() {
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
-    setPatientNom(event.title.trim()); // Pré-remplir le nom du patient avec celui de l'événement sélectionné
-    setSelectedDate(event.start); // Pré-remplir la date du rendez-vous avec celle de l'événement sélectionné
+    setPatientNom(event.title.trim()); 
+    setSelectedDate(event.start); 
     setShowModal(true);
   };
 
@@ -114,7 +114,7 @@ function AddRendezVousForm() {
       await updateRendezVous(user.token, selectedEvent.id, updatedEventData);
       toast.success('Rendez-vous mis à jour avec succès !');
       setShowModal(false);
-      fetchRendezVousData(); // Rafraîchir les rendez-vous après la mise à jour
+      fetchRendezVousData(); 
     } catch (error) {
       toast.error("Erreur lors de la mise à jour du rendez-vous : " + error.message);
     }
@@ -125,7 +125,7 @@ function AddRendezVousForm() {
       await deleteRendezVous(user.token, selectedEvent.id);
       toast.success('Rendez-vous annulé avec succès !');
      fetchRendezVousData();
-      setShowModal(false); // Rafraîchir les rendez-vous après la suppression
+      setShowModal(false); 
       
     } catch (error) {
       toast.error("Erreur lors de l'annulation du rendez-vous");
@@ -142,6 +142,16 @@ function AddRendezVousForm() {
       toast.error('Veuillez remplir tous les champs obligatoires.');
       return;
     }
+  const rdvexiste = events.find(event => moment(event.start).isSame(selectedDate, 'minute'));
+  if (rdvexiste) {
+    toast.error('Un rendez-vous existe déjà à cette heure.');
+    return;
+  }
+  const rdvExiste = events.find(event => event.title.trim() === patientNom && moment(event.start).isSame(selectedDate, 'day'));
+  if (rdvExiste) {
+    toast.error('Un rendez-vous existe déjà pour ce patient à cette date.');
+    return;
+  }
     try {
       await creerRendezVous(user.token, selectedDate, patientNom);
       toast.success('Rendez-vous ajouté avec succès !');
@@ -201,8 +211,9 @@ function AddRendezVousForm() {
       setSuccessMessage('');
     }
   };
-     
-  
+ 
+    
+ 
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -401,6 +412,7 @@ function AddRendezVousForm() {
                 startAccessor="start"
                 endAccessor="end"
                 defaultDate={new Date()}
+                defaultView="day" 
                 onSelectSlot={(slotInfo) => handleDateChange(slotInfo.start)}
                 onSelectEvent={(event) => handleEventClick(event)}
                 selectable
@@ -415,8 +427,11 @@ function AddRendezVousForm() {
                   week: "Semaine",
                   day: "Jour",
                 }}
-                min={new Date().setHours(7, 0)}
-                max={new Date().setHours(17, 0)} className='dark:bg-gray-50 pt-6 rounded-lg pb-6 p-9'
+                min={new Date(new Date().setHours(8, 0, 0))}
+                max={new Date(new Date().setHours(17, 0, 0))} 
+                step={30} 
+                timeslots={1}
+                className='dark:bg-gray-50 pt-6 rounded-lg pb-6 p-9'
               />
 
               {showModal && (

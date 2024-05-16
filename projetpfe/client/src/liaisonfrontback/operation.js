@@ -359,3 +359,12 @@ export const deleteHistorique = (id, callback) => {
     .then((res) => callback(res))
     .catch((err) => callback(err));
 }
+
+export const getRendezVousByPatientId = async (patientId) => {
+  try {
+    const response = await axios.get(`/patients/${patientId}/rendezvous`); // Assurez-vous que l'URL correspond à votre backend
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

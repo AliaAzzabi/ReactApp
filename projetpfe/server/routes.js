@@ -9,11 +9,12 @@ const { getSpecialty, addSpecialty, updateSpecialty, deleteSpecialty, getSpecial
 const { getAide, addaides, updateAide, deleteAide, getAideById ,checkAideEmailExistence, GetAidesByMedecinId} = require('./aide/controlleraide');
 const {getMedecins,  updateMedecin, deleteMedecin, getMedecinById, addmed} = require ('./medecin/controllermedecin');
 const { getAdmin, addAdmin, updateAdmin, deleteAdmin, getAdminById } = require ('./admin/controlleradmin');
-const  { getPatient, addPatient, updatePatient, deletePatient, gePatientById } = require('./patient/controllerpatient');
-const {createRendezVous,getAllRendezVousAjourdhui, getAllRendezVous, getRendezVousById, updateRendezVous, deleteRendezVous}= require("./rdv/rdvController")
+const  { getPatient, addPatient, updatePatient, deletePatient, gePatientById,StatistiquePatient , globalPatient} = require('./patient/controllerpatient');
+const {createRendezVous,getRendezVousByPatientId,rendezvousParJour,getAllRendezVousAjourdhui, getAllRendezVous, getRendezVousById, updateRendezVous, deleteRendezVous}= require("./rdv/rdvController")
 const { enregistrerPatientSalleAttente}= require("./salleAttente/salleAttenteController")
 const {createHistorique, getAllHistoriques, deleteHistorique}=require("./historique/historiqueController")
 const {sendEmail} = require ('./mail/controllerEmail');
+const {globalMedecin, globalAssistant } = require ('./statistics/statistic');
 
 const requireAuth = require('./middleware/requireAuth');
 const router = express.Router();
@@ -74,11 +75,18 @@ router.get('/getRendezVousById/:id', getRendezVousById);
 router.put('/updateRendezVous/:id', updateRendezVous);
 router.delete('/deleteRendezVous/:id', deleteRendezVous);
   
+router.get('/patients/:patientId/rendezvous',getRendezVousByPatientId);
 
 
 router.get('/getallHistorique', getAllHistoriques);
 router.delete('/deleteHistorique/:id', deleteHistorique);
     
 router.post('/creerhistorique', createHistorique);
+
+router.get('/api/patient/statistics',StatistiquePatient);
+router.get('/api/global/patients', globalPatient);
+router.get('/api/rendezvous/statistique', rendezvousParJour)
+router.get('/api/global/medecins', globalMedecin);
+router.get('/api/global/assistants', globalAssistant);
 
 module.exports = { router };

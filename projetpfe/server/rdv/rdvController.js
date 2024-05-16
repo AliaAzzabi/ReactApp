@@ -162,7 +162,47 @@ const getAllRendezVousAjourdhui = async (req, res) => {
     throw new Error('Erreur lors de la récupération des rendez-vous d\'aujourd\'hui');
   }
 };
+const rendezvousParJour = async (req, res) => {
+  try {
+    const rdvparjour = await RendezVous.aggregate([
+      {
+        $group: {
+          _id: { $dateToString: { format: '%m-%d-%Y', date: '$date' } },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { '_id': 1 }
+      }
+    ]);
 
+    const statistics = {};
+    rdvparjour.forEach(appointment => {
+      statistics[appointment._id] = appointment.count;
+    });
+
+    res.json(statistics);
+  } catch (error) {
+    console.error('Error fetching appointment statistics:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+const getRendezVousByPatientId = async (req, res) => {
+  try {
+    const patientId = req.params.patientId;
+
+    const rendezVous = await RendezVous.find({ patient: patientId })
+      .populate('patient')
+      .populate('medecin')
+      .populate('secretaire');
+
+    res.status(200).json(rendezVous);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur lors de la récupération des rendez-vous du patient' });
+  }
+};
 
 module.exports = {
   createRendezVous,
@@ -170,6 +210,8 @@ module.exports = {
   updateRendezVous,
   deleteRendezVous,
   getRendezVousById,
-  getAllRendezVousAjourdhui
+  getAllRendezVousAjourdhui,
+  rendezvousParJour,
+  getRendezVousByPatientId
 };
 

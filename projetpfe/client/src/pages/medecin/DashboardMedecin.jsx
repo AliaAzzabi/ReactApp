@@ -1,4 +1,4 @@
-import React, { useState,useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { Navigate } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 
@@ -23,7 +23,7 @@ function DashboardAide() {
   if (!user || (user.role !== "médecin")) {
     return <Navigate to="/login" />;
   }
-    
+
   return (
     <div className="flex h-screen overflow-hidden">
 
@@ -42,23 +42,20 @@ function DashboardAide() {
             {/* Welcome banner */}
             <WelcomeBanner />
 
-            
+
 
             {/* Cards */}
             <div className="grid grid-cols-12 gap-6">
-            <DashboardCard01 />
+              <DashboardCard01 />
               {/* Line chart (Acme Advanced) */}
               <DashboardCard02 />
               {/* Line chart (Acme Professional) */}
               <DashboardCard03 />
-             
-             
-              
-            </div>
-            <div className="grid grid-cols-1">
 
-<DashboardCard13 />
-</div>
+
+
+            </div>
+
           </div>
         </main>
 

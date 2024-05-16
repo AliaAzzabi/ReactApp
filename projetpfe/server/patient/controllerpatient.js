@@ -84,4 +84,46 @@ const expressHandler = require("express-async-handler");
     }
   };
 
-module.exports = { getPatient, addPatient, updatePatient, deletePatient, gePatientById }; 
+  const StatistiquePatient = async (req, res) => {
+    try {
+        // Query database for patient counts grouped by day
+        const patientStatistics = await Patient.aggregate([
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+        res.json(patientStatistics);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+const globalPatient = async (req, res) => {
+  try {
+    // Effectuer une requête pour obtenir le nombre global de patients
+    const totalPatients = await Patient.countDocuments();
+    // Vous pouvez également effectuer d'autres calculs ou agrégations ici si nécessaire
+
+    // Formater les données pour les renvoyer
+    const globalPatientsData = {
+      total: totalPatients,
+      percentChange: 'Patients', // Le pourcentage de changement que vous souhaitez afficher
+      chartData: {/* Format de données de graphique */}
+    };
+
+   
+    res.json(globalPatientsData);
+  } catch (error) {
+    console.error('Error fetching global patients data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+
+
+module.exports = { getPatient, addPatient, updatePatient, deletePatient, gePatientById,StatistiquePatient,globalPatient }; 

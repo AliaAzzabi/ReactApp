@@ -311,7 +311,7 @@ function ListePatient() {
                                     <TrashIcon className="h-4 w-4" />
                                   </IconButton>
                                 </Tooltip>
-                                <Link to={{ pathname: "/addrdv", state: { patientName: patient.nomPrenom } }}>
+                                <Link to={`/patients/${patient._id}/rendezvous`}>
   <Tooltip content="Rendez-vous" className="text-white bg-green-400 rounded-md">
     <IconButton variant="text" className='text-green-800'>
       <CalendarIcon className="h-4 w-4" />

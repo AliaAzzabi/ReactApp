@@ -120,15 +120,7 @@ function Historique() {
                   <table className="mt-4 w-full min-w-max table-auto text-left">
                     <thead>
                       <tr>
-                        <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
-                          <Typography
-                            variant="small"
-                            color="blue-gray"
-                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 dark:text-white"
-                          >
-                            CIN
-                          </Typography>
-                        </th>
+                        
                         <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                           <Typography
                             variant="small"
@@ -138,6 +130,7 @@ function Historique() {
                             Nom & Prénom
                           </Typography>
                         </th>
+                      
                         <th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 dark:border-gray-700">
                           <Typography
                             variant="small"
@@ -155,15 +148,7 @@ function Historique() {
                     <tbody>
                       {historiques.map((historique) => (
                         <tr key={historique._id}>
-                          <td className='p-4 border-b border-blue-gray-50'>
-                            <Typography
-                              variant="small"
-                              color="blue-gray"
-                              className="font-normal"
-                            >
-                              {historique.patient.cin}
-                            </Typography>
-                          </td>
+                          
                           <td className='p-4 border-b border-blue-gray-50'>
                             <div className="flex items-center gap-3">
                               <div className="flex flex-col">
@@ -184,6 +169,7 @@ function Historique() {
                               </div>
                             </div>
                           </td>
+                          
                           <td className='p-4 border-b border-blue-gray-50'>
                             <Typography
                               variant="small"
