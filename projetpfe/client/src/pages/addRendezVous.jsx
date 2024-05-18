@@ -12,6 +12,8 @@ import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
 import { useLocation } from 'react-router-dom';
 import { Navigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
+import { sendEmail } from '../liaisonfrontback/operation';
+import { sendSMS } from '../liaisonfrontback/operation';
 import 'react-toastify/dist/ReactToastify.css';
 
 function AddRendezVousForm() {
@@ -77,8 +79,8 @@ function AddRendezVousForm() {
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
-    setPatientNom(event.title.trim()); 
-    setSelectedDate(event.start); 
+    setPatientNom(event.title.trim());
+    setSelectedDate(event.start);
     setShowModal(true);
   };
 
@@ -95,6 +97,10 @@ function AddRendezVousForm() {
           start: new Date(rendezvous.date),
           end: new Date(rendezvous.date),
           title: rendezvous.patient ? ' ' + rendezvous.patient.nomPrenom : 'Rendez-vous',
+          email: rendezvous.patient ? rendezvous.patient.email : '',
+          notifier: rendezvous.patient ? rendezvous.patient.notifier : '',
+          telephone:rendezvous.patient ? rendezvous.patient.telephone : '',
+
         }))
       );
     } catch (error) {
@@ -110,48 +116,83 @@ function AddRendezVousForm() {
         date: selectedDate,
         time: selectedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
-
+  
       await updateRendezVous(user.token, selectedEvent.id, updatedEventData);
       toast.success('Rendez-vous mis à jour avec succès !');
+  
+      const formattedDate = selectedDate.toDateString();
+  
+      if (selectedEvent.notifier.includes('sms')) {
+        // Envoyer un SMS au numéro de téléphone du patient
+        const smsMessage = `Bonjour ${selectedEvent.title}, votre rendez-vous a été réorganisé au ${formattedDate} à ${updatedEventData.time}.`;
+        const patientPhoneNumber = selectedEvent.telephone; // Récupérer le numéro de téléphone du patient
+        //console.log(patientPhoneNumber);
+        await sendSMS(patientPhoneNumber, smsMessage);      }
+  
+      if (selectedEvent.notifier.includes('email')) {
+        // Envoyer un e-mail
+        const emailSubject = 'Votre rendez-vous a été mis à jour :';
+        const emailBody = `Bonjour ${selectedEvent.title},<br><br>Votre rendez-vous a été réorganisé au ${formattedDate} à ${updatedEventData.time}.`;
+        await sendEmail({ to: selectedEvent.email, subject: emailSubject, text: emailBody });
+      }
+  
       setShowModal(false);
-      fetchRendezVousData(); 
+      fetchRendezVousData(); // Rafraîchir les rendez-vous après la mise à jour
     } catch (error) {
-      toast.error("Erreur lors de la mise à jour du rendez-vous : " + error.message);
+      console.error("Erreur lors de la mise à jour du rendez-vous : " + error.message);
     }
   };
+  
 
   const handleCancelAppointment = async () => {
     try {
+      // Supprimer le rendez-vous
       await deleteRendezVous(user.token, selectedEvent.id);
       toast.success('Rendez-vous annulé avec succès !');
-     fetchRendezVousData();
-      setShowModal(false); 
-      
+  
+      // Rafraîchir les rendez-vous
+      fetchRendezVousData();
+  
+      // Envoyer un SMS si le rendez-vous était notifié par SMS
+      if (selectedEvent.notifier.includes('sms')) {
+        const smsMessage = `Bonjour ${selectedEvent.title}, votre rendez-vous a été annulé.`;
+        const patientPhoneNumber = selectedEvent.telephone;
+        await sendSMS(patientPhoneNumber, smsMessage);
+      }
+  
+      // Envoyer un e-mail
+      if (selectedEvent.notifier.includes('email')) {
+        const emailSubject = 'Annulation de votre rendez-vous :';
+        const emailBody = `Bonjour ${selectedEvent.title},<br><br>Votre rendez-vous a été annulé.`;
+        await sendEmail({ to: selectedEvent.email, subject: emailSubject, text: emailBody });
+      }
+  
+      setShowModal(false);
     } catch (error) {
       toast.error("Erreur lors de l'annulation du rendez-vous");
     }
   };
-
+  
   const handleChange = (e) => {
     setPatientNom(e.target.value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!patientNom || !selectedDate ) {
+    if (!patientNom || !selectedDate) {
       toast.error('Veuillez remplir tous les champs obligatoires.');
       return;
     }
-  const rdvexiste = events.find(event => moment(event.start).isSame(selectedDate, 'minute'));
-  if (rdvexiste) {
-    toast.error('Un rendez-vous existe déjà à cette heure.');
-    return;
-  }
-  const rdvExiste = events.find(event => event.title.trim() === patientNom && moment(event.start).isSame(selectedDate, 'day'));
-  if (rdvExiste) {
-    toast.error('Un rendez-vous existe déjà pour ce patient à cette date.');
-    return;
-  }
+    const rdvexiste = events.find(event => moment(event.start).isSame(selectedDate, 'minute'));
+    if (rdvexiste) {
+      toast.error('Un rendez-vous existe déjà à cette heure.');
+      return;
+    }
+    const rdvExiste = events.find(event => event.title.trim() === patientNom && moment(event.start).isSame(selectedDate, 'day'));
+    if (rdvExiste) {
+      toast.error('Un rendez-vous existe déjà pour ce patient à cette date.');
+      return;
+    }
     try {
       await creerRendezVous(user.token, selectedDate, patientNom);
       toast.success('Rendez-vous ajouté avec succès !');
@@ -184,23 +225,23 @@ function AddRendezVousForm() {
     const formData = new FormData(event.target);
     const newPatient = Object.fromEntries(formData);
     newPatient.dateNaissance = dateNaissance;
-  
-   
+
+
     if (!newPatient.nomPrenom || !newPatient.cin || !newPatient.telephone || !newPatient.dateNaissance || !newPatient.sexe) {
       toast.error('Veuillez remplir tous les champs obligatoires.');
       return;
     }
-  
+
     try {
       addPatient(newPatient, (response) => {
         if (response.error) {
           toast.error(response.error);
           setSuccessMessage('');
         } else {
-          setPatients([...patients, response]); 
+          setPatients([...patients, response]);
           toast.success('patient ajouté avec succès !');
           setErrorMessage('');
-          
+
           setPatientNom(response.nomPrenom);
           setShowForm1(false);
         }
@@ -211,9 +252,9 @@ function AddRendezVousForm() {
       setSuccessMessage('');
     }
   };
- 
-    
- 
+
+
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -274,7 +315,7 @@ function AddRendezVousForm() {
                               <div className=" sm:col-span-3">
                                 <label htmlFor="telephone" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-300">Numéro de téléphone *</label>
                                 <div className="mt-2">
-                                  <input type="tel" placeholder=" +216 25 222 555" maxLength="8" name="telephone" id="telephone" autoComplete="telephone" className="mb-2 dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                  <input type="tel" placeholder=" +216 25 222 555" maxLength="13" name="telephone" id="telephone" autoComplete="telephone" className="mb-2 dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                                 </div>
                               </div>
                             </div>
@@ -283,8 +324,8 @@ function AddRendezVousForm() {
                               <label htmlFor="dateNaissance" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-300">Date de naissance *</label>
                               <div className="mt-2">
                                 <DatePicker
-                                                            selected={dateNaissance}
-                                                            onChange={date => setDateNaissance(date)}
+                                  selected={dateNaissance}
+                                  onChange={date => setDateNaissance(date)}
 
                                   dateFormat="dd/MM/yyyy"
                                   showYearDropdown
@@ -320,39 +361,39 @@ function AddRendezVousForm() {
                               </div>
                             </div>
                             <div className=" mt-2 border-b border-gray-900/10 pb-5 dark:border-gray-500">
-                                            <fieldset>
-                                                <legend className="text-sm font-semibold leading-6 text-gray-700 dark:text-gray-50 ">Notifications</legend>
+                              <fieldset>
+                                <legend className="text-sm font-semibold leading-6 text-gray-700 dark:text-gray-50 ">Notifications</legend>
 
-                                                <div className="mt-6 space-y-6 ">
-                                                    <div className="relative flex gap-x-3 ">
-                                                        <input id="email" name="notifier" type="radio" value="email" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
-                                                        <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Par Email</label>
-                                                    </div>
-                                                    <div className="relative flex gap-x-3">
-                                                        <input id="sms" name="notifier" type="radio" value="sms" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
-                                                        <label htmlFor="sms" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Par SMS</label>
-                                                    </div>
-                                                    <div className="relative flex gap-x-3">
-                                                        <input id="appel" name="notifier" type="radio" value="appel" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600 " />
-                                                        <label htmlFor="appel" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Appel téléphonique</label>
-                                                    </div>
-                                                </div>
-                                            </fieldset>
-                                        </div>
-      
+                                <div className="mt-6 space-y-6 ">
+                                  <div className="relative flex gap-x-3 ">
+                                    <input id="email" name="notifier" type="radio" value="email" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                                    <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Par Email</label>
+                                  </div>
+                                  <div className="relative flex gap-x-3">
+                                    <input id="sms" name="notifier" type="radio" value="sms" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                                    <label htmlFor="sms" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Par SMS</label>
+                                  </div>
+                                  <div className="relative flex gap-x-3">
+                                    <input id="appel" name="notifier" type="radio" value="appel" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600 " />
+                                    <label htmlFor="appel" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Appel téléphonique</label>
+                                  </div>
+                                </div>
+                              </fieldset>
+                            </div>
+
                             <div className="mt-6 flex items-center justify-end gap-x-6">
 
-                              <button   type="submit" className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" >Ajouter</button>
-                              
-                                       
+                              <button type="submit" className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" >Ajouter</button>
+
+
                             </div>
-                            
-                          
+
+
 
                           </form>
-                         
+
                         </div>
-                        
+
                       )}
 
                       <div className=" dark:bg-gray-800  mt-4 p-4 border border-gray-300 rounded">
@@ -412,7 +453,7 @@ function AddRendezVousForm() {
                 startAccessor="start"
                 endAccessor="end"
                 defaultDate={new Date()}
-                defaultView="day" 
+                defaultView="day"
                 onSelectSlot={(slotInfo) => handleDateChange(slotInfo.start)}
                 onSelectEvent={(event) => handleEventClick(event)}
                 selectable
@@ -428,8 +469,8 @@ function AddRendezVousForm() {
                   day: "Jour",
                 }}
                 min={new Date(new Date().setHours(8, 0, 0))}
-                max={new Date(new Date().setHours(17, 0, 0))} 
-                step={30} 
+                max={new Date(new Date().setHours(17, 0, 0))}
+                step={30}
                 timeslots={1}
                 className='dark:bg-gray-50 pt-6 rounded-lg pb-6 p-9'
               />

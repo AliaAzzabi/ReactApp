@@ -111,15 +111,16 @@ export const addaides = (aide, callback) => {
     })
     .catch((err) => {
       console.error('Error:', err);
-      callback(err);
+      callback(err.response || err);
     });
 }
 export const addmed = (formData, callback) => {
-
-  api.post('/addmed', formData)
-  
-    .then((res) => callback(res))
-    .catch((err) => callback(err));
+  api.post('http://localhost:4000/addmed', formData)
+      .then((res) => callback(res))
+      .catch((err) => {
+          // On passe l'erreur et la réponse au callback
+          callback(err.response || err);
+      });
 }
 
 export const updateAide = (id, updatedData, callback) => {
@@ -323,6 +324,7 @@ export const getAllRendezVousAjourdhui = async () => {
 
 export const sendEmail = async (formData) => {
   try {
+    console.log('Envoi de l\'e-mail avec les données suivantes:', formData);
     const response = await api.post('/sendEmail', formData);
     return response.data;
   } catch (error) {
@@ -330,6 +332,17 @@ export const sendEmail = async (formData) => {
     throw error;
   }
 };
+
+export const sendSMS = async (phoneNumber, message) => {
+  try {
+    console.log(phoneNumber,message);
+    const response = await api.post('/sendSMS', { phoneNumber, message });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || 'Erreur lors de l\'envoi du SMS');
+  }
+};
+
 
 
 //historique

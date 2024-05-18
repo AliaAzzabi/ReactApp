@@ -48,8 +48,11 @@ function AddPatient() {
             return;
         }
 
+        // Traitement des notifications sélectionnées
+        const notifications = Array.from(formData.getAll("notifier"));
+
         try {
-            addPatient(newPatient, (response) => {
+            addPatient({ ...newPatient, notifier: notifications }, (response) => {
                 console.log(response);
                 if (response.error) {
                     setErrorMessage(response.error);
@@ -68,7 +71,7 @@ function AddPatient() {
 
     if (!user || (user.role !== "médecin" && user.role !== "aide")) {
         return <Navigate to="/login" />;
-      }
+    }
 
     return (
         <div className="flex h-screen overflow-hidden">
@@ -160,21 +163,22 @@ function AddPatient() {
                                                 <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Vous pouvez choisir la méthode par laquelle vous préférez être notifié des changements de rendez-vous.</p>
                                                 <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Nous vous informerons toujours des changements importants.</p>
 
-                                                <div className="mt-6 space-y-6 ">
-                                                    <div className="relative flex gap-x-3 ">
-                                                        <input id="email" name="notifier" type="radio" value="email" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                                                <div className="mt-6 space-y-6">
+                                                    <div className="relative flex gap-x-3 items-center">
+                                                        <input id="email" name="notifier" type="checkbox" value="email" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
                                                         <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-50">Par Email</label>
                                                     </div>
-                                                    <div className="relative flex gap-x-3">
-                                                        <input id="sms" name="notifier" type="radio" value="sms" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                                                    <div className="relative flex gap-x-3 items-center">
+                                                        <input id="sms" name="notifier" type="checkbox" value="sms" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
                                                         <label htmlFor="sms" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-50">Par SMS</label>
                                                     </div>
-                                                    <div className="relative flex gap-x-3">
-                                                        <input id="appel" name="notifier" type="radio" value="appel" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600 " />
+                                                    <div className="relative flex gap-x-3 items-center">
+                                                        <input id="appel" name="notifier" type="checkbox" value="appel" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
                                                         <label htmlFor="appel" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-50">Appel téléphonique</label>
                                                     </div>
                                                 </div>
                                             </fieldset>
+
                                         </div>
                                         {errorMessage && <p className="text-red-500">{errorMessage}</p>}
                                         {successMessage && <p className="text-green-500">{successMessage}</p>}

@@ -89,10 +89,10 @@ function AddMedecin() {
         e.preventDefault();
         try {
             const formData = new FormData();
-
+    
             // Ajouter l'image au FormData
             formData.append('image', medecin.image);
-
+    
             // Ajouter d'autres champs au FormData en utilisant les valeurs des champs de formulaire directement
             formData.append('cin', e.target.cin.value);
             formData.append('nomPrenom', e.target.nomPrenom.value);
@@ -105,25 +105,29 @@ function AddMedecin() {
             formData.append('role', 'médecin');
             formData.append('adresse', e.target.adresse.value);
             formData.append('specialite', e.target.specialite.value);
-
+    
             const callback = (response) => {
                 if (response && response.status >= 200 && response.status < 300) {
                     Navigation('/listeMedecin');
-                    localStorage.setItem('successMessage', 'Médecin ajouté avec succès'); // Stocker le message de succès dans l'état local
-                } else {
-                    setError('email existe déjà.');
+                    localStorage.setItem('successMessage', 'Médecin ajouté avec succès');
+                } else if (response && response.status === 401) {
+                    setError('CIN existe déjà.');
+                    toast.error('Cet utilisateur avec ce CIN existe déjà.');
+                } else if (response && response.status === 400) {
+                    setError('Email existe déjà.');
                     toast.error('Cet email est déjà utilisé.');
+                } else {
+                    setError('Erreur lors de l\'ajout du médecin.');
+                    toast.error('Une erreur s\'est produite lors de l\'ajout du médecin.');
                 }
             };
-            
-            
-
+    
+            // Attendre la réponse de la fonction addmed
             const response = await addmed(formData, callback);
-
-
+    
         } catch (error) {
             console.error("Erreur lors de l'ajout du médecin :", error);
-            alert('Une erreur s\'est produite lors de l\'ajout du médecin');
+            toast.error('Une erreur s\'est produite lors de l\'ajout du médecin');
         }
     };
 

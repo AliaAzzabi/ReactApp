@@ -63,6 +63,11 @@ const addaides = expressHandler(async (req, res) => {
     try {
         const { cin, sexe, nomPrenom, telephone, role, email, password, dateAdhesion, medecin, education, dateNaissance, adresse } = req.body;
 
+        const existingUserWithCIN = await User.findOne({ cin: cin });
+        if (existingUserWithCIN) {
+            return res.status(401).json({ error: "Un utilisateur avec ce CIN existe déjà." });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const existingUser = await User.findOne({ email: email });
         if (existingUser) {

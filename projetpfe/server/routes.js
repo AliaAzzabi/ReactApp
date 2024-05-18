@@ -15,7 +15,7 @@ const { enregistrerPatientSalleAttente}= require("./salleAttente/salleAttenteCon
 const {createHistorique, getAllHistoriques, deleteHistorique}=require("./historique/historiqueController")
 const {sendEmail} = require ('./mail/controllerEmail');
 const {globalMedecin, globalAssistant } = require ('./statistics/statistic');
-
+const {sendSMS} = require ('./sms/SMScontroller');
 const requireAuth = require('./middleware/requireAuth');
 const router = express.Router();
 
@@ -89,4 +89,15 @@ router.get('/api/rendezvous/statistique', rendezvousParJour)
 router.get('/api/global/medecins', globalMedecin);
 router.get('/api/global/assistants', globalAssistant);
 
+router.post('/sendSMS', async (req, res) => {
+    const { phoneNumber, message } = req.body;
+    try {
+        // Appeler la fonction sendSMS avec les données phoneNumber et message
+        const response = await sendSMS(phoneNumber, message);
+        res.status(200).json({ success: true, response });
+    } catch (error) {
+        console.error('Erreur lors de l\'envoi du SMS:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 module.exports = { router };

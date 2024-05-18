@@ -8,6 +8,8 @@ import DashboardAvatars from '../partials/dashboard/DashboardAvatars';
 import FilterButton from '../components/DropdownFilter';
 import Datepicker from '../components/Datepicker';
 import { Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { addaides } from '../liaisonfrontback/operation';
 import { getMedecins } from '../liaisonfrontback/operation';
 
@@ -108,9 +110,15 @@ function AddAssistant() {
                 if (response && response.status >= 200 && response.status < 300) {
                     localStorage.setItem('successMessage', 'Assistant ajouté avec succès')
                     Navigation('/listeAssistant');
+                } else if (response && response.status === 401) {
+                    setError('CIN existe déjà.');
+                    toast.error('Cet utilisateur avec ce CIN existe déjà.');
+                } else if (response && response.status === 400) {
+                    setError('Email existe déjà.');
+                    toast.error('Cet email est déjà utilisé.');
                 } else {
-                    setError('email existe déja.');
-                    alert('Cet email est déjà utilisé.');
+                    setError('Erreur lors de l\'ajout du médecin.');
+                    toast.error('Une erreur s\'est produite lors de l\'ajout du médecin.');
                 }
             };
 
@@ -391,6 +399,7 @@ function AddAssistant() {
                     </div>
                 </main>
             </div >
+            <ToastContainer />
         </div >
     );
 }

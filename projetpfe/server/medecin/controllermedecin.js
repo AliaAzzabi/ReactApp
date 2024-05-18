@@ -44,14 +44,19 @@ const getMedecinById = async (req, res) => {
     }
 };
 const addmed = expressHandler(async (req, res) => {
-   // console.log(req.body);
     try {
         const { cin, sexe, nomPrenom, telephone, role, email, password, dateAdhesion, specialite, dateNaissance, adresse } = req.body;
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const existingUser = await User.findOne({ email: email });
-        if (existingUser) {
+
+        const existingUserByEmail = await User.findOne({ email: email });
+        if (existingUserByEmail) {
             return res.status(400).json({ error: "Cet email est déjà utilisé." });
+        }
+
+        const existingUserByCIN = await User.findOne({ cin: cin });
+        if (existingUserByCIN) {
+            return res.status(401).json({ error: "Un utilisateur avec ce CIN existe déjà." });
         }
 
         let specialiteid = await Specialite.findOne({ _id: specialite }).select('_id');
@@ -83,11 +88,11 @@ const addmed = expressHandler(async (req, res) => {
             user: savedUser._id,
             specialite: specialiteid._id,
             image: savedImage._id,
-             isSelected: req.body.isSelected || true
+            isSelected: req.body.isSelected || true
         });
 
         const savedMed = await newMed.save();
-console.log(savedMed);
+
         res.status(201).json({
             _id: savedMed._id,
             cin: savedUser.cin,
@@ -110,6 +115,7 @@ console.log(savedMed);
         res.status(500).json({ error: "Erreur interne du serveur" });
     }
 });
+
 
 
 

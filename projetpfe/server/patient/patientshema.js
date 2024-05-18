@@ -8,7 +8,7 @@ const patientSchema = new mongoose.Schema({
     email: String,
     sexe: String,
     dateNaissance: Date,
-    notifier: String
+    notifier: [String]
 }, { timestamps: true }); 
 
 patientSchema.post('findOneAndDelete', async function(Patient) {

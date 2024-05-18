@@ -61,7 +61,7 @@ const getAllRendezVous = async (req, res) => {
     const rendezVous = await RendezVous.find({ medecin: medecinId })
       .populate({
         path: 'patient',
-        select: 'nomPrenom' 
+        select: 'nomPrenom email telephone notifier' 
       })
       .populate('medecin') 
       .populate('secretaire'); 

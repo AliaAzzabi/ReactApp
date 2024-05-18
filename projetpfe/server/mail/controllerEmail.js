@@ -1,30 +1,48 @@
-const sendEmail = async (to, subject, text) => {
+const nodemailer = require('nodemailer');
+const path = require('path');
+const KoalaWelcomeEmail = require('./emailstruture');
+require('dotenv').config();
+
+const sendEmail = async (req, res) => {
+  const { to, subject, text } = req.body;
+
+  if (!to || !subject || !text) {
+    return res.status(400).json({ success: false, message: 'Les paramètres to, subject et text sont requis' });
+  }
+
   try {
-      // Créer un transporteur SMTP
-      let transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-              user: 'azzabialia1@gmail.com',
-              pass: 'eimu mrue nkdg urrm'
-          }
-      });
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
 
-      // Configurez les informations de l'e-mail
-      let mailOptions = {
-          from: 'azzabialia1@gmail.com', // Votre adresse e-mail
-          to: to, // Adresse e-mail du patient
-          subject: subject,
-          text: text
-      };
+    // Utilisez votre composant KoalaWelcomeEmail pour générer le contenu HTML
+    const logoPath = path.join(__dirname, 'logo.png');
+    const logoCid = 'unique@logo.cid'; // Un CID unique pour l'image
+    const emailContent = KoalaWelcomeEmail(text, logoCid);
 
-      // Envoyer l'e-mail
-      let info = await transporter.sendMail(mailOptions);
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: to,
+      subject: subject,
+      html: emailContent.data, // Utilisez emailContent.data pour obtenir le contenu HTML
+      attachments: [{
+        filename: 'logo.png',
+        path: logoPath,
+        cid: logoCid
+      }]
+    };
 
-      console.log("E-mail envoyé: %s", info.messageId);
-      return { success: true, message: 'Votre e-mail a été envoyé avec succès!' };
+    let info = await transporter.sendMail(mailOptions);
+    console.log("E-mail envoyé: %s", info.messageId);
+    res.status(200).json({ success: true, message: 'Votre e-mail a été envoyé avec succès!' });
   } catch (error) {
-      console.error(error);
-      return { success: false, error: 'Erreur lors de l\'envoi de l\'e-mail' };
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Erreur lors de l\'envoi de l\'e-mail', error: error.message });
   }
 };
-module.exports = { sendEmail }; 
+
+module.exports = { sendEmail };
