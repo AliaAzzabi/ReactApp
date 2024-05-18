@@ -152,7 +152,7 @@ function AddRendezVousForm() {
   
       // Rafraîchir les rendez-vous
       fetchRendezVousData();
-  
+ 
       // Envoyer un SMS si le rendez-vous était notifié par SMS
       if (selectedEvent.notifier.includes('sms')) {
         const smsMessage = `Bonjour ${selectedEvent.title}, votre rendez-vous a été annulé.`;
@@ -166,7 +166,7 @@ function AddRendezVousForm() {
         const emailBody = `Bonjour ${selectedEvent.title},<br><br>Votre rendez-vous a été annulé.`;
         await sendEmail({ to: selectedEvent.email, subject: emailSubject, text: emailBody });
       }
-  
+
       setShowModal(false);
     } catch (error) {
       toast.error("Erreur lors de l'annulation du rendez-vous");
@@ -361,24 +361,26 @@ function AddRendezVousForm() {
                               </div>
                             </div>
                             <div className=" mt-2 border-b border-gray-900/10 pb-5 dark:border-gray-500">
-                              <fieldset>
-                                <legend className="text-sm font-semibold leading-6 text-gray-700 dark:text-gray-50 ">Notifications</legend>
+                            <fieldset>
+                                                <legend className="text-sm font-semibold leading-6 text-gray-700 dark:text-gray-50">Notifications</legend>
+                                                <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Vous pouvez choisir la méthode par laquelle vous préférez être notifié des changements de rendez-vous.</p>
+                                                <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Nous vous informerons toujours des changements importants.</p>
 
-                                <div className="mt-6 space-y-6 ">
-                                  <div className="relative flex gap-x-3 ">
-                                    <input id="email" name="notifier" type="radio" value="email" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
-                                    <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Par Email</label>
-                                  </div>
-                                  <div className="relative flex gap-x-3">
-                                    <input id="sms" name="notifier" type="radio" value="sms" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
-                                    <label htmlFor="sms" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Par SMS</label>
-                                  </div>
-                                  <div className="relative flex gap-x-3">
-                                    <input id="appel" name="notifier" type="radio" value="appel" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600 " />
-                                    <label htmlFor="appel" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Appel téléphonique</label>
-                                  </div>
-                                </div>
-                              </fieldset>
+                                                <div className="mt-6 space-y-6">
+                                                    <div className="relative flex gap-x-3 items-center">
+                                                        <input id="email" name="notifier" type="checkbox" value="email" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                                                        <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-50">Par Email</label>
+                                                    </div>
+                                                    <div className="relative flex gap-x-3 items-center">
+                                                        <input id="sms" name="notifier" type="checkbox" value="sms" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                                                        <label htmlFor="sms" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-50">Par SMS</label>
+                                                    </div>
+                                                    <div className="relative flex gap-x-3 items-center">
+                                                        <input id="appel" name="notifier" type="checkbox" value="appel" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                                                        <label htmlFor="appel" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-50">Appel téléphonique</label>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
                             </div>
 
                             <div className="mt-6 flex items-center justify-end gap-x-6">
