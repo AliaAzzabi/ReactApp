@@ -1,6 +1,7 @@
 const Patient = require('./patientshema');
 const bcrypt = require('bcrypt');
 const User = require("../models/userModel");
+const moment = require('moment');
 
 const expressHandler = require("express-async-handler");
 
@@ -84,24 +85,37 @@ const expressHandler = require("express-async-handler");
     }
   };
 
-  const StatistiquePatient = async (req, res) => {
+const StatistiquePatient = async (req, res) => {
     try {
-        // Query database for patient counts grouped by day
+        // Récupérer l'année en cours
+        const currentYear = new Date().getFullYear();
+        
+        // Filtrer les données pour l'année en cours et grouper par mois
         const patientStatistics = await Patient.aggregate([
             {
+                $match: {
+                    $expr: {
+                        $eq: [{ $year: "$createdAt" }, currentYear]
+                    }
+                }
+            },
+            {
                 $group: {
-                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    _id: { $month: "$createdAt" },
                     count: { $sum: 1 }
                 }
             },
             { $sort: { _id: 1 } }
         ]);
+        
         res.json(patientStatistics);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
 
 const globalPatient = async (req, res) => {
   try {

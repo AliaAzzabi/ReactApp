@@ -344,7 +344,6 @@ export const sendSMS = async (phoneNumber, message) => {
 };
 
 
-
 //historique
 export const getAllHistoriques = async (id) => {
   try {
@@ -375,9 +374,50 @@ export const deleteHistorique = (id, callback) => {
 
 export const getRendezVousByPatientId = async (patientId) => {
   try {
-    const response = await axios.get(`/patients/${patientId}/rendezvous`); // Assurez-vous que l'URL correspond à votre backend
+    const response = await api.get(`/patients/${patientId}/rendezvous`); 
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching rendez-vous:', error);
+    throw error;
+  }
+};
+
+export const updateUserProfile = async (userData, token) => {
+  try {
+    const response = await axios.put('http://localhost:4000/api/user/profile', userData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
     return response.data;
   } catch (error) {
     throw error;
   }
 };
+
+
+// liaisonfrontback/operation.js
+
+// Cette fonction envoie une requête au serveur pour récupérer les informations du profil utilisateur
+export const getUserProfile = async (token) => {
+  try {
+      const response = await fetch('http://localhost:4000/api/user/getprofile', {
+          method: 'GET',
+          headers: {
+              'Authorization': `Bearer ${token}`
+          }
+      });
+
+      if (!response.ok) {
+          throw new Error('Impossible de récupérer le profil utilisateur');
+      }
+
+      const userProfile = await response.json();
+      return userProfile;
+  } catch (error) {
+      throw new Error('Erreur lors de la récupération du profil utilisateur : ' + error.message);
+  }
+};
+
+

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { faClock } from '@fortawesome/free-solid-svg-icons';
 
 import SidebarLinkGroup from './SidebarLinkGroup';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
@@ -93,7 +94,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
 
 
             </NavLink>
-            <span className={`text-white font-bold ml-2 text-lg animate-text ${sidebarExpanded ? 'block' : 'hidden'}`}>{userNom}</span>
+            <span className={`text-white font-bold ml-2 text-lg animate-text ${sidebarExpanded ? 'block' : 'hidden'}`}>SantéPlus</span>
           </div>
         </div>
 
@@ -491,6 +492,20 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                   </div>
                 </NavLink>
               </li>
+              {/* demande rdv */}
+<li className={`px-3 py-2 mt-4 mb-4 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('demandeRDV') && 'bg-slate-900'}`}>
+  <NavLink
+    end
+    to="/demandeRDV"
+    className={`block text-slate-200 truncate transition duration-150 ${pathname.includes('demandeRDV') ? 'hover:text-slate-200' : 'hover:text-white'
+      }`}
+  >
+    <div className="flex items-center">
+      <FontAwesomeIcon icon={faClock} className={`shrink-0 h-6 w-6 ${pathname.includes('demandeRDV') ? 'text-indigo-500' : 'text-slate-600'}`} />
+      <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">Demandes rendez-vous</span>
+    </div>
+  </NavLink>
+</li>
               {/**salle d'attente 
               <li className={`px-3 py-2 mt-4 mb-4 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('salleDattente') && 'bg-slate-900'}`}>
                 <NavLink

@@ -1,9 +1,16 @@
+// BarChart01.js
 import React, { useRef, useEffect, useState } from 'react';
 import { useThemeProvider } from '../utils/ThemeContext';
 
 import { chartColors } from './ChartjsConfig';
 import {
-  Chart, BarController, BarElement, LinearScale, TimeScale, Tooltip, Legend,
+  Chart,
+  BarController,
+  BarElement,
+  LinearScale,
+  TimeScale,
+  Tooltip,
+  Legend,
 } from 'chart.js';
 import 'chartjs-adapter-moment';
 
@@ -12,13 +19,7 @@ import { tailwindConfig, formatValue } from '../utils/Utils';
 
 Chart.register(BarController, BarElement, LinearScale, TimeScale, Tooltip, Legend);
 
-function BarChart01({
-  data,
-  width,
-  height
-}) {
-
-  const [chart, setChart] = useState(null)
+function BarChart01({ data, width, height }) {
   const canvas = useRef(null);
   const legend = useRef(null);
   const { currentTheme } = useThemeProvider();
@@ -26,8 +27,7 @@ function BarChart01({
   const { textColor, gridColor, tooltipBodyColor, tooltipBgColor, tooltipBorderColor } = chartColors;
 
   useEffect(() => {
-    const ctx = canvas.current;
-    // eslint-disable-next-line no-unused-vars
+    const ctx = canvas.current.getContext('2d');
     const newChart = new Chart(ctx, {
       type: 'bar',
       data: data,
@@ -51,14 +51,6 @@ function BarChart01({
             },
           },
           x: {
-            type: 'time',
-            time: {
-              parser: 'MM-DD-YYYY',
-              unit: 'month',
-              displayFormats: {
-                month: 'MMM YY',
-              },
-            },
             border: {
               display: false,
             },
@@ -142,7 +134,7 @@ function BarChart01({
               label.style.fontSize = tailwindConfig().theme.fontSize.sm[0];
               label.style.lineHeight = tailwindConfig().theme.fontSize.sm[1].lineHeight;
               const theValue = c.data.datasets[item.datasetIndex].data.reduce((a, b) => a + b, 0);
-              const valueText = document.createTextNode(formatValue(theValue));
+              const valueText = document.createTextNode(theValue);
               const labelText = document.createTextNode(item.text);
               value.appendChild(valueText);
               label.appendChild(labelText);
@@ -157,31 +149,9 @@ function BarChart01({
         },
       ],
     });
-    setChart(newChart);
+
     return () => newChart.destroy();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (!chart) return;
-
-    if (darkMode) {
-      chart.options.scales.x.ticks.color = textColor.dark;
-      chart.options.scales.y.ticks.color = textColor.dark;
-      chart.options.scales.y.grid.color = gridColor.dark;
-      chart.options.plugins.tooltip.bodyColor = tooltipBodyColor.dark;
-      chart.options.plugins.tooltip.backgroundColor = tooltipBgColor.dark;
-      chart.options.plugins.tooltip.borderColor = tooltipBorderColor.dark;
-    } else {
-      chart.options.scales.x.ticks.color = textColor.light;
-      chart.options.scales.y.ticks.color = textColor.light;
-      chart.options.scales.y.grid.color = gridColor.light;
-      chart.options.plugins.tooltip.bodyColor = tooltipBodyColor.light;
-      chart.options.plugins.tooltip.backgroundColor = tooltipBgColor.light;
-      chart.options.plugins.tooltip.borderColor = tooltipBorderColor.light;
-    }
-    chart.update('none');
-  }, [currentTheme]);
+  }, [data, darkMode]);
 
   return (
     <React.Fragment>

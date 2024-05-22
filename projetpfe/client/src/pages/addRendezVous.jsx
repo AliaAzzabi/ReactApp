@@ -39,6 +39,8 @@ function AddRendezVousForm() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [selectedOption, setSelectedOption] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // Loading state
+
   const toggleForm1 = () => {
     setShowForm1(!showForm1);
     setShowForm2(false);
@@ -61,10 +63,10 @@ function AddRendezVousForm() {
     setSelectedOption(e.target.value);
   };
 
-
   if (!user || (user.role !== "médecin" && user.role !== "aide")) {
     return <Navigate to="/login" />;
   }
+
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
@@ -111,6 +113,8 @@ function AddRendezVousForm() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
+
+
       const updatedEventData = {
         patientNom,
         date: selectedDate,
@@ -119,7 +123,6 @@ function AddRendezVousForm() {
   
       await updateRendezVous(user.token, selectedEvent.id, updatedEventData);
       toast.success('Rendez-vous mis à jour avec succès !');
-  
       const formattedDate = selectedDate.toDateString();
   
       if (selectedEvent.notifier.includes('sms')) {
@@ -135,9 +138,9 @@ function AddRendezVousForm() {
         const emailBody = `Bonjour ${selectedEvent.title},<br><br>Votre rendez-vous a été réorganisé au ${formattedDate} à ${updatedEventData.time}.`;
         await sendEmail({ to: selectedEvent.email, subject: emailSubject, text: emailBody });
       }
-  
+
       setShowModal(false);
-      fetchRendezVousData(); // Rafraîchir les rendez-vous après la mise à jour
+      fetchRendezVousData();
     } catch (error) {
       console.error("Erreur lors de la mise à jour du rendez-vous : " + error.message);
     }
@@ -145,16 +148,16 @@ function AddRendezVousForm() {
   
 
   const handleCancelAppointment = async () => {
+    setIsLoading(true); // Start loading
     try {
       // Supprimer le rendez-vous
       await deleteRendezVous(user.token, selectedEvent.id);
       toast.success('Rendez-vous annulé avec succès !');
-  
-      // Rafraîchir les rendez-vous
+      
       fetchRendezVousData();
- 
-      // Envoyer un SMS si le rendez-vous était notifié par SMS
-      if (selectedEvent.notifier.includes('sms')) {
+
+       // Envoyer un SMS si le rendez-vous était notifié par SMS
+       if (selectedEvent.notifier.includes('sms')) {
         const smsMessage = `Bonjour ${selectedEvent.title}, votre rendez-vous a été annulé.`;
         const patientPhoneNumber = selectedEvent.telephone;
         await sendSMS(patientPhoneNumber, smsMessage);
@@ -169,7 +172,9 @@ function AddRendezVousForm() {
 
       setShowModal(false);
     } catch (error) {
-      toast.error("Erreur lors de l'annulation du rendez-vous");
+      toast.error("Erreur lors de l'annulation du rendez-vous : " + error.message);
+    } finally {
+      setIsLoading(false); // End loading
     }
   };
   
@@ -177,6 +182,7 @@ function AddRendezVousForm() {
     setPatientNom(e.target.value);
   };
 
+  const maxARdvParJour = 18;
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!patientNom || !selectedDate) {
@@ -193,6 +199,12 @@ function AddRendezVousForm() {
       toast.error('Un rendez-vous existe déjà pour ce patient à cette date.');
       return;
     }
+    // Trouver tous les rendez-vous pour le jour sélectionné
+    const rdvJourSelectionne = events.filter(event =>
+      moment(event.start).isSame(selectedDate, 'day')
+    );
+    if (rdvJourSelectionne.length < maxARdvParJour) {
+     // Ajouter le nouveau rendez-vous normalement
     try {
       await creerRendezVous(user.token, selectedDate, patientNom);
       toast.success('Rendez-vous ajouté avec succès !');
@@ -200,10 +212,15 @@ function AddRendezVousForm() {
       setPatientNom('');
       setEvents([...events, { start: selectedDate, end: selectedDate, title: patientNom }]);
       setShowFormModal(false);
+      window.location.reload(); 
     } catch (error) {
       toast.error("Erreur lors de l'ajout du rendez-vous");
     }
-  };
+  } else {
+    // Afficher un message d'alerte si le nombre maximal est dépassé
+    toast.error(`Le nombre maximal de rendez-vous (${maxARdvParJour}) pour cette journée est déjà atteint.`);
+  }
+};
 
   const fetchPatients = async () => {
     try {
@@ -225,7 +242,6 @@ function AddRendezVousForm() {
     const formData = new FormData(event.target);
     const newPatient = Object.fromEntries(formData);
     newPatient.dateNaissance = dateNaissance;
-
 
     if (!newPatient.nomPrenom || !newPatient.cin || !newPatient.telephone || !newPatient.dateNaissance || !newPatient.sexe) {
       toast.error('Veuillez remplir tous les champs obligatoires.');
@@ -315,7 +331,7 @@ function AddRendezVousForm() {
                               <div className=" sm:col-span-3">
                                 <label htmlFor="telephone" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-300">Numéro de téléphone *</label>
                                 <div className="mt-2">
-                                  <input type="tel" placeholder=" +216 25 222 555" maxLength="13" name="telephone" id="telephone" autoComplete="telephone" className="mb-2 dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                  <input type="tel" placeholder=" +216 25 222 555" maxLength="12" name="telephone" id="telephone" autoComplete="telephone" className="mb-2 dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                                 </div>
                               </div>
                             </div>
@@ -331,6 +347,7 @@ function AddRendezVousForm() {
                                   showYearDropdown
                                   scrollableYearDropdown
                                   yearDropdownItemNumber={60}
+                                  
                                   className="mb-2 dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
                               </div>
@@ -361,27 +378,26 @@ function AddRendezVousForm() {
                               </div>
                             </div>
                             <div className=" mt-2 border-b border-gray-900/10 pb-5 dark:border-gray-500">
-                            <fieldset>
-                                                <legend className="text-sm font-semibold leading-6 text-gray-700 dark:text-gray-50">Notifications</legend>
-                                                <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Vous pouvez choisir la méthode par laquelle vous préférez être notifié des changements de rendez-vous.</p>
-                                                <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Nous vous informerons toujours des changements importants.</p>
+                              <fieldset>
+                                <legend className="text-sm font-semibold leading-6 text-gray-700 dark:text-gray-50 ">Notifications</legend>
 
-                                                <div className="mt-6 space-y-6">
-                                                    <div className="relative flex gap-x-3 items-center">
-                                                        <input id="email" name="notifier" type="checkbox" value="email" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
-                                                        <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-50">Par Email</label>
-                                                    </div>
-                                                    <div className="relative flex gap-x-3 items-center">
-                                                        <input id="sms" name="notifier" type="checkbox" value="sms" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
-                                                        <label htmlFor="sms" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-50">Par SMS</label>
-                                                    </div>
-                                                    <div className="relative flex gap-x-3 items-center">
-                                                        <input id="appel" name="notifier" type="checkbox" value="appel" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
-                                                        <label htmlFor="appel" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-50">Appel téléphonique</label>
-                                                    </div>
-                                                </div>
-                                            </fieldset>
+                                <div className="mt-6 space-y-6 ">
+                                  <div className="relative flex gap-x-3 ">
+                                    <input id="email" name="notifier" type="checkbox" value="email" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                                    <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Par Email</label>
+                                  </div>
+                                  <div className="relative flex gap-x-3">
+                                    <input id="sms" name="notifier" type="checkbox" value="sms" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                                    <label htmlFor="sms" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Par SMS</label>
+                                  </div>
+                                  <div className="relative flex gap-x-3">
+                                    <input id="appel" name="notifier" type="checkbox" value="appel" className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600 " />
+                                    <label htmlFor="appel" className="block text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">Appel téléphonique</label>
+                                  </div>
+                                </div>
+                              </fieldset>
                             </div>
+
                             <div className="mt-6 flex items-center justify-end gap-x-6">
 
                               <button type="submit" className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" >Ajouter</button>
@@ -428,9 +444,12 @@ function AddRendezVousForm() {
                               onChange={handleDateChange}
                               showTimeSelect
                               timeFormat="HH:mm"
-                              timeIntervals={15}
+                              timeIntervals={30}
                               timeCaption="Heure"
                               dateFormat="yyyy-MM-dd HH:mm"
+                              minTime={new Date().setHours(8, 0, 0)} // Heure minimale (8:00)
+                              maxTime={new Date().setHours(17, 0, 0)} // Heure maximale (17:00)
+                             
                               className=" dark:text-gray-300 dark:bg-gray-700 w-full bg-gray-100 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
                             />
                           </div>
@@ -509,9 +528,12 @@ function AddRendezVousForm() {
                             onChange={handleDateChange}
                             showTimeSelect
                             timeFormat="HH:mm"
-                            timeIntervals={15}
+                           
                             timeCaption="Heure"
                             dateFormat="yyyy-MM-dd HH:mm"
+                            minTime={new Date().setHours(8, 0, 0)} // Heure minimale (8:00)
+                            maxTime={new Date().setHours(17, 0, 0)} // Heure maximale (17:00)
+                            timeIntervals={30}
                             className="w-full bg-gray-100 rounded-md border-transparent focus:border-gray-500 focus:bg-gray-50 focus:ring-0"
                           />
                         </div>
@@ -519,8 +541,8 @@ function AddRendezVousForm() {
                           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
                             Modifier
                           </button>
-                          <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onClick={handleCancelAppointment}>
-                            Annuler rendez-vous
+                          <button type="button" className="btn bg-red-500 hover:bg-red-600 text-white" onClick={handleCancelAppointment} disabled={isLoading}>
+                            {isLoading ? 'Annulation...' : 'Annuler le rendez-vous'}
                           </button>
                         </div>
                       </form>

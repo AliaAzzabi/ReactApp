@@ -22,7 +22,7 @@ const rendezVousSchema = new mongoose.Schema({
   secretaire: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Aide',
-    required: true
+    required: false
   },
 });
 

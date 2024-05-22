@@ -1,13 +1,9 @@
-import React, { useState,useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Navigate } from "react-router-dom";
 import { AuthContext } from '../context/AuthContext';
 import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
-
-import DashboardAvatars from '../partials/dashboard/DashboardAvatars';
-import FilterButton from '../components/DropdownFilter';
-import Datepicker from '../components/Datepicker';
-import { Link } from 'react-router-dom';
+import { updateUserProfile, getUserProfile } from '../liaisonfrontback/operation'; 
 import {
     Card,
     CardHeader,
@@ -24,22 +20,90 @@ import {
     IconButton,
     Tooltip,
 } from "@material-tailwind/react";
-
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+// Fonction utilitaire pour formater la date au format yyyy-MM-dd
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 function Profile() {
-
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { user } = useContext(AuthContext);
+    const [formData, setFormData] = useState({
+        nomPrenom: '',
+        email: '',
+        telephone: '',
+        adresse: '',
+        dateNaissance: '',
+        password: '',
+        confirmPassword: ''
+    });
+
+    useEffect(() => {
+        // Récupérer le profil utilisateur lors du chargement du composant
+        if (user) {
+            getUserData();
+        }
+    }, [user]);
+
+    const getUserData = async () => {
+        try {
+            const userProfile = await getUserProfile(user.token);
+            setFormData({
+                ...formData,
+                nomPrenom: userProfile.nomPrenom,
+                email: userProfile.email,
+                telephone: userProfile.telephone,
+                adresse: userProfile.adresse,
+                dateNaissance: formatDate(userProfile.dateNaissance)
+            });
+        } catch (error) {
+            console.error('Erreur lors de la récupération du profil utilisateur :', error);
+        }
+    };
+
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        if (formData.password !== formData.confirmPassword) {
+            toast.error("Les mots de passe ne correspondent pas");
+            return;
+        }
+        try {
+            const updatedUser = await updateUserProfile({
+                nomPrenom: formData.nomPrenom,
+                email: formData.email,
+                telephone: formData.telephone,
+                adresse: formData.adresse,
+                dateNaissance: formData.dateNaissance,
+                password: formData.password
+            }, user.token);
+            toast.success('Profil utilisateur mis à jour avec succès ', updatedUser);
+            // Mettre à jour l'état local du profil utilisateur
+            setFormData({
+                ...formData,
+                password: '',
+                confirmPassword: ''
+            });
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour du profil utilisateur :', error);
+            // Gérer les erreurs côté client, par exemple, afficher un message d'erreur à l'utilisateur.
+        }
+    };
 
     if (!user) {
         return <Navigate to="/login" />;
-      }
-      const userEmail = user ? user.email : '';
-      const nomPrenom = user ? user.nomPrenom : '';
-      const adresse = user ? user.adresse : '';
+    }
 
-      const telephone = user ? user.telephone : '';
     return (
         <div className="flex h-screen overflow-hidden">
             {/* Sidebar */}
@@ -52,124 +116,148 @@ function Profile() {
 
                 <main>
                     <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
-
-                        <div className="sm:flex sm:justify-between sm:items-center mb-8">
-
-
-                        </div>
-
-                        {/* profile */}
+                        {/* Profile */}
                         <div className="grid grid-cols-3">
                             {/* Profile Section */}
-                            <div className=" dark:bg-gray-800 text-gray-500 sm:col-span-1 bg-white shadow-xl rounded-lg py-3 h-96 mr-8">
+                            <div className=" dark:bg-gray-800 sm:col-span-1 bg-white shadow-xl rounded-lg py-3 h-96 mr-8">
+                                {/* Profile details */}
                                 <div className="photo-wrapper p-2">
                                     <img className="w-32 h-32 rounded-full mx-auto" src="https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-4.jpg"  alt="John Doe" />
                                 </div>
                                 <div className="p-2">
-                                    <h3 className="text-center text-xl dark:text-gray-50 text-gray-800 font-medium leading-8">{nomPrenom}</h3>
+                                    <h3 className="text-center text-xl text-gray-800 font-medium leading-8">{formData.nomPrenom}</h3>
                                     <div className="text-center text-gray-400 text-xs font-semibold">
                                         <p>Radiologue</p>
                                     </div>
                                     {/* Table with profile details */}
-                                    <table className="text-xs my-3">
+                                    <table className=" text-xs my-3">
                                         <tbody>
                                             <tr>
-                                                <td className="px-2 py-2 text-gray-500 font-semibold">Address</td>
-                                                <td className="px-2 py-2">{user.adresse}</td>
+                                                <td className="px-2 py-2 font-semibold">Adresse</td>
+                                                <td className="px-2 py-2">{formData.adresse}</td>
                                             </tr>
                                             <tr>
-                                                <td className="px-2 py-2 text-gray-500 font-semibold">Téléphone</td>
-                                                <td className="px-2 py-2">{user.telephone}</td>
+                                                <td className="px-2 py-2 font-semibold">Téléphone</td>
+                                                <td className="px-2 py-2">{formData.telephone}</td>
                                             </tr>
                                             <tr>
-                                                <td className="px-2 py-2 text-gray-500 font-semibold">Email</td>
-                                                <td className="px-2 py-2">{userEmail}</td>
+                                                <td className="px-2 py-2 font-semibold">Email</td>
+                                                <td className="px-2 py-2">{formData.email}</td>
                                             </tr>
                                         </tbody>
                                     </table>
-                                   
                                 </div>
                             </div>
 
-                            {/** formulaire */}
-
-                            <div className=" sm:col-span-2 bg-white shadow-xl rounded-lg py-3 h-96 mr-8 dark:bg-gray-800 text-gray-500">
-                                <Card className="pt-8 pl-8 pb-8 pr-8 rounded-lg dark:bg-gray-800 text-gray-500">                                    {/* Form content */}
-                                    <form>
-                                        <div className="space-y-12 ">
-
-
+                            {/* Formulaire de mise à jour du profil */}
+                            <div className=" dark:bg-gray-800 sm:col-span-2 bg-white shadow-xl rounded-lg py-3 h-96 mr-8">
+                                <Card className=" dark:bg-gray-800 pt-8 pl-8 pb-8 pr-8 rounded-lg">
+                                    <form onSubmit={handleSubmit}>
+                                        <div className="space-y-12">
                                             <div className="border-b border-gray-500/10 pb-12">
                                                 <h2 className="text-base font-semibold leading-7 dark:text-gray-50 text-gray-800">Information personnelle</h2>
-
                                                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                                                     <div className="sm:col-span-3">
-                                                        <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Nom & Prénom</label>
+                                                        <label htmlFor="nomPrenom" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Nom & Prénom</label>
                                                         <div className="mt-2">
-                                                            <input type="text" name="first-name" value={user.nomPrenom} id="first-name" autoComplete="given-name" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                            <input 
+                                                                type="text"
+                                                                name="nomPrenom"
+                                                                value={formData.nomPrenom}
+                                                                onChange={handleChange}
+                                                                placeholder="Nom et prénom" 
+                                                                className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" 
+                                                            />
                                                         </div>
                                                     </div>
-
-                                                    
 
                                                     <div className="sm:col-span-3">
                                                         <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Email</label>
                                                         <div className="mt-2">
-                                                            <input id="email" value={userEmail} name="email" type="email" autoComplete="email" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                            <input   
+                                                                type="email"
+                                                                name="email"
+                                                                value={formData.email}
+                                                                onChange={handleChange}
+                                                                placeholder="Email"  
+                                                                className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" 
+                                                            />
                                                         </div>
-                                                    </div>
-                                                    <div className="sm:col-span-3">
-                                                        <label htmlFor="dateNaissance" className=" block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Date de naissance</label>
-                                                        <div className="mt-2">
-                                                            <Datepicker
-                                                                id="date-of-birth"
-                                                                name="date-of-birth"
-                                                                value={user.dateNaissance}
-                                                                className=" dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                                            />                                                        </div>
                                                     </div>
 
                                                     <div className="sm:col-span-3">
-                                                        <label htmlFor="specialty" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Spécialités</label>
+                                                        <label htmlFor="dateNaissance" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Date de naissance</label>
                                                         <div className="mt-2">
-                                                            <select id="specialty" name="specialty" autoComplete="specialty" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                                                                <option value="1">Médecine générale</option>
-                                                                <option value="2">Cardiologie</option>
-                                                                <option value="3">Dermatologie</option>
-                                                                <option value="4">Gynécologie</option>
-                                                                <option value="5">Pédiatrie</option>
-                                                            </select>
+                                                            <input
+                                                               type="date"
+                                                               name="dateNaissance"
+                                                               value={formData.dateNaissance}
+                                                               onChange={handleChange}
+                                                               placeholder="Date de naissance"
+                                                               className="dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                            />                                                        
                                                         </div>
                                                     </div>
-                                                  
 
-                                                    
+                                                    <div className="sm:col-span-2">
+                                                        <label htmlFor="telephone" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Numéro de téléphone</label>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                type="tel"
+                                                                name="telephone"
+                                                                value={formData.telephone}
+                                                                onChange={handleChange}
+                                                                placeholder="Téléphone"  
+                                                                className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                            />                                                        
+                                                        </div>
+                                                    </div>
 
                                                     <div className="sm:col-span-3">
-                                                <label htmlFor="new-password" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Nouveau mot de passe</label>
-                                                <div className="mt-2">
-                                                    <input type="password"  id="new-password" name="new-password" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-                                                </div>
-                                               
-                                            </div>
-
-                                            {/* Confirm Password */}
-                                            <div className="sm:col-span-3">
-                                                <label htmlFor="confirm-password" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Confirmer le mot de passe</label>
-                                                <div className="mt-2">
-                                                    <input type="password" id="confirm-password" name="confirm-password" className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-                                                </div>
-                                            </div>
-                                            <div className=" sm:col-span-3">
-                                                        <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Numéro de téléphone</label>
+                                                        <label htmlFor="adresse" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Adresse</label>
                                                         <div className="mt-2">
-                                                            <input type="tel" placeholder=" +216 25 222 555"  value ={user.telephone} maxLength="8" name="phone" id="phone" autoComplete="tel" className=" dark:bg-gray-800 text-gray-900 block w-full rounded-md border-0 py-1.5 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                                            <input
+                                                                type="text"
+                                                                name="adresse"
+                                                                value={formData.adresse}
+                                                                onChange={handleChange}
+                                                                placeholder="Adresse"  
+                                                                className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                            />                                                        
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="sm:col-span-3">
+                                                        <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Nouveau mot de passe</label>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                type="password"
+                                                                name="password"
+                                                                value={formData.password}
+                                                                onChange={handleChange}
+                                                                placeholder="Nouveau mot de passe"  
+                                                                className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                            />                                                        
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="sm:col-span-3">
+                                                        <label htmlFor="confirmPassword" className="block text-sm font-medium leading-6 text-gray-500 dark:text-gray-400">Confirmer le mot de passe</label>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                type="password"
+                                                                name="confirmPassword"
+                                                                value={formData.confirmPassword}
+                                                                onChange={handleChange}
+                                                                placeholder="Confirmer le mot de passe"  
+                                                                className="dark:bg-gray-800 dark:text-gray-300 text-gray-600 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                            />                                                        
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            <div className="border-b border-gray-500/10 pb-12">
+                                        </div>
+                                        <div className="border-b border-gray-500/10 pb-12">
                                                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 
 
@@ -193,22 +281,22 @@ function Profile() {
                                                     </div>
                                                 </div>
                                             </div>
-                              
-                                        </div>
-
-
                                         <div className="mt-6 flex items-center justify-end gap-x-6">
-                                            <button type="button" className="text-sm font-semibold leading-6 dark:text-gray-50 text-gray-900">Annuler</button>
-                                            <button type="submit" className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Enregistrer</button>
+                                            <button
+                                                type="submit"
+                                                className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                            >
+                                                Sauvegarder
+                                            </button>
                                         </div>
                                     </form>
                                 </Card>
-
                             </div>
                         </div>
                     </div>
                 </main>
             </div>
+            <ToastContainer />
         </div>
     );
 }

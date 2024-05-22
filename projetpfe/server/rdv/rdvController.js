@@ -5,10 +5,10 @@ const Medecin = require('../medecin/medecinshema');
  
 const createRendezVous = async (req, res) => {
   try {
-    const { date,time, patientNom } = req.body;
+    const { date, time, patientNom } = req.body;
 
     if (!date || !time) {
-      return res.status(400).json({ error: 'La date du rendez-vous est requise' });
+      return res.status(400).json({ error: 'La date et l\'heure du rendez-vous sont requises' });
     }
 
     const patient = await Patient.findOne({ nomPrenom: patientNom });
@@ -16,32 +16,41 @@ const createRendezVous = async (req, res) => {
       return res.status(404).json({ error: `Patient '${patientNom}' introuvable` });
     }
 
-    const aide = await Aide.findOne({ user: req.user._id });
-    if (!aide) {
-      return res.status(404).json({ error: 'Secrétaire introuvable' });
-    }
+    let medecinId, secretaireId;
 
-    const secretaire = await Aide.findOne({ user: req.user._id }).populate('medecin');
-    if (!secretaire || !secretaire.medecin) {
-      return res.status(404).json({ error: 'médecin associé à la secrétaire introuvable' });
+    const aide = await Aide.findOne({ user: req.user._id }).populate('medecin');
+    if (aide) {
+      medecinId = aide.medecin._id;
+      secretaireId = aide._id;
+    } else {
+      const medecin = await Medecin.findOne({ user: req.user._id });
+      if (medecin) {
+        medecinId = medecin._id;
+        const aideAssociated = await Aide.findOne({ medecin: medecin._id });
+        secretaireId = aideAssociated ? aideAssociated._id : null; // Optional, depending on your schema
+      } else {
+        return res.status(404).json({ error: 'Utilisateur non autorisé pour créer un rendez-vous' });
+      }
     }
 
     const rendezVous = new RendezVous({
       date,
-      time, 
+      time,
       patient: patient._id,
-      medecin: secretaire.medecin._id,
-      secretaire: aide._id
+      medecin: medecinId,
+      secretaire: secretaireId
     });
 
     await rendezVous.save();
 
-    res.status(201).json({ message: 'rendez-vous cree avec succes', rendezVous });
+    res.status(201).json({ message: 'Rendez-vous créé avec succès', rendezVous });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Erreur ' });
+    res.status(500).json({ message: 'Erreur lors de la création du rendez-vous' });
   }
 };
+
+
 
 const getAllRendezVous = async (req, res) => {
   try {
@@ -193,8 +202,18 @@ const getRendezVousByPatientId = async (req, res) => {
     const patientId = req.params.patientId;
 
     const rendezVous = await RendezVous.find({ patient: patientId })
-      .populate('patient')
-      .populate('medecin')
+    .populate({
+      path: 'patient',
+      select: 'nomPrenom' 
+    })
+    .populate({
+      path: 'medecin',
+      select: 'nomPrenom',
+      populate: {
+        path: 'user',
+        select: 'nomPrenom' // Sélectionnez les champs que vous souhaitez afficher
+      }
+    })
       .populate('secretaire');
 
     res.status(200).json(rendezVous);

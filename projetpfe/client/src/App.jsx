@@ -33,7 +33,7 @@ import Calendar from './pages/Calendar';
  import ListeAideParMed from './pages/ListeAideParMed';
  import AddAssistantMed from './pages/AddAssistantMed';
  import Historique from './pages/historique';
-
+import DemandeRDV from './pages/demandeRDV';
 import DashboardCard13 from './partials/dashboard/DashboardCard13';
 function App() {
 
@@ -74,7 +74,7 @@ function App() {
         <Route exact path="/addAssistantMed/:medecinId" element={<AddAssistantMed/>} />
         <Route exact path="/historique" element={<Historique/>} />
         <Route exact path="/patients/:patientId/rendezvous" element={<ArchiveRDV/>} />
-
+        <Route exact path="/demandeRDV" element={<DemandeRDV/>} />
       </Routes>
     </>
   );
