@@ -178,8 +178,16 @@ export const UpdateMedecin = (id, updatedData, callback) => {
 
 export const deleteMedecin = (id, callback) => {
   api.delete(`/deleteMedecin/${id}`)
-    .then((res) => callback(res))
-    .catch((err) => callback(err));
+  .then((res) => {
+    if (res.data) {
+      callback(res.data); 
+    } else {
+      callback({ error: res.error }); 
+    }
+  })
+  .catch((err) => {
+    callback({ error: err.message }); 
+  });
 }
 
 
@@ -397,7 +405,6 @@ export const updateUserProfile = async (userData, token) => {
 };
 
 
-// liaisonfrontback/operation.js
 
 // Cette fonction envoie une requête au serveur pour récupérer les informations du profil utilisateur
 export const getUserProfile = async (token) => {
@@ -420,4 +427,21 @@ export const getUserProfile = async (token) => {
   }
 };
 
-
+export const getAllDemandeRendezVous = async (userToken) => {
+  try {
+    const response = await fetch('http://localhost:4000/getAlldemandRendezVous', {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error("Erreur lors de la récupération des rendez-vous");
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des rendez-vous :', error);
+    throw error;
+  }
+};

@@ -44,6 +44,9 @@ function DemandeRDV() {
                                             telephone
                                         </th>
                                         <th scope="col" className="px-6 py-3 pb-5 pt-5">
+                                            Medecin
+                                        </th>
+                                        <th scope="col" className="px-6 py-3 pb-5 pt-5">
                                            Date et heure du rendez-vous
                                         </th>
 
@@ -60,6 +63,8 @@ function DemandeRDV() {
                                         <td className="px-6 py-4 whitespace-nowrap"></td>
                                         <td className="px-6 py-4 whitespace-nowrap"></td>
                                         <td className="px-6 py-4 whitespace-nowrap"></td>
+                                                                                <td className="px-6 py-4 whitespace-nowrap"></td>
+
                                         <td className="px-6 py-4 whitespace-nowrap">
             <button className="px-3 py-1 bg-green-400 text-white  hover:bg-green-600 mr-2">Accepter</button>
             <button className="px-3 py-1 bg-orange-500 text-white  hover:bg-orange-600">Refuser</button>

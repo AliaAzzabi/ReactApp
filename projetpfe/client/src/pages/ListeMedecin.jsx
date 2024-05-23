@@ -94,7 +94,9 @@ function ListeMedecin() {
                 if (res.data) {
                     setmedecins(medecins.filter(medecin => medecin._id !== id));
                     toast.success("Médecin supprimé avec succès");
-                } else {
+                } else if (res.error) {
+                    toast.error("Cette médecin est utilisée par au moins un aide. Veuillez supprimer la référence dans la table des aide avant de la supprimer.");
+                }else {
                     toast.error("Erreur lors de la suppression de Medecin :", res.error);
                 }
             });

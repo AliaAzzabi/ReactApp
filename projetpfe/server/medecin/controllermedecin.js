@@ -5,6 +5,7 @@ const multer = require('multer');
 const User = require("../models/userModel");
 const Image = require("../image/imagemodel");
 const expressHandler = require("express-async-handler");
+const Aide = require('../aide/aideshema');
 
 
 const getMedecins = async (req, res) => {
@@ -176,12 +177,24 @@ const updateMedecin = async (req, res) => {
 
 const deleteMedecin = async (req, res) => {
     try {
+        const aide = await Aide.findOne({ medecin: req.params.id });
+
+        if (aide) {
+            // Si le médecin est utilisé dans une aide médicale, renvoyer un message approprié
+            return res.status(400).send({ error: "Le médecin est utilisé dans une aide médicale et ne peut pas être supprimé." });
+        }
+
+        // Si le médecin n'est pas utilisé dans une aide médicale, procéder à sa suppression
         const deletedMedecin = await Medecin.findByIdAndDelete(req.params.id);
+        
+        // Renvoyer une réponse indiquant que le médecin a été supprimé avec succès
         res.status(200).send({ message: 'Médecin supprimé avec succès', data: deletedMedecin });
     } catch (err) {
+        // Renvoyer une réponse en cas d'erreur
         res.status(400).send({ error: `Erreur lors de la suppression du médecin : ${err.message}` });
     }
 };
+
 
 
 module.exports = { getMedecins, updateMedecin, deleteMedecin, getMedecinById, addmed }; 
