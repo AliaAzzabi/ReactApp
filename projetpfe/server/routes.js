@@ -17,7 +17,7 @@ const {sendEmail} = require ('./mail/controllerEmail');
 const {globalMedecin, globalAssistant } = require ('./statistics/statistic');
 const {sendSMS} = require ('./sms/SMScontroller');
 const requireAuth = require('./middleware/requireAuth');
-const  { getAlldemandRendezVous, deleteDemandeRendezVous } = require ('./demandeRDV/demanderdvController');
+const  { getAlldemandRendezVous,updateDemandeRendezVousStatus, deleteDemandeRendezVous } = require ('./demandeRDV/demanderdvController');
 const router = express.Router();
 
 router.use(cors());
@@ -92,7 +92,7 @@ router.get('/api/global/assistants', globalAssistant);
 
 router.get('/getAlldemandRendezVous',requireAuth, getAlldemandRendezVous);
 router.delete('/deleteDemandeRendezVous/:id', deleteDemandeRendezVous);
-
+router.put('/demande-rendezvous/:id/status', updateDemandeRendezVousStatus);
 
 router.post('/sendSMS', async (req, res) => {
     const { phoneNumber, message } = req.body;
