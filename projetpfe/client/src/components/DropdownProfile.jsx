@@ -9,6 +9,7 @@ function DropdownProfile({ align }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { logout } = useLogout();
   const { user } = useAuthContext();
+  const [userImage, setUserImage] = useState(null);
 
   const handleClick = async () => {
     await logout();
@@ -20,6 +21,24 @@ function DropdownProfile({ align }) {
   const dropdown = useRef(null);
 
   useEffect(() => {
+    async function fetchUserImage() {
+      try {
+        const response = await fetch(`http://localhost:4000/images/${user.image}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch user image');
+        }
+        const imageData = await response.json();
+        setUserImage(imageData); // Assurez-vous que imageData contient filepath
+      } catch (error) {
+        console.error('Error fetching user image:', error);
+      }
+    }
+    if (user && user.image) {
+      fetchUserImage();
+    }
+  }, [user]);
+
+  useEffect(() => {
     const clickHandler = ({ target }) => {
       if (!dropdown.current) return;
       if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
@@ -27,7 +46,7 @@ function DropdownProfile({ align }) {
     };
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
-  });
+  }, [dropdownOpen]);
 
   useEffect(() => {
     const keyHandler = ({ keyCode }) => {
@@ -36,7 +55,7 @@ function DropdownProfile({ align }) {
     };
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
-  });
+  }, [dropdownOpen]);
 
   // Vérification de nullité sur user.email
   const userEmail = user ? user.email : '';
@@ -50,7 +69,13 @@ function DropdownProfile({ align }) {
         onClick={() => setDropdownOpen(!dropdownOpen)}
         aria-expanded={dropdownOpen}
       >
-        <img className="w-8 h-8 rounded-full" src="https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-4.jpg" width="32" height="32" alt="User" />
+        <img
+          className="w-8 h-8 rounded-full"
+          src={userImage ? `http://localhost:4000/${userImage.filepath}` : UserAvatar}
+          width="32"
+          height="32"
+          alt="User"
+        />
         <div className="flex items-center truncate">
           <span className="truncate ml-2 text-sm font-medium dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200">{userEmail}</span>
           <svg className="w-3 h-3 shrink-0 ml-1 fill-current text-slate-400" viewBox="0 0 12 12">
@@ -89,8 +114,12 @@ function DropdownProfile({ align }) {
               </Link>
             </li>
             <li>
-              <button                 className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
- onClick={handleClick}>Log out</button>
+              <button
+                className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
+                onClick={handleClick}
+              >
+                Log out
+              </button>
             </li>
           </ul>
         </div>

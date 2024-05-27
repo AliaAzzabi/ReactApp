@@ -13,18 +13,21 @@ const getMedecins = async (req, res) => {
         const medecins = await Medecin.find({})
             .populate({
                 path: 'user',
-                select: 'nomPrenom telephone email dateAdhesion dateNaissance adresse sexe password role cin'
+                select: 'nomPrenom telephone email dateAdhesion dateNaissance adresse sexe password role cin image',
+                populate: {
+                    path: 'image',
+                    select: 'filepath'
+                }
             })
-
-            .populate('specialite')
-            .populate('image');
-
+            .populate('specialite');
+        
         res.send(medecins);
     } catch (err) {
         console.error("Erreur lors de la recherche des Médecins :", err);
         res.status(500).send("Erreur serveur: " + err.message);
     }
 };
+
 
 const getMedecinById = async (req, res) => {
 
@@ -82,13 +85,13 @@ const addmed = expressHandler(async (req, res) => {
             dateNaissance: dateNaissance,
             adresse: adresse,
             role: role,
+            image: savedImage._id,
         });
         const savedUser = await newUser.save();
 
         const newMed = new Medecin({
             user: savedUser._id,
             specialite: specialiteid._id,
-            image: savedImage._id,
             isSelected: req.body.isSelected || true
         });
 

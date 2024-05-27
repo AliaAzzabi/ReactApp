@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const validator = require('validator')
-
+const Image = require('../image/imagemodel')
 const Schema = mongoose.Schema
 
 const userSchema = new Schema({
@@ -17,7 +17,10 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
-  dateAdhesion: { type: Date, default: Date.now }
+  image: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Image"
+},  dateAdhesion: { type: Date, default: Date.now }
 })
 
 userSchema.statics.signup = async function (email, password, role, nomPrenom) {
@@ -54,8 +57,8 @@ userSchema.statics.login = async function (email, password) {
     throw Error('tous les champs doivent être remplis')
   }
 
-  const user = await this.findOne({ email })
-  if (!user) {
+  const user = await this.findOne({ email }); 
+    if (!user) {
     throw Error(' email incorrecte')
   }
 

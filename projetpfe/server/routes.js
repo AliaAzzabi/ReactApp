@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const User = require('./models/userModel');
+const Image = require('./image/imagemodel');
 const { upload } = require("./image/upload");
 const {createDepartement, getAllDepartements, updateDepartement, deleteDepartement,getDepartementById} = require ('./departement/controllerdepartement');
 const { getSpecialty, addSpecialty, updateSpecialty, deleteSpecialty, getSpecialtyById } = require('./specialité/controllerspecialité');
@@ -17,7 +18,7 @@ const {sendEmail} = require ('./mail/controllerEmail');
 const {globalMedecin, globalAssistant } = require ('./statistics/statistic');
 const {sendSMS} = require ('./sms/SMScontroller');
 const requireAuth = require('./middleware/requireAuth');
-const  { getAlldemandRendezVous,updateDemandeRendezVousStatus, deleteDemandeRendezVous } = require ('./demandeRDV/demanderdvController');
+const  { getAlldemandRendezVous, deleteDemandeRendezVous } = require ('./demandeRDV/demanderdvController');
 const router = express.Router();
 
 router.use(cors());
@@ -92,7 +93,7 @@ router.get('/api/global/assistants', globalAssistant);
 
 router.get('/getAlldemandRendezVous',requireAuth, getAlldemandRendezVous);
 router.delete('/deleteDemandeRendezVous/:id', deleteDemandeRendezVous);
-router.put('/demande-rendezvous/:id/status', updateDemandeRendezVousStatus);
+
 
 router.post('/sendSMS', async (req, res) => {
     const { phoneNumber, message } = req.body;
@@ -105,4 +106,27 @@ router.post('/sendSMS', async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
+
+router.get('/images/:imageId', async (req, res) => {
+    try {
+      // Recherche de l'image dans la base de données par son ID
+      const image = await Image.findById(req.params.imageId);
+  
+      if (!image) {
+        return res.status(404).json({ message: "Image not found" });
+      }
+  
+      // Renvoyer les détails de l'image
+      res.json({
+        id: image._id,
+        filename: image.filename,
+        filepath: image.filepath,
+        // Ajoutez d'autres détails de l'image que vous souhaitez renvoyer
+      });
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
 module.exports = { router };

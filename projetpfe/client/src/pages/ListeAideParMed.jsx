@@ -268,7 +268,7 @@ function ListeAideParMed() {
                                                     <tr key={aide._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                                         <td className='p-4 border-b border-blue-gray-50'>
                                                             <div className="flex items-center gap-3">
-                                                                <Avatar src={`http://localhost:4000/${aide.image.filepath}`} size="sm" />
+                                                                <Avatar src={`http://localhost:4000/${aide.user.image.filepath}`} size="sm" />
                                                                 <div className="flex flex-col">
                                                                     <Typography
                                                                         variant="small"

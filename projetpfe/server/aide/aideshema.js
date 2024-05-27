@@ -8,10 +8,7 @@ const AideSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
-    image: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Image"
-    },
+  
     medecin: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Medecin" 

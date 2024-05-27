@@ -10,9 +10,15 @@ const expressHandler = require("express-async-handler");
 const getAdmin = async (req, res) => {
     try {
         const admins = await Admin.find({})
-        .populate('user')  
-        .populate('image') ;
-        res.send(admins);
+        .populate({
+            path: 'user',
+            select: 'nomPrenom telephone email dateAdhesion dateNaissance adresse sexe password role cin image',
+            populate: {
+                path: 'image',
+                select: 'filepath'
+            }
+        })    
+              res.send(admins);
     } catch (err) {
         console.error("Erreur lors de la recherche des admins :", err);
         res.status(500).send("Erreur serveur");
@@ -64,13 +70,14 @@ const addAdmin = expressHandler(async (req, res) => {
           sexe: sexe,
           telephone:telephone,
           role:role,
+          image: savedImage._id,
       });
       const savedUser = await newUser.save();
 
       const newAdmin = new Admin({
           user: savedUser._id,
         
-          image: savedImage._id,
+         
       });
 
       const savedAdmin = await newAdmin.save();
@@ -101,7 +108,7 @@ const updateAdmin = async (req, res) => {
     const { cin, sexe, nomPrenom, telephone, email, password, dateNaissance, adresse, dateAdhesion, role } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        let updateData = {
+        let updateUserData = {
             nomPrenom,
             telephone,
             email,
@@ -120,37 +127,27 @@ const updateAdmin = async (req, res) => {
                 filepath: req.file.path,
             });
             const savedImage = await newImage.save();
-            updateData.image = savedImage._id;
+            updateUserData.image = savedImage._id;
         }
 
-        const updatedAdmin = await Admin.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        const updatedUser = await User.findByIdAndUpdate(req.params.id, updateUserData, { new: true });
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'Utilisateur non trouvé' });
+        }
+
+        const updatedAdmin = await Admin.findOneAndUpdate({ user: req.params.id }, {}, { new: true });
 
         if (!updatedAdmin) {
             return res.status(404).json({ error: 'Admin non trouvé' });
         }
 
-        const updatedUser = await User.findByIdAndUpdate(updatedAdmin.user, {
-            nomPrenom,
-            telephone,
-            email,
-            dateNaissance,
-            adresse,
-            hashedPassword,
-            sexe,
-            cin,
-            dateAdhesion,
-            role,
-        });
-
-        if (updatedUser) {
-            res.status(200).json({ message: 'Admin et utilisateur mis à jour avec succès', data: { admin: updatedAdmin, user: updatedUser } });
-        } else {
-            res.status(404).json({ error: 'Utilisateur non trouvé' });
-        }
+        res.status(200).json({ message: 'Admin et utilisateur mis à jour avec succès', data: { admin: updatedAdmin, user: updatedUser } });
     } catch (err) {
         res.status(500).json({ error: `Erreur lors de la mise à jour de l'administrateur : ${err.message}` });
     }
 };
+
 
 const deleteAdmin = async (req, res) => {
     try {

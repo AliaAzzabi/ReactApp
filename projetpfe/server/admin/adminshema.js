@@ -7,10 +7,7 @@ const AdminSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
-    image: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Image"
-    },
+  
   
 });
 

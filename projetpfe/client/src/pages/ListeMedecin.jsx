@@ -319,7 +319,7 @@ function ListeMedecin() {
 
                                                     <td className='p-4 border-b border-blue-gray-50'>
                                                         <div className="flex items-center gap-3">
-                                                            <Avatar src={`http://localhost:4000/${medecin.image.filepath}`} size="sm" />
+                                                            <Avatar src={`http://localhost:4000/${medecin.user.image.filepath}`} size="sm" />
                                                             <div className="flex flex-col">
                                                                 <Typography
                                                                     variant="small"

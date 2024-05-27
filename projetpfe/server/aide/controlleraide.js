@@ -25,9 +25,14 @@ const getAide = async (req, res) => {
     try {
 
         const aides = await Aide.find({})
-            .populate('user')
-            .populate('image')
-            .populate({
+        .populate({
+            path: 'user',
+            select: 'nomPrenom telephone email dateAdhesion dateNaissance adresse sexe password role cin image',
+            populate: {
+                path: 'image',
+                select: 'filepath'
+            }
+        })            .populate({
                 path: 'medecin',
                 populate: { path: 'user' }
             });
@@ -99,6 +104,8 @@ const addaides = expressHandler(async (req, res) => {
             dateNaissance: dateNaissance,
             adresse: adresse,
             role: role,
+            image: savedImage._id,
+
         });
         const savedUser = await newUser.save();
 
@@ -107,7 +114,6 @@ const addaides = expressHandler(async (req, res) => {
             medecin: medecinId,
 
             education: education,
-            image: savedImage._id,
         });
 
         const savedAide = await newAide.save();

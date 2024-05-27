@@ -29,11 +29,18 @@ export const getSpecialtyById = async (id) => {
   }
 }
 
-export const addspecialite = (depart, callback) => {
-  api.post('/addspecialite', depart)
-    .then((res) => callback(res))
-    .catch((err) => callback(err));
+export const addspecialite = (specialite, callback) => {
+  api.post('/addspecialite', specialite)
+  .then((res) => {
+    console.log('Received response:', res);
+    callback(res);
+  })
+  .catch((err) => {
+    console.error('Error:', err);
+    callback(err.response || err);
+  });
 }
+
 
 export const updateSpecialite = (id, updatedData, callback) => {
   api.put(`/updateSpecialite/${id}`, updatedData)
